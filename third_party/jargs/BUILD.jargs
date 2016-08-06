@@ -1,0 +1,6 @@
+java_library(
+    name = "jargs",
+    srcs = glob([ "src/jargs/gnu/**/*.java" ]),
+    javacopts = [ "-extra_checks:off" ],
+    visibility = [ "//visibility:public" ],
+)

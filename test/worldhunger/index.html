@@ -1,0 +1,20 @@
+<html>
+	<head>
+		<title>File Manager</title>
+	</head>
+	<body>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script type="text/javascript" src="md5.js"></script>
+		<script type="text/javascript" src="fm.js"></script>
+		<script type="text/javascript">
+			customPrompt("Username", false, function(r1){ //Get username
+				username = r1;
+				customPrompt("Password", false, function(r2){ //Then get password
+					password = r2;
+					login();
+					refresh();
+				}, true);
+			});
+		</script>
+	</body>
+</html>

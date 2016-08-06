@@ -1,0 +1,219 @@
+
+//Generates a new script node with the given type
+function genScriptNode(string, type, condition){
+	return new Node({"string": string, "type":type, "condition":condition});
+}
+
+function getClosing(open, close){
+	var open = 0;
+	var ret = [];
+	
+	var index = -1, len = str.length;
+	while(++index < len){
+		var c = str.charAt(index);
+		switch(c){
+			case open : 
+				open++;
+				break;
+			case close :
+				open--;
+				if(open == 0){
+					return index;
+				}
+				break;
+		}
+	}
+	
+	return -1;
+}
+
+//Returns an array of statements as strings
+function parseStatements(str, parentNode){
+	//Trim string
+	str = str.trim();
+	
+	var open = 0;
+	
+	var start = 0, index = -1, len = str.length;
+	while(++index < len){
+		var c = str.charAt(index);
+		switch(c){
+			case "{" : 
+				open++;
+				break;
+			case "}" :
+				open--;
+				break;
+			case ";" :
+				if(open < 0)
+					throw new Exception("Unexpected semicolon");
+				if(open == 0){
+					var objStr = str.substring(start, index).trim();
+					var statementNode = genScriptNode(objStr, "STATEMENT");
+					parentNode.attach(statementNode);
+					parseScript(objStr, statementNode);
+					start = index+1;
+				}
+				break;
+		}
+	}
+		
+	if(open < 0)
+		throw new Exception("Too many closed brackets");
+	else if(open > 0)
+		throw new Exception("Unclosed bracket");
+	else{
+		console.log(parentNode);
+		return parentNode;
+	}
+}
+
+//Process an expression
+function parseExpression(str, parentNode){
+	str = str.trim();
+	
+	var endLeftSide = str.search(/<|=|>/);
+}
+
+//Process script
+function parseScript(str, parentNode){
+	str = str.trim();
+
+	if(!parentNode)
+		parentNode = new Node();
+	
+	var startChar = str.charAt(0);
+	switch(startChar){
+		case "{" : //block of statements
+			var closeBracket = str.lastIndexOf("}");
+			str = str.substring(1, closeBracket); //chop off opening and closing bracket
+			parseStatements(str, parentNode);
+			break;
+		case "[" : //if statement
+			var condCloseBracket = str.indexOf("]");
+			var condStr = str.substring(1, condCloseBracket);
+			var condNode = parseExpression(condStr);
+			
+			var bodyOpenBracket = str.indexOf("{");
+			var bodyCloseBracket = str.lastIndexOf("}");
+			var bodyStr = str.substring(bodyOpenBracket+1, bodyCloseBracket);
+			
+			var ifNode = genScriptNode(str, "IF", condNode);
+			parseStatements(bodyStr, ifNode);
+			parentNode.attach(ifNode);
+			break;
+		case "<" : //while statement
+			parentNode.attach(new Node("While statement"));
+			break;
+		case ";" : //Empty command
+			parentNode.attach(new Node("Noop"));
+			break;
+		case "#" : //variable definition
+			parentNode.attach(new Node("Variable definition statement"));
+			break;
+		default : //Other (only assignment statement?)
+			parentNode.attach(new Node("Unknown statement"));
+			break;
+	}
+	
+	return parentNode;
+}
+
+var testScript = "\
+	{ \
+		\
+		#a = 2;	\
+		[a<3]{\
+			a = a + 3;\
+		};\
+		\
+		(a>0){\
+			a = a - 1;\
+		};\
+	};\
+";
+
+var syntax = esprima.parse(jsScript);
+
+function parseSyntaxStatements(body){
+	for(var o in body){
+		var object = body[o];
+		if(object != null && typeof object == "object" && object.constructor == Object && o != "parent"){
+			//console.log("Setting " + o + " to have parent " + body);
+			object.parent = body;
+			parseSyntaxStatements(object);
+		}else if(Array.isArray(object)){
+			object.parent = body;
+			for(var i=0;i<object.length;i++)
+				parseSyntaxStatements(object[i]);
+		}
+		else{
+			//console.log(object);
+		}
+	}
+}
+parseSyntaxStatements(syntax);
+console.log(syntax);
+
+function executeScript(script, available){
+	if(!this.scripts)
+		this.scripts = [];
+
+	var index = -1;
+	for(var i=0;i<this.scripts.length;i++){
+		if(this.scripts[i].script == script){
+			index = i;
+			break;
+		}
+	}
+	if(index == -1){
+		this.scripts.push({"script":script, "state":null});
+		index = 0;
+	}
+	
+	var scriptState = this.scripts[index].state;
+	if(scriptState == null)
+		scriptState = script.body;
+	
+	var type = scriptState.type;
+	switch(type){
+		case "VariableDeclaration" : //actionable
+		
+			break;
+		case "IfStatement" :
+		case "WhileStatement" :
+		
+			break;
+		default :
+		
+			break;
+	}
+}
+
+for(var i=0;i<5;i++){
+	executeScript(syntax);
+}
+
+
+
+//alert(parseScript(testScript).toString());
+
+/*
+***** < paragraph (everything)
+{statement} < block of statements
+[expression] < if statement
+<expression> < while statement
+statement;statement < statement separator
+
+{
+	#a = 2;
+
+	[a<3]{
+		a = a + 3;
+	};
+
+	(a>0){
+		a = a - 1;
+	};
+};
+*/
