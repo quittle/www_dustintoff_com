@@ -1,6 +1,0 @@
-java_binary(
-    name = "yui_compressor",
-    main_class = "com.yahoo.platform.yui.compressor.Bootstrap",
-    srcs = glob([ "src/**/*.java" ]),
-    deps = [ "@jargs//:jargs", "@rhino//:rhino" ],
-)
