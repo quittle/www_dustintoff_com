@@ -27,6 +27,7 @@ minify_js(
 build_html_page(name = "index",
     html_page_args = {
         "config": "//:index.json",
+        "body": "//:index_body.html",
     },
     favicon_image_generator_args = {
         "image": "//:favicon-32x32.png",
