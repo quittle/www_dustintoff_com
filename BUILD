@@ -9,6 +9,7 @@ load("@rules_web//:web.bzl",
     "favicon_image_generator",
     "zip_site",
     "minify_site_zip",
+    "rename_zip_paths",
 )
 
 favicon_sizes = [ 16, 32 ]
@@ -63,4 +64,12 @@ minify_site_zip(
     site_zip = ":www_dustindoloff_com",
     root_files = [ ":index_min" ],
     minified_zip = "www_dustindoloff_com.min.zip",
+)
+
+rename_zip_paths(
+    name = "rename_index_www_dustindoloff_com_zip",
+    source_zip = ":www_dustindoloff_com_zip",
+    path_map_labels_in = [ ":index_min" ],
+    path_map_labels_out = [ "index.html" ],
+    out_zip = "www_dustindoloff_com_final.zip",
 )
