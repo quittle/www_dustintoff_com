@@ -10,6 +10,7 @@ load("@rules_web//:web.bzl",
     "zip_site",
     "minify_site_zip",
     "rename_zip_paths",
+    "deploy_site_zip_s3_script",
 )
 
 favicon_sizes = [ 16, 32 ]
@@ -72,4 +73,13 @@ rename_zip_paths(
     path_map_labels_in = [ ":index_min" ],
     path_map_labels_out = [ "index.html" ],
     out_zip = "www_dustindoloff_com_final.zip",
+)
+
+# Currently broken
+deploy_site_zip_s3_script(
+    name = "deploy_test_dustindoloff_com",
+    aws_access_key = "fake key",
+    aws_secret_key = "fake secret",
+    bucket = "test.dustindoloff.com",
+    zip = ":rename_index_www_dustindoloff_com_zip",
 )
