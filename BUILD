@@ -10,6 +10,7 @@ load("@rules_web//:web.bzl",
     "zip_site",
     "minify_site_zip",
     "rename_zip_paths",
+    "zip_server",
     "deploy_site_zip_s3_script",
 )
 
@@ -73,6 +74,12 @@ rename_zip_paths(
     path_map_labels_in = [ ":index_min" ],
     path_map_labels_out = [ "index.html" ],
     out_zip = "www_dustindoloff_com_final.zip",
+)
+
+zip_server(
+    name = "www_dustindoloff_com_zip_server",
+    zip = ":rename_index_www_dustindoloff_com_zip",
+    port = 8080,
 )
 
 # Currently broken
