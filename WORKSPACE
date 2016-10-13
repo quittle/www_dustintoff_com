@@ -5,10 +5,9 @@ workspace(name = "www_dustindoloff_com")
 
 git_repository(
     name = "rules_web",
+    commit = "46a55f43019b1f010485eb7722d302e38640e604",
     remote = "https://github.com/quittle/rules_web.git",
-    commit = "38cd00afec9c0de2539287d063dadb392aba61d9",
 )
-
 
 load("@rules_web//:rules_web_repositories.bzl", "rules_web_repositories")
 rules_web_repositories()

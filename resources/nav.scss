@@ -1,0 +1,131 @@
+// Copyright (c) 2016 Dustin Doloff
+// Licensed under Apache License v2.0
+
+nav {
+    padding-top: 30px;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #bbb;
+    word-spacing: 10px;
+
+    a {
+        display: inline-block;
+        font-size: 1.4em;
+        left: 0;
+        padding: 10px;
+        position: relative;
+        top: 0;
+        word-spacing: normal;
+        margin-left: 0;
+        margin-bottom: 7px;
+        border-bottom: 0 solid #555;
+        border-left: 0 solid #777;
+        border-top: 0 solid #ddd;
+        border-right: 0 solid #eee;
+
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            display: inline-block;
+            border: 0 solid transparent;
+            border-color: transparent;
+        }
+
+        &::before {
+            left: 0;
+            top: 0;
+            border-left-color: transparent;
+        }
+
+        &::after {
+            bottom: 0;
+            right: 0;
+        }
+
+        &:first-child {
+            font-weight: 700;
+            font-size: 5em;
+            text-shadow: -3px 3px 1px #000;
+            border: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
+
+
+            &::before,
+            &::after {
+                content: none;
+            }
+
+            &:hover,
+            &:focus {
+                border: 0;
+                top: 0;
+                left: 0;
+                box-shadow: none;
+                padding: 10px;
+                margin: 0;
+            }
+        }
+
+        &:hover,
+        &:focus {
+            border-bottom-width: 7px;
+            border-left-width: 7px;
+            box-shadow: -1px 1px #777 inset;
+            top: -7px;
+            left: 7px;
+            margin-left: -7px;
+            margin-bottom: 0;
+
+            &::after {
+                border-left: 7px solid transparent;
+                border-bottom: 7px solid #fff;
+                border-right: 7px solid #fff;
+                bottom: -7px;
+                right: -7px;
+            }
+        }
+    }
+
+    a,
+    a::before,
+    &::after {
+        transition: all 80ms linear;
+    }
+}
+
+
+nav a:active,
+#home:target [href="#home"],
+#resume:target [href="#resume"],
+#projects:target [href="#projects"],
+#links:target [href="#links"],
+#contact:target [href="#contact"] {
+    background: #eee;
+    border-bottom: 1px solid #777;
+    border-left: 1px solid #777;
+    padding-left: 6px;
+    padding-bottom: 6px;
+    top: 4px;
+    left: -4px;
+    margin-left: 3.5px;
+    margin-right: -3.5px;
+    box-shadow: -1px 1px 11px -4px #000 inset,1px -1px 0 #fff inset;
+    border-width: 4px 4px 0 0;
+}
+
+nav a:hover::before,
+nav a:focus::before,
+#home:target [href="#home"]::before,
+#resume:target [href="#resume"]::before,
+#projects:target [href="#projects"]::before,
+#links:target [href="#links"]::before,
+#contact:target [href="#contact"]::before {
+    left: 0;
+    top: -14px;
+    border-left: 7px solid #fff;
+    border-top: 7px solid #fff;
+    border-bottom: 7px solid transparent;
+    left: -7px;
+    top: -7px;
+}

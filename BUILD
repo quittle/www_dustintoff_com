@@ -2,11 +2,15 @@
 # Licensed under Apache License v2.0
 
 load("@rules_web//:web.bzl",
-    "minify_css",
     "minify_js",
     "html_page",
     "minify_html",
     "favicon_image_generator",
+    "minify_ttf",
+    "ttf_to_woff",
+    "ttf_to_woff2",
+    "ttf_to_eot",
+    "font_generator",
     "zip_site",
     "minify_site_zip",
     "rename_zip_paths",
@@ -14,12 +18,35 @@ load("@rules_web//:web.bzl",
     "deploy_site_zip_s3_script",
 )
 
+load("@io_bazel_rules_sass//sass:sass.bzl",
+    "sass_binary",
+    "sass_library",
+)
+
 favicon_sizes = [ 16, 32 ]
 favicon_images = [ "favicon/{}.png".format(size) for size in favicon_sizes ]
 
-minify_css(
-    name = "all_css",
-    srcs = [ "resources/all.css" ],
+sass_library(
+    name = "reset_css",
+    srcs = [
+        "resources/reset.scss",
+    ],
+)
+
+sass_library(
+    name = "navbar_css",
+    srcs = [
+        "resources/nav.scss",
+    ],
+)
+
+sass_binary(
+    name = "main_css",
+    src = "resources/main.scss",
+    deps = [
+        ":reset_css",
+        ":navbar_css",
+    ]
 )
 
 minify_js(
@@ -33,9 +60,12 @@ html_page(
     body = "//:index_body.html",
     favicon_images =  favicon_images,
     favicon_sizes = favicon_sizes,
-    css_files = [ "all_css.min.css" ],
+    css_files = [
+        ":silkscreen",
+        ":main_css",
+    ],
     js_files = [ "all_js.min.js" ],
-    deps = [":favicon"]
+    deps = [ ":favicon" ]
 )
 
 minify_html(
@@ -50,13 +80,45 @@ favicon_image_generator(
     image = "//:favicon-32x32.png",
 )
 
+minify_ttf(
+    name = "silkscreen_ttf",
+    ttf = "resources/slkscr-webfont.ttf",
+)
+
+ttf_to_woff(
+    name = "silkscreen_woff",
+    ttf = ":silkscreen_ttf",
+)
+
+ttf_to_woff2(
+    name = "silkscreen_woff2",
+    ttf = ":silkscreen_ttf",
+)
+
+ttf_to_eot(
+    name = "silkscreen_eot",
+    ttf = ":silkscreen_ttf",
+)
+
+font_generator(
+    name = "silkscreen",
+    font_name = "silkscreen",
+    ttf = ":silkscreen_ttf",
+    woff = ":silkscreen_woff",
+    eot = ":silkscreen_eot",
+)
+
 zip_site(
     name = "www_dustindoloff_com",
     html_pages = [ ":index_min" ],
     resources = [
-        ":all_css",
+        ":main_css",
         ":all_js",
-        ":favicon"
+        ":favicon",
+        ":silkscreen",
+        ":silkscreen_ttf",
+        ":silkscreen_woff",
+        ":silkscreen_eot",
     ],
     out_zip = "www_dustindoloff_com.zip",
 )
@@ -82,7 +144,8 @@ zip_server(
     port = 8080,
 )
 
-# Currently broken
+# BUG: Script does not run correctly due to Bazel limitation of not being able to run a target from
+# within another target.
 deploy_site_zip_s3_script(
     name = "deploy_test_dustindoloff_com",
     aws_access_key = "fake key",
