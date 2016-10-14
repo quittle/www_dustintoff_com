@@ -1,6 +1,8 @@
 // Copyright (c) 2016 Dustin Doloff
 // Licensed under Apache License v2.0
 
+@import 'resources/sections';
+
 nav {
     padding-top: 30px;
     margin-bottom: 40px;
@@ -94,38 +96,31 @@ nav {
     }
 }
 
+@each $section in $sections {
+    nav a:active,
+    ##{$section}:target [href="##{$section}"] {
+        background: #eee;
+        border-bottom: 1px solid #777;
+        border-left: 1px solid #777;
+        padding-left: 6px;
+        padding-bottom: 6px;
+        top: 4px;
+        left: -4px;
+        margin-left: 3.5px;
+        margin-right: -3.5px;
+        box-shadow: -1px 1px 11px -4px #000 inset,1px -1px 0 #fff inset;
+        border-width: 4px 4px 0 0;
+    }
 
-nav a:active,
-#home:target [href="#home"],
-#resume:target [href="#resume"],
-#projects:target [href="#projects"],
-#links:target [href="#links"],
-#contact:target [href="#contact"] {
-    background: #eee;
-    border-bottom: 1px solid #777;
-    border-left: 1px solid #777;
-    padding-left: 6px;
-    padding-bottom: 6px;
-    top: 4px;
-    left: -4px;
-    margin-left: 3.5px;
-    margin-right: -3.5px;
-    box-shadow: -1px 1px 11px -4px #000 inset,1px -1px 0 #fff inset;
-    border-width: 4px 4px 0 0;
-}
-
-nav a:hover::before,
-nav a:focus::before,
-#home:target [href="#home"]::before,
-#resume:target [href="#resume"]::before,
-#projects:target [href="#projects"]::before,
-#links:target [href="#links"]::before,
-#contact:target [href="#contact"]::before {
-    left: 0;
-    top: -14px;
-    border-left: 7px solid #fff;
-    border-top: 7px solid #fff;
-    border-bottom: 7px solid transparent;
-    left: -7px;
-    top: -7px;
+    nav a:hover::before,
+    nav a:focus::before,
+    ##{$section}:target [href="##{$section}"]::before {
+        left: 0;
+        top: -14px;
+        border-left: 7px solid #fff;
+        border-top: 7px solid #fff;
+        border-bottom: 7px solid transparent;
+        left: -7px;
+        top: -7px;
+    }
 }

@@ -34,9 +34,19 @@ sass_library(
 )
 
 sass_library(
+    name = "sections_css",
+    srcs = [
+        "resources/sections.scss",
+    ],
+)
+
+sass_library(
     name = "navbar_css",
     srcs = [
         "resources/nav.scss",
+    ],
+    deps = [
+        ":sections_css",
     ],
 )
 
@@ -45,8 +55,9 @@ sass_binary(
     src = "resources/main.scss",
     deps = [
         ":reset_css",
+        ":sections_css",
         ":navbar_css",
-    ]
+    ],
 )
 
 minify_js(
