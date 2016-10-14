@@ -18,52 +18,8 @@ load("@rules_web//:web.bzl",
     "deploy_site_zip_s3_script",
 )
 
-load("@io_bazel_rules_sass//sass:sass.bzl",
-    "sass_binary",
-    "sass_library",
-)
-
 favicon_sizes = [ 16, 32 ]
 favicon_images = [ "favicon/{}.png".format(size) for size in favicon_sizes ]
-
-sass_library(
-    name = "reset_css",
-    srcs = [
-        "resources/reset.scss",
-    ],
-)
-
-sass_library(
-    name = "sections_css",
-    srcs = [
-        "resources/sections.scss",
-    ],
-)
-
-sass_library(
-    name = "navbar_css",
-    srcs = [
-        "resources/nav.scss",
-    ],
-    deps = [
-        ":sections_css",
-    ],
-)
-
-sass_binary(
-    name = "main_css",
-    src = "resources/main.scss",
-    deps = [
-        ":reset_css",
-        ":sections_css",
-        ":navbar_css",
-    ],
-)
-
-minify_js(
-    name = "all_js",
-    srcs = [ "resources/all.js" ],
-)
 
 html_page(
     name = "index",
@@ -72,10 +28,12 @@ html_page(
     favicon_images =  favicon_images,
     favicon_sizes = favicon_sizes,
     css_files = [
-        ":silkscreen",
-        ":main_css",
+        "//resources/fonts:silkscreen",
+        "//resources/style:main_css",
     ],
-    js_files = [ "all_js.min.js" ],
+    js_files = [
+        "//resources/scripts:all_js"
+    ],
     deps = [ ":favicon" ]
 )
 
@@ -91,45 +49,17 @@ favicon_image_generator(
     image = "//:favicon-32x32.png",
 )
 
-minify_ttf(
-    name = "silkscreen_ttf",
-    ttf = "resources/slkscr-webfont.ttf",
-)
-
-ttf_to_woff(
-    name = "silkscreen_woff",
-    ttf = ":silkscreen_ttf",
-)
-
-ttf_to_woff2(
-    name = "silkscreen_woff2",
-    ttf = ":silkscreen_ttf",
-)
-
-ttf_to_eot(
-    name = "silkscreen_eot",
-    ttf = ":silkscreen_ttf",
-)
-
-font_generator(
-    name = "silkscreen",
-    font_name = "silkscreen",
-    ttf = ":silkscreen_ttf",
-    woff = ":silkscreen_woff",
-    eot = ":silkscreen_eot",
-)
-
 zip_site(
     name = "www_dustindoloff_com",
     html_pages = [ ":index_min" ],
     resources = [
-        ":main_css",
-        ":all_js",
+        "//resources/style:main_css",
+        "//resources/scripts:all_js",
         ":favicon",
-        ":silkscreen",
-        ":silkscreen_ttf",
-        ":silkscreen_woff",
-        ":silkscreen_eot",
+        "//resources/fonts:silkscreen",
+        "//resources/fonts:silkscreen_ttf",
+        "//resources/fonts:silkscreen_woff",
+        "//resources/fonts:silkscreen_eot",
     ],
     out_zip = "www_dustindoloff_com.zip",
 )
