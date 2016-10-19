@@ -4,7 +4,7 @@ function onHashChange(b) {
     var a = location.hash.substring(1);
     b.preventDefault();
     b.stopPropagation();
-    return true
+    return true;
 }
 
 function init() {
@@ -26,9 +26,8 @@ function isMobile() {
 }
 
 function onHashChange() {
-    console.log("hc");
+    return
     if (isMobile()) {
-        console.log("hc2");
         var c = location.hash.substring(1);
         if (c) {
             var b = document.getElementById(c + "_");
@@ -41,7 +40,6 @@ function onHashChange() {
 }
 
 function onScroll() {
-    return;
     if (isMobile() && nav && main) {
         var a = nav.classList;
         if (pageYOffset > 0) {

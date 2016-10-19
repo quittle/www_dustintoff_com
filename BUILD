@@ -2,15 +2,10 @@
 # Licensed under Apache License v2.0
 
 load("@rules_web//:web.bzl",
-    "minify_js",
     "html_page",
     "minify_html",
+    "minify_png",
     "favicon_image_generator",
-    "minify_ttf",
-    "ttf_to_woff",
-    "ttf_to_woff2",
-    "ttf_to_eot",
-    "font_generator",
     "zip_site",
     "minify_site_zip",
     "rename_zip_paths",
@@ -18,23 +13,51 @@ load("@rules_web//:web.bzl",
     "deploy_site_zip_s3_script",
 )
 
-favicon_sizes = [ 16, 32 ]
-favicon_images = [ "favicon/{}.png".format(size) for size in favicon_sizes ]
+favicon_sizes = set([
+    # Powers of 2
+    16, 32, 64, 128, 256,
+    # Old iOS home screen
+    57,
+    # IE 11 tile
+    70, 15, 310,
+    # iPad home screen
+    76,
+    # Google TV
+    96,
+    # iOS retina touch
+    120,
+    # Chrome Web Store
+    128,
+    # IE 10 Metro tile
+    144,
+    # Apple touch
+    152,
+    # iPhone 6 Plus
+    180,
+    # Chrome for Android
+    196,
+    # Opera Coast
+    228,
+    # Medium Windows 8 Start Screen
+    270,
+    # Because it's the largest size I have
+    310,
+])
+favicon_images = [ "favicon/{size}.png".format(size = size) for size in favicon_sizes ]
 
 html_page(
     name = "index",
     config = "//:index.json",
     body = "//:index_body.html",
-    favicon_images =  favicon_images,
+    favicon_images = favicon_images,
     favicon_sizes = favicon_sizes,
     css_files = [
         "//resources/fonts:silkscreen",
         "//resources/style:main_css",
     ],
     js_files = [
-        "//resources/scripts:all_js"
+        "//resources/scripts:all_js",
     ],
-    deps = [ ":favicon" ]
 )
 
 minify_html(
@@ -42,40 +65,36 @@ minify_html(
     src = ":index",
 )
 
+minify_png(
+    name = "min_favicon",
+    png = ":favicon.png",
+)
+
 favicon_image_generator(
     name = "favicon",
     output_files = favicon_images,
     output_sizes = favicon_sizes,
-    image = "//:favicon-32x32.png",
+    image = ":min_favicon",
 )
 
 zip_site(
     name = "www_dustindoloff_com",
-    html_pages = [ ":index_min" ],
-    resources = [
-        "//resources/style:main_css",
-        "//resources/scripts:all_js",
-        ":favicon",
-        "//resources/fonts:silkscreen",
-        "//resources/fonts:silkscreen_ttf",
-        "//resources/fonts:silkscreen_woff",
-        "//resources/fonts:silkscreen_eot",
-    ],
+    root_files = [ ":index_min", ":min_favicon" ],
     out_zip = "www_dustindoloff_com.zip",
 )
 
 minify_site_zip(
     name = "www_dustindoloff_com_zip",
     site_zip = ":www_dustindoloff_com",
-    root_files = [ ":index_min" ],
+    root_files = [ ":index_min", ":min_favicon" ],
     minified_zip = "www_dustindoloff_com.min.zip",
 )
 
 rename_zip_paths(
     name = "rename_index_www_dustindoloff_com_zip",
     source_zip = ":www_dustindoloff_com_zip",
-    path_map_labels_in = [ ":index_min" ],
-    path_map_labels_out = [ "index.html" ],
+    path_map_labels_in = [ ":index_min", ":min_favicon" ],
+    path_map_labels_out = [ "index.html", "favicon.png" ],
     out_zip = "www_dustindoloff_com_final.zip",
 )
 
