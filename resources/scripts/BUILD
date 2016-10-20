@@ -2,11 +2,12 @@
 # Licensed under Apache License v2.0
 
 load("@rules_web//:web.bzl",
-    "minify_js",
+    "closure_compile",
 )
 
-minify_js(
+closure_compile(
     name = "all_js",
     srcs = [ "all.js" ],
+    compilation_level = "ADVANCED",
     visibility = [ "//visibility:public" ],
 )

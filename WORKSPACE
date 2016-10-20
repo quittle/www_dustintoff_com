@@ -5,7 +5,7 @@ workspace(name = "www_dustindoloff_com")
 
 git_repository(
     name = "rules_web",
-    commit = "c8e43ac9e512aafa781a5e7df0e09d2a2845d928",
+    commit = "db1390f5bc266863b1074385a78035e31bbb0713",
     remote = "https://github.com/quittle/rules_web.git",
 )
 

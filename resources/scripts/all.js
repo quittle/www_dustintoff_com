@@ -1,97 +1,77 @@
-var main;
-
-function onHashChange(b) {
-    var a = location.hash.substring(1);
-    b.preventDefault();
-    b.stopPropagation();
-    return true;
-}
-
-function init() {
-    main = document.getElementsByTagName("main")[0]
-}
-window.addEventListener("hashchange", onHashChange, true);
-window.addEventListener("load", init);
-window.addEventListener("load", onHashChange);
 var nav, main;
 
-function init() {
-    nav = document.querySelector("nav");
-    main = document.querySelector("main");
-    onHashChange()
-}
-
+/**
+ * Checks if the device is mobile
+ * @return {boolean} True if the device is mobile or false if it isn't
+ */
 function isMobile() {
-    return window.matchMedia && matchMedia("(max-width: 799px)").matches
+    return window.matchMedia && window.matchMedia('(max-width: 799px)').matches
 }
 
-function onHashChange() {
-    return
-    if (isMobile()) {
-        var c = location.hash.substring(1);
-        if (c) {
-            var b = document.getElementById(c + "_");
-            var a = b.offsetTop;
-            var d = parseInt(window.getComputedStyle(document.querySelector("nav")).getPropertyValue(
-                "height"));
-            window.scrollBy(0, a)
-        }
-    }
-}
-
-function onScroll() {
+/**
+ * Callback for scroll or touch events
+ */
+function onScrollOrTouch() {
+    /*
     if (isMobile() && nav && main) {
         var a = nav.classList;
         if (pageYOffset > 0) {
-            a.add("mobile-scroll");
+            a.add('mobile-scroll');
             var b = getComputedStyle(nav);
-            main.style.paddingTop = parseInt(b.getPropertyValue("height")) + parseInt(b.getPropertyValue(
-                "padding-top")) + parseInt(b.getPropertyValue("border-bottom")) + "px"
+            main.style.paddingTop = parseInt(b.getPropertyValue('height')) + parseInt(b.getPropertyValue(
+                'padding-top')) + parseInt(b.getPropertyValue('border-bottom')) + 'px'
         } else {
-            a.remove("mobile-scroll");
-            main.style.paddingTop = ""
+            a.remove('mobile-scroll');
+            main.style.paddingTop = ''
         }
     }
+    */
 }
-window.addEventListener("hashchange", onHashChange);
-window.addEventListener("load", onHashChange);
-window.addEventListener("load", init);
-window.addEventListener("resize", onScroll);
-init();
-var scrollEvents = ["scroll", "touchstart", "touchend", "touchcancel", "touchleave", "touchmove"];
-for (var i = 0; i < scrollEvents.length; i++) {
-    window.addEventListener(scrollEvents[i], onScroll)
-};
 
-var nav, main;
-
+/**
+ * Initialization function
+ */
 function init() {
-    nav = document.querySelector("nav");
-    main = document.querySelector("main");
+    nav = document.querySelector('nav');
+    main = document.querySelector('main');
     onHashChange()
+
+    // Register event listeners
+    window.addEventListener('hashchange', onHashChange);
+    window.addEventListener('load', onHashChange);
+    window.addEventListener('load', init);
+    window.addEventListener('resize', onScrollOrTouch);
+
+    const scrollEvents = ['scroll', 'touchstart', 'touchend', 'touchcancel', 'touchleave', 'touchmove'];
+    for (let i = 0; i < scrollEvents.length; i++) {
+        window.addEventListener(scrollEvents[i], onScrollOrTouch)
+    };
 }
 
-function isMobile() {
-    return window.matchMedia && matchMedia("(max-width: 799px)").matches
-}
-
-function onHashChange() {
+/**
+ * Handler for the `window.onHashChangeEvent`
+ * @param {!Event=} opt_e The event
+ * @return {boolean} If true, stops the event from being further processed
+ */
+function onHashChange(opt_e) {
     if (isMobile()) {
-        var d = location.hash.substring(1);
-        if (d) {
-            var c = document.getElementById(d + "_");
-            var b = c;
-            var a = 0;
+        /** @type {string} */ const section = location.hash.substring(1);
+        if (section) {
+            let sectionElement = document.getElementById(section + '_');
+            let offset = 0;
             do {
-                a += parseInt(b.offsetTop);
-                b = b.parentNode
-            } while (b && b.offsetTop);
-            var e = parseInt(window.getComputedStyle(document.querySelector("nav")).getPropertyValue(
-                "height"));
-            window.scrollBy(0, a + e - document.body.scrollTop)
+                offset += parseInt(sectionElement.offsetTop, 10);
+                sectionElement = sectionElement.parentNode
+            } while (sectionElement && sectionElement.offsetTop);
+            /** @type {number} */ const navHeight = parseInt(
+                    window.getComputedStyle(document.querySelector('nav'))
+                            .getPropertyValue('height'),
+                    10);
+            window.scrollBy(0, offset + navHeight - document.body.scrollTop)
         }
     }
+
+    return true;
 }
-window.addEventListener("hashchange", onHashChange);
-window.addEventListener("load", init);
+
 init();
