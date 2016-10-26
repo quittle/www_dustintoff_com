@@ -79,22 +79,34 @@ favicon_image_generator(
 
 zip_site(
     name = "www_dustindoloff_com",
-    root_files = [ ":index_min", ":min_favicon" ],
+    root_files = [
+        ":min_favicon",
+        ":index_min",
+        "//projects/fallingsand:min_fallingsand_html",
+    ],
     out_zip = "www_dustindoloff_com.zip",
 )
 
 minify_site_zip(
     name = "www_dustindoloff_com_zip",
     site_zip = ":www_dustindoloff_com",
-    root_files = [ ":index_min", ":min_favicon" ],
+    root_files = [
+        ":min_favicon",
+        ":index_min",
+        "//projects/fallingsand:min_fallingsand_html",
+    ],
     minified_zip = "www_dustindoloff_com.min.zip",
 )
 
 rename_zip_paths(
     name = "rename_index_www_dustindoloff_com_zip",
     source_zip = ":www_dustindoloff_com_zip",
-    path_map_labels_in = [ ":index_min", ":min_favicon" ],
-    path_map_labels_out = [ "index.html", "favicon.png" ],
+    path_map_labels_in = [
+        ":min_favicon", ":index_min", "//projects/fallingsand:min_fallingsand_html",
+    ],
+    path_map_labels_out = [
+        "favicon.png", "index.html", "projects/fallingsand",
+    ],
     out_zip = "www_dustindoloff_com_final.zip",
 )
 

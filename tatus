@@ -1,0 +1,3887 @@
+[1mdiff --git a/BUILD b/BUILD[m
+[1mindex 90d0609..7d3b950 100644[m
+[1m--- a/BUILD[m
+[1m+++ b/BUILD[m
+[36m@@ -79,22 +79,34 @@[m [mfavicon_image_generator([m
+ [m
+ zip_site([m
+     name = "www_dustindoloff_com",[m
+[31m-    root_files = [ ":index_min", ":min_favicon" ],[m
+[32m+[m[32m    root_files = [[m
+[32m+[m[32m        ":min_favicon",[m
+[32m+[m[32m        ":index_min",[m
+[32m+[m[32m        "//projects/fallingsand:min_fallingsand_html",[m
+[32m+[m[32m    ],[m
+     out_zip = "www_dustindoloff_com.zip",[m
+ )[m
+ [m
+ minify_site_zip([m
+     name = "www_dustindoloff_com_zip",[m
+     site_zip = ":www_dustindoloff_com",[m
+[31m-    root_files = [ ":index_min", ":min_favicon" ],[m
+[32m+[m[32m    root_files = [[m
+[32m+[m[32m        ":min_favicon",[m
+[32m+[m[32m        ":index_min",[m
+[32m+[m[32m        "//projects/fallingsand:min_fallingsand_html",[m
+[32m+[m[32m    ],[m
+     minified_zip = "www_dustindoloff_com.min.zip",[m
+ )[m
+ [m
+ rename_zip_paths([m
+     name = "rename_index_www_dustindoloff_com_zip",[m
+     source_zip = ":www_dustindoloff_com_zip",[m
+[31m-    path_map_labels_in = [ ":index_min", ":min_favicon" ],[m
+[31m-    path_map_labels_out = [ "index.html", "favicon.png" ],[m
+[32m+[m[32m    path_map_labels_in = [[m
+[32m+[m[32m        ":min_favicon", ":index_min", "//projects/fallingsand:min_fallingsand_html",[m
+[32m+[m[32m    ],[m
+[32m+[m[32m    path_map_labels_out = [[m
+[32m+[m[32m        "favicon.png", "index.html", "projects/fallingsand",[m
+[32m+[m[32m    ],[m
+     out_zip = "www_dustindoloff_com_final.zip",[m
+ )[m
+ [m
+[1mdiff --git a/WORKSPACE b/WORKSPACE[m
+[1mindex f4a78bc..364d507 100644[m
+[1m--- a/WORKSPACE[m
+[1m+++ b/WORKSPACE[m
+[36m@@ -3,10 +3,12 @@[m
+ [m
+ workspace(name = "www_dustindoloff_com")[m
+ [m
+[31m-git_repository([m
+[32m+[m[32mlocal_repository([m
+[32m+[m[32m#git_repository([m
+     name = "rules_web",[m
+[31m-    commit = "0a41a165193f0d90fa7cab0f49deb7cb9d99fe99",[m
+[31m-    remote = "https://github.com/quittle/rules_web.git",[m
+[32m+[m[32m    path = "../rules_web",[m
+[32m+[m[32m#    commit = "0a41a165193f0d90fa7cab0f49deb7cb9d99fe99",[m
+[32m+[m[32m#    remote = "https://github.com/quittle/rules_web.git",[m
+ )[m
+ [m
+ load("@rules_web//:rules_web_repositories.bzl", "rules_web_repositories")[m
+[1mdiff --git a/projects/fallingsand/Grow/images/gen.jpg b/projects/fallingsand/Grow/images/gen.jpg[m
+[1mdeleted file mode 100755[m
+[1mindex e30a5c2..0000000[m
+Binary files a/projects/fallingsand/Grow/images/gen.jpg and /dev/null differ
+[1mdiff --git a/projects/fallingsand/Grow/images/grow.js b/projects/fallingsand/Grow/images/grow.js[m
+[1mdeleted file mode 100755[m
+[1mindex 49089cc..0000000[m
+[1m--- a/projects/fallingsand/Grow/images/grow.js[m
+[1m+++ /dev/null[m
+[36m@@ -1,684 +0,0 @@[m
+[31m-/******************************************************[m
+[31m-TODO: Make droplets fill things faster (low priority)[m
+[31m-TODO: Add game mechanics[m
+[31m-TODO: Explosive burn down[m
+[31m-TODO: Add ashes from burnt plant[m
+[31m-TODO: Add wind?[m
+[31m-******************************************************/[m
+[31m-[m
+[31m-//   ///////  // Variables //  ///////   //[m
+[31m-var particleSize = 4;[m
+[31m-var gameSpeed = 30;[m
+[31m-var inBackground = false;[m
+[31m-var opacity = 1.0; // 0.0-1.0 are valid opacities //NOT IMPLEMENTED[m
+[31m-var defaultPenSize = 2;[m
+[31m-var penSize = 2;[m
+[31m-//////////////////////////////////////////[m
+[31m-[m
+[31m-var canvas;[m
+[31m-var body = document.body;[m
+[31m-body.addEventListener('onload', init(), false);[m
+[31m-body.addEventListener('mousedown',function(){prevX=event.pageX;prevY=event.pageY;isDown=true;move(event);}, false);[m
+[31m-body.addEventListener('mouseup', function(){isDown=false;}, false);[m
+[31m-body.addEventListener('click', function(){if(isClear(event)){canvas.style.display="none";starter = document.elementFromPoint(event.clientX, event.clientY);canvas.style.display="";starter.click();}}, false);[m
+[31m-body.addEventListener('mousemove', function(){if(isDown) move(event);}, false);[m
+[31m-body.addEventListener('keydown', function(){key(event);}, false);[m
+[31m-body.addEventListener('keyup', function(){gen = event.shiftKey;keyUp(event);}, false); //elemType='droplet'; add back to make it non-sticky[m
+[31m-//body.setAttribute("onmousedown","prevX=event.pageX;prevY=event.pageY;isDown=true;move(event);");[m
+[31m-//body.setAttribute("onmouseup","isDown=false;");[m
+[31m-//body.setAttribute("onmousemove","if(isDown) move(event);");[m
+[31m-//body.setAttribute("onkeydown", "key(event)");[m
+[31m-//body.setAttribute("onkeyup", "elemType='droplet';gen = event.shiftKey;keyUp(event)");[m
+[31m-var rect;[m
+[31m-var prevX, prevY;[m
+[31m-var gen;[m
+[31m-[m
+[31m-var growthImage;[m
+[31m-var dropletImage;[m
+[31m-var steamImage;[m
+[31m-var fireImage;[m
+[31m-var wallImage;[m
+[31m-var genImage;[m
+[31m-var imageLocation;[m
+[31m-[m
+[31m-var particles;[m
+[31m-var emptyCols[m
+[31m-[m
+[31m-var isDown;[m
+[31m-var elemType;[m
+[31m-[m
+[31m-var player;[m
+[31m-[m
+[31m-//Checks if the sp ot is covered in blocks so you don't click on a hidden link[m
+[31m-function isClear(e){[m
+[31m-	var x = parseInt(e.pageX/particleSize);[m
+[31m-	var y = parseInt(e.pageY/particleSize);[m
+[31m-	return(particles[x][y].fresh=="empty");[m
+[31m-}[m
+[31m-[m
+[31m-//Called to initialize things[m
+[31m-function init(){[m
+[31m-	canvas = document.createElement("canvas");[m
+[31m-	canvas.id = "growthCanvas";[m
+[31m-	if(inBackground)[m
+[31m-		canvas.style.zIndex=-1;[m
+[31m-	else[m
+[31m-		canvas.style.zIndex=9999;[m
+[31m-	canvas.setAttribute("width", window.innerWidth + "px");[m
+[31m-	canvas.setAttribute("height", window.innerHeight + "px");[m
+[31m-	canvas.style.position = "fixed";[m
+[31m-	canvas.style.left = "0px";[m
+[31m-	canvas.style.top = "0px";[m
+[31m-	body.appendChild(canvas);[m
+[31m-	[m
+[31m-	particles = [];[m
+[31m-	emptyCols = [];[m
+[31m-	for(var i=0;i<parseInt(window.innerWidth/particleSize + 1);i++){[m
+[31m-		particles.push(new Array(parseInt(window.innerHeight/particleSize + 1)));[m
+[31m-		emptyCols.push(0);[m
+[31m-		emptyCols[i]++;[m
+[31m-		for(var j=0;j<parseInt(window.innerHeight/particleSize + 1);j++){[m
+[31m-			particles[i][j] = new Particulate;[m
+[31m-		}[m
+[31m-	}[m
+[31m-	var client = new XMLHttpRequest();[m
+[31m-	client.open('GET', './world1.grw');[m
+[31m-	var done = false;[m
+[31m-	client.onreadystatechange = function() {[m
+[31m-		var txt = client.responseText;[m
+[31m-		while(txt != ""){[m
+[31m-			var x = parseInt(txt.substring(0, txt.indexOf(" ")));[m
+[31m-			txt = txt.substring(txt.indexOf(" ")+1);[m
+[31m-[m
+[31m-			var y = parseInt(txt.substring(0, txt.indexOf(" ")));[m
+[31m-			txt = txt.substring(txt.indexOf(" ")+1);[m
+[31m-			[m
+[31m-			var width = parseInt(txt.substring(0, txt.indexOf(" ")));[m
+[31m-			txt = txt.substring(txt.indexOf(" ")+1);[m
+[31m-			[m
+[31m-			var height = parseInt(txt.substring(0, txt.indexOf(" ")));[m
+[31m-			txt = txt.substring(txt.indexOf(" ")+1);[m
+[31m-[m
+[31m-			var type = txt.substring(0, txt.indexOf(" "));[m
+[31m-			txt = txt.substring(txt.indexOf(" ")+1);[m
+[31m-			[m
+[31m-			if(txt.indexOf("\n")!=-1){[m
+[31m-				var shape = txt.substring(0, txt.indexOf("\n"));[m
+[31m-				txt = txt.substring(txt.indexOf("\n")+1);[m
+[31m-			}[m
+[31m-			else{[m
+[31m-				var shape = txt;[m
+[31m-				txt = "";[m
+[31m-			}[m
+[31m-			[m
+[31m-			if(shape=="rect")[m
+[31m-				for(var i=0;i<width;i++){[m
+[31m-					for(var j=0;j<height;j++){[m
+[31m-						forcePoint(x+i,y+j, type);[m
+[31m-					}[m
+[31m-				}[m
+[31m-			else if(shape=="circ")[m
+[31m-				circlePoint(x, y, width, type, true, ["null"]);[m
+[31m-			else if(shape=="elip")[m
+[31m-				elipsePoint(x, y, width, height, type, true, ["null"]);[m
+[31m-			//alert("x:" + x + " y:" + y + " width:" + width + " height:" + height + " type:" + type + " shape:" + shape);[m
+[31m-			done = true;[m
+[31m-		}[m
+[31m-	}[m
+[31m-	client.send();[m
+[31m-	imageLocation = "images/";[m
+[31m-	growthImage = new Image();[m
+[31m-	alert(imageLocation + " im");[m
+[31m-	growthImage.src = imageLocation + "growth.png";[m
+[31m-	dropletImage = new Image();[m
+[31m-	dropletImage = imageLocation + "droplet.png";[m
+[31m-	steamImage = new Image();[m
+[31m-	steamImage = imageLocation + "steam.png";[m
+[31m-	fireImage = new Image();[m
+[31m-	fireImage = imageLocation + "fire.png";[m
+[31m-	wallImage = new Image();[m
+[31m-	wallImage = imageLocation + "wall.png";[m
+[31m-	genImage = new Image();[m
+[31m-	genImage = imageLocation + "gen.png";[m
+[31m-	[m
+[31m-	isDown = false;[m
+[31m-	elemType = "droplet";[m
+[31m-	[m
+[31m-	player = new Player;[m
+[31m-[m
+[31m-	setInterval("update()",gameSpeed);[m
+[31m-}[m
+[31m-[m
+[31m-//Called when a key is pressed[m
+[31m-function key(e){[m
+[31m-	var code;[m
+[31m-	if(e)[m
+[31m-		code = e.keyCode;[m
+[31m-	else[m
+[31m-		code = event.mouseevent.keyCode;[m
+[31m-		[m
+[31m-	if (code==37) //escape value[m
+[31m-		player.move = -1;[m
+[31m-	else if(code==39)[m
+[31m-		player.move = 1;[m
+[31m-	else if(code==38)[m
+[31m-		if(player.jump==0 && !player.hasJumped){[m
+[31m-			player.hasJumped = true;[m
+[31m-			player.jump=5;[m
+[31m-		}[m
+[31m-	else[m
+[31m-		player.move = 0;[m
+[31m-	if(code==48)[m
+[31m-		penSize = defaultPenSize;[m
+[31m-	else if(code>=49 && code<=57)[m
+[31m-		penSize = code-48;[m
+[31m-	else if(code==65)[m
+[31m-		elemType = "sand";[m
+[31m-	else if(code==68)[m
+[31m-		elemType = "droplet";[m
+[31m-	else if(code==87)[m
+[31m-		elemType = "wall";[m
+[31m-	else if(code==70)[m
+[31m-       elemType = "fire";[m
+[31m-	else if(code==77)[m
+[31m-		elemType = "smoke";[m
+[31m-	else if(code==71)[m
+[31m-		elemType = "growth";[m
+[31m-	else if(code==83)[m
+[31m-		elemType = "steam";[m
+[31m-	else if(code==69)[m
+[31m-		elemType = "eraser";[m
+[31m-	else if(code==80)[m
+[31m-		elemType = "plague";[m
+[31m-	else if(code==88)[m
+[31m-		elemType = "explosive";[m
+[31m-	else if(code==90)[m
+[31m-		elemType = "liquidExplosive";[m
+[31m-	if(code==17)[m
+[31m-		circlePoint(player.x, player.y, 5, elemType, true, []);[m
+[31m-	gen = e.shiftKey;[m
+[31m-}[m
+[31m-[m
+[31m-function keyUp(e){[m
+[31m-	var code;[m
+[31m-	if (e.keyCode)[m
+[31m-		code = e.keyCode;[m
+[31m-	else if (e.which)[m
+[31m-		code = e.which;[m
+[31m-[m
+[31m-	if (code==37) //escape value[m
+[31m-		player.move = 0;[m
+[31m-	else if(code==39)[m
+[31m-		player.move = 0;[m
+[31m-	else if(code==38)[m
+[31m-		player.hasJumped = false;[m
+[31m-}[m
+[31m-[m
+[31m-function Particulate(){[m
+[31m-	this.old = "empty";[m
+[31m-	this.fresh = "empty";[m
+[31m-	this.modified = false;[m
+[31m-}[m
+[31m-[m
+[31m-function Player(){[m
+[31m-	this.x = 50;[m
+[31m-	this.y = 50;[m
+[31m-	this.move = 0;[m
+[31m-	this.jump = 0;[m
+[31m-	this.hasJumped = false;[m
+[31m-}[m
+[31m-[m
+[31m-//Called when the mouse moves to allow you to draw stuff[m
+[31m-function move(event){[m
+[31m-	var x = parseInt(event.pageX);[m
+[31m-	var y = parseInt(event.pageY);[m
+[31m-	do{[m
+[31m-		var type = elemType;[m
+[31m-		switch(elemType){[m
+[31m-			case "droplet":[m
+[31m-			case "steam":[m
+[31m-			case "fire":[m
+[31m-			case "liquidExplosive":[m
+[31m-			case "smoke":[m
+[31m-			case "sand":[m
+[31m-				if(gen){[m
+[31m-					type = type + "Gen";[m
+[31m-				}[m
+[31m-				break;[m
+[31m-			case "eraser":[m
+[31m-				type = "empty";[m
+[31m-		}[m
+[31m-		circlePoint(parseInt(x/particleSize), parseInt(y/particleSize), penSize, type, true, []);[m
+[31m-		if(Math.abs(x-prevX)>=particleSize)[m
+[31m-			x += particleSize*(x-prevX<0?1:-1);[m
+[31m-		if(Math.abs(y-prevY)>=particleSize)[m
+[31m-			y += particleSize*(y-prevY<0?1:-1);[m
+[31m-	} while(Math.abs(x-prevX)>=particleSize || Math.abs(y-prevY)>=particleSize)[m
+[31m-[m
+[31m-	prevX = event.pageX;[m
+[31m-	prevY = event.pageY;[m
+[31m-}[m
+[31m-[m
+[31m-//Called repeatedly, handles everything[m
+[31m-function update(){[m
+[31m-	for(var x = 0;x<particles.length;x++){[m
+[31m-		if(emptyCols[x]>0){[m
+[31m-			//alert(x + " " + emptyCols[x]);[m
+[31m-			//particles[x][0].fresh = "wall";[m
+[31m-			for(var y = 0;y<particles[x].length;y++){[m
+[31m-				updateAction(x, y);[m
+[31m-			}[m
+[31m-		}[m
+[31m-	}[m
+[31m-	updatePlayer();[m
+[31m-	[m
+[31m-	draw();[m
+[31m-}[m
+[31m-[m
+[31m-//Causes things on the field to "act"[m
+[31m-function updateAction(x, y){[m
+[31m-	var particulate = particles[x][y];[m
+[31m-	if(particulate.modified){[m
+[31m-		particulate.modified = false;[m
+[31m-	}[m
+[31m-	else{[m
+[31m-		switch(particulate.fresh){[m
+[31m-			case "empty":[m
+[31m-			case "wall":[m
+[31m-			case "explosive":[m
+[31m-				return;[m
+[31m-			case "plague":[m
+[31m-				var move = Math.floor(Math.random()*4);[m
+[31m-				if(move==0)[m
+[31m-					changePoint(x, y-1, "plague");[m
+[31m-				else if(move==1)[m
+[31m-					changePoint(x, y+1, "plague");[m
+[31m-				else if(move==2)[m
+[31m-					changePoint(x-1, y, "plague");[m
+[31m-				else if(move==3)[m
+[31m-					changePoint(x+1, y, "plague");[m
+[31m-					[m
+[31m-				move = Math.floor(Math.random()*4);[m
+[31m-				if(move==0) changePoint(x, y, "empty");[m
+[31m-				break;[m
+[31m-			case "steam":[m
+[31m-				var move = Math.floor(Math.random()*100);[m
+[31m-				if(move>=60)[m
+[31m-					changePoint(x, y-1, "steam");[m
+[31m-				else if(move>=50)[m
+[31m-					changePoint(x-1, y, "steam");[m
+[31m-				else if(move>=40)[m
+[31m-					changePoint(x+1, y, "steam");[m
+[31m-				else if(move==1)[m
+[31m-					changePoint(x, y, "droplet");[m
+[31m-					[m
+[31m-				if(move>=40){[m
+[31m-					changePoint(x, y, "empty");[m
+[31m-					return;[m
+[31m-				}[m
+[31m-				break;[m
+[31m-			case "droplet":[m
+[31m-			case "sand":[m
+[31m-			case "liquidExplosive":[m
+[31m-				var type = particulate.fresh;[m
+[31m-				changePoint(x, y, "empty");[m
+[31m-				changePoint(x, y+1, type);[m
+[31m-				//return;[m
+[31m-				break;[m
+[31m-			case "dropletGen":[m
+[31m-			case "sandGen":[m
+[31m-			case "liquidExplosiveGen":[m
+[31m-				if(particles[x][y+1] && particles[x][y+1].fresh!="droplet" && particles[x][y+1].fresh!="liquidExplosive"){[m
+[31m-					changePoint(x, y+1, particulate.fresh.substring(0,particulate.fresh.indexOf("Gen")));[m
+[31m-					updateAction(x, y+1);[m
+[31m-				}[m
+[31m-				break;[m
+[31m-			case "fire":[m
+[31m-				var move = Math.floor(Math.random()*9);[m
+[31m-				if(move>=5)[m
+[31m-					changePoint(x, y-1, "fire");[m
+[31m-				if(move<1)[m
+[31m-					changePoint(x, y-2, "smoke");[m
+[31m-				if(move>6)[m
+[31m-					changePoint(x+1, y, "fire");[m
+[31m-				if(move<2)[m
+[31m-					changePoint(x-1, y, "fire");[m
+[31m-				if(move==0)[m
+[31m-					changePoint(x, y-1, "fire");[m
+[31m-				changePoint(x, y, "empty");[m
+[31m-[m
+[31m-				break;[m
+[31m-			case "smoke":[m
+[31m-				var move = Math.floor(Math.random()*9);[m
+[31m-				var amount = Math.floor(Math.random()*5)-2;[m
+[31m-				if(move>7)[m
+[31m-					changePoint(x, y-Math.abs(amount), "smoke");[m
+[31m-				if(move<6)[m
+[31m-					changePoint(x, y, "empty");[m
+[31m-				if(move>6)[m
+[31m-					changePoint(x+amount, y, "smoke");[m
+[31m-				if(move<2)[m
+[31m-					changePoint(x-amount, y, "smoke");[m
+[31m-				break;[m
+[31m-			case "steamGen":[m
+[31m-			case "fireGen":[m
+[31m-			case "smokeGen":[m
+[31m-				forcePoint(x, y-1, particulate.fresh.substring(0,particulate.fresh.indexOf("Gen")));[m
+[31m-				updateAction(x, y-1);[m
+[31m-				break;[m
+[31m-		}[m
+[31m-	}[m
+[31m-	if(!particulate.modified){[m
+[31m-		particulate.old = particulate.fresh;[m
+[31m-	}[m
+[31m-	else[m
+[31m-		particulate.modified = false;[m
+[31m-}[m
+[31m-[m
+[31m-function draw(){[m
+[31m-	var point = canvas.getContext("2d");[m
+[31m-	point.clearRect(0,0,window.innerWidth,window.innerHeight);[m
+[31m-	for(var x = 0;x<particles.length;x++){[m
+[31m-		emptyCols[x] = 0;[m
+[31m-		for(var y = 0;y<particles[x].length;y++){[m
+[31m-			var particulate = particles[x][y];[m
+[31m-			var image = '';[m
+[31m-			switch(particulate.fresh){[m
+[31m-				case "empty":[m
+[31m-					continue;[m
+[31m-				case "plague":[m
+[31m-					point.fillStyle = "#004400";[m
+[31m-					emptyCols[x]++;[m
+[31m-					break;[m
+[31m-				case "steam":[m
+[31m-					point.fillStyle = "#aaaaaa";[m
+[31m-					emptyCols[x]++;[m
+[31m-					image = steamImage;[m
+[31m-					break;[m
+[31m-				case "droplet":[m
+[31m-					point.fillStyle = "#bbbbff";[m
+[31m-					emptyCols[x]++;[m
+[31m-					image = dropletImage;[m
+[31m-					break;[m
+[31m-				case "fire":[m
+[31m-					point.fillStyle="#ff6600";[m
+[31m-					emptyCols[x]++;[m
+[31m-					image = fireImage;[m
+[31m-					break;[m
+[31m-				case "smoke":[m
+[31m-					point.fillStyle="#777777";[m
+[31m-					emptyCols[x]++;[m
+[31m-					break;[m
+[31m-				case "growth":[m
+[31m-					point.fillStyle="#aaffaa";[m
+[31m-					image = growthImage;[m
+[31m-					break;[m
+[31m-				case "wall":[m
+[31m-					point.fillStyle="#cccccc";[m
+[31m-					image = wallImage;[m
+[31m-					break;[m
+[31m-				case "explosive":[m
+[31m-					point.fillStyle="#cccc00";[m
+[31m-					break;[m
+[31m-				case "liquidExplosive":[m
+[31m-					point.fillStyle="#eeee00";[m
+[31m-					emptyCols[x]++;[m
+[31m-					break;[m
+[31m-				case "sand":[m
+[31m-					point.fillStyle="#efe4b0";[m
+[31m-					emptyCols[x]++;[m
+[31m-					break;[m
+[31m-				case "dropletGen":[m
+[31m-				case "steamGen":[m
+[31m-				case "fireGen":[m
+[31m-				case "smokeGen":[m
+[31m-				case "liquidExplosiveGen":[m
+[31m-					emptyCols[x]++;[m
+[31m-					point.fillStyle = "#000000";[m
+[31m-					break;[m
+[31m-			}[m
+[31m-			if(image == '')[m
+[31m-				point.fillRect(x*particleSize,y*particleSize,particleSize,particleSize);[m
+[31m-			else{[m
+[31m-				//alert(image);[m
+[31m-				point.drawImage(image, x*particleSize, y*particleSize, particleSize, particleSize);[m
+[31m-			}[m
+[31m-				//point.drawImage(image, x*particleSize, y*particleSize, particleSize, particleSize);[m
+[31m-		}[m
+[31m-	}[m
+[31m-[m
+[31m-	point.fillStyle = "#ff0000";[m
+[31m-	point.fillRect(player.x*particleSize, player.y*particleSize, particleSize, particleSize);[m
+[31m-}[m
+[31m-[m
+[31m-function updatePlayer(){[m
+[31m-	//try{[m
+[31m-		player.x += player.move;[m
+[31m-		var particle = particles[player.x][player.y];[m
+[31m-		if(particle && isSolid(particle.fresh)){[m
+[31m-			player.x -= player.move;[m
+[31m-		}[m
+[31m-		player.y += 1;[m
+[31m-		if(player.jump>0){[m
+[31m-			player.y -= 2;[m
+[31m-			player.jump -= 1;[m
+[31m-		}[m
+[31m-		if(particle && particle.fresh == "droplet"){[m
+[31m-			var move = Math.floor(Math.random() * 5);[m
+[31m-			player.y += move-2;[m
+[31m-		}[m
+[31m-		particle = particles[player.x][player.y];[m
+[31m-		if(particle && isSolid(particle.fresh))[m
+[31m-			player.y -= 1;[m
+[31m-	//}catch(err){alert(err)}[m
+[31m-}[m
+[31m-[m
+[31m-function forcePoint(x, y, type){[m
+[31m-	try{[m
+[31m-		var particle = particles[x][y];[m
+[31m-		particle.old = particle.fresh;[m
+[31m-		particle.fresh = type;[m
+[31m-		particle.modified = false;[m
+[31m-		if(particle.fresh != "empty" && particle.old == "empty")[m
+[31m-			emptyCols[x]++;[m
+[31m-		else if(particle.fresh == "empty" && particle.old != "empty")[m
+[31m-			emptyCols[x]--;[m
+[31m-	} catch(err) {}[m
+[31m-}[m
+[31m-[m
+[31m-function changePoint(x, y, type){[m
+[31m-	try{[m
+[31m-		var particle = particles[x][y];[m
+[31m-		particle.old = particle.fresh;[m
+[31m-		particle.fresh = type;[m
+[31m-		particle.modified = true;[m
+[31m-		if((particle.old == "empty" || particle.old == "droplet") && type == "droplet"){[m
+[31m-			for(var i=-1;i<2;i++)[m
+[31m-				for(var j=-1;j<2;j++)[m
+[31m-					if(particles[x+i][y+j].fresh == "growth")[m
+[31m-						setTimeout(changePoint,gameSpeed*3, x, y, "growth");[m
+[31m-		}[m
+[31m-		if((particle.old == "fire" && type == "droplet") || (particle.old == "droplet" && type == "fire")){[m
+[31m-			changePoint(x, y, "steam");[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if((particle.old == "smoke" && type == "droplet") || (particle.old == "droplet" && type == "smoke")){[m
+[31m-			forcePoint(x, y, "droplet");[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(particle.old == "growth" && type == "droplet"){[m
+[31m-			changePoint(x, y, "growth");[m
+[31m-			var grow = Math.floor(Math.random()*10);[m
+[31m-			changePoint(x, y-1, "growth");[m
+[31m-			if(grow==9)[m
+[31m-				setTimeout(changePoint,gameSpeed, x-1, y-1, "growth");[m
+[31m-			if(grow<7)[m
+[31m-				setTimeout(changePoint,gameSpeed, x-1, y, "growth");[m
+[31m-			if(grow>2)[m
+[31m-				setTimeout(changePoint,gameSpeed, x+1, y, "growth");[m
+[31m-			if(grow==0)[m
+[31m-				setTimeout(changePoint,gameSpeed, x+1, y-1, "growth");[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(particle.old == "growth" && type == "fire"){[m
+[31m-			var burn = Math.floor(Math.random()*5);[m
+[31m-			if(burn<4)[m
+[31m-				setTimeout(changePoint, gameSpeed, x, y-1, "fire");[m
+[31m-			if(burn<3)[m
+[31m-				setTimeout(changePoint, gameSpeed, x-1, y, "fire");[m
+[31m-			if(burn>1)[m
+[31m-				setTimeout(changePoint, gameSpeed, x+1, y, "fire");[m
+[31m-			if(burn<2)[m
+[31m-				setTimeout(changePoint,gameSpeed*3, x, y+1, "fire");[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		//Keep below growth and droplet[m
+[31m-		if((particle.old == "wall" || particle.old == "explosive" || particle.old == "growth") && isLiquid(type)){[m
+[31m-			forcePoint(x, y, particle.old);[m
+[31m-[m
+[31m-			var flow;[m
+[31m-			if(particles[x-1][y-1].fresh == "empty")[m
+[31m-				if(particles[x+1][y-1].fresh == "empty")[m
+[31m-					flow = Math.floor(Math.random()*3)-1;[m
+[31m-				else[m
+[31m-					flow = Math.floor(Math.random()*2)-1;[m
+[31m-			else[m
+[31m-				if(particles[x+1][y-1].fresh == "empty")[m
+[31m-					flow = Math.floor(Math.random()*2);[m
+[31m-				else[m
+[31m-					flow = 0;[m
+[31m-			changePoint(x+flow, y-1, type);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(isLiquid(particle.old) && isLiquid(type)){[m
+[31m-			forcePoint(x, y, particle.old);[m
+[31m-			var flow = Math.floor(Math.random()*4);[m
+[31m-			if(flow <=1 && particles[x-1][y-1].fresh == "empty")[m
+[31m-				changePoint(x-1, y-1, type);[m
+[31m-			else if(flow >= 2 && particles[x+1][y-1].fresh == "empty")[m
+[31m-				changePoint(x+1, y-1, type);[m
+[31m-			else[m
+[31m-				changePoint(x, y-1, type);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(particle.old == "wall" && type == "fire"){[m
+[31m-			changePoint(x, y, "wall");[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(isCombustible(particle.old) && type == "fire"){[m
+[31m-			setTimeout(circlePoint,gameSpeed, x, y, 10, "fire", true, ["explosive", "liquidExplosive", "droplet"]);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		//Keep below explosive line[m
+[31m-		if(isSolid(particle.old) && isGas(type)){[m
+[31m-			changePoint(x, y, particle.old);[m
+[31m-			[m
+[31m-			var flow;[m
+[31m-			if(particles[x-1][y+1].fresh == "empty")[m
+[31m-				if(particles[x+1][y+1].fresh == "empty")[m
+[31m-					flow = Math.floor(Math.random()*3)-1;[m
+[31m-				else[m
+[31m-					flow = Math.floor(Math.random()*2)-1;[m
+[31m-			else[m
+[31m-				if(particles[x+1][y+1].fresh == "empty")[m
+[31m-					flow = Math.floor(Math.random()*2);[m
+[31m-				else[m
+[31m-					flow = 0;[m
+[31m-			changePoint(x + flow, y+1, type);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(isGas(particle.old) && isGas(type)){[m
+[31m-			var flow = Math.floor(Math.random()*4);[m
+[31m-			if(flow <=1 && particles[x-1][y+1].fresh == "empty")[m
+[31m-				changePoint(x-1, y+1, type);[m
+[31m-			else if(flow >= 2 && particles[x+1][y+1].fresh == "empty")[m
+[31m-				changePoint(x+1, y+1, type);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if((wasParticleGen(particle) || particle.old == "wall" || particle.old == "explosive") && (type == "growth" || type == "droplet")){[m
+[31m-			changePoint(x, y, particle.old);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(particle.fresh != "empty" && particle.old == "empty")[m
+[31m-			emptyCols[x]++;[m
+[31m-		else if(particle.fresh == "empty" && particle.old != "empty")[m
+[31m-			emptyCols[x]--;[m
+[31m-		return false;[m
+[31m-	}[m
+[31m-	catch(err){}[m
+[31m-}[m
+[31m-[m
+[31m-//If force, it forces the change, unless the type is in the exceptions array[m
+[31m-//Same for not forcing[m
+[31m-function circlePoint(x, y, r, type, force, exceptions){[m
+[31m-	elipsePoint(x, y, r, r, type, force, exceptions);[m
+[31m-}[m
+[31m-[m
+[31m-function elipsePoint(x, y, xr, yr, type, force, exceptions){[m
+[31m-	try{[m
+[31m-		var particle = particles[x][y];[m
+[31m-		for(var i=0;i<xr;i++)[m
+[31m-			for(var j=0;j<yr;j++){[m
+[31m-				var dist = Math.sqrt(Math.pow(i/xr,2)+Math.pow(j/yr,2));[m
+[31m-				if(dist<=1){[m
+[31m-					if(force)[m
+[31m-						if(exceptions.indexOf(type)!=-1){[m
+[31m-							try{changePoint(x+i, y+j, type);}catch(err){}[m
+[31m-							try{changePoint(x-i, y+j, type);}catch(err){}[m
+[31m-							try{changePoint(x+i, y-j, type);}catch(err){}[m
+[31m-							try{changePoint(x-i, y-j, type);}catch(err){}[m
+[31m-						}[m
+[31m-						else{[m
+[31m-							try{forcePoint(x+i, y+j, type);}catch(err){}[m
+[31m-							try{forcePoint(x-i, y+j, type);}catch(err){}[m
+[31m-							try{forcePoint(x+i, y-j, type);}catch(err){}[m
+[31m-							try{forcePoint(x-i, y-j, type);}catch(err){}[m
+[31m-						}[m
+[31m-					else[m
+[31m-						if(exceptions.indexOf(type)!=-1){[m
+[31m-							try{forcePoint(x+i, y+j, type);}catch(err){}[m
+[31m-							try{forcePoint(x-i, y+j, type);}catch(err){}[m
+[31m-							try{forcePoint(x+i, y-j, type);}catch(err){}[m
+[31m-							try{forcePoint(x-i, y-j, type);}catch(err){}[m
+[31m-						}[m
+[31m-						else{[m
+[31m-							try{changePoint(x+i, y+j, type);}catch(err){}[m
+[31m-							try{changePoint(x-i, y+j, type);}catch(err){}[m
+[31m-							try{changePoint(x+i, y-j, type);}catch(err){}[m
+[31m-							try{changePoint(x-i, y-j, type);}catch(err){}[m
+[31m-						}[m
+[31m-				}[m
+[31m-			}[m
+[31m-	}[m
+[31m-	catch(err){}[m
+[31m-}[m
+[31m-[m
+[31m-//Basically, is is solid or does it move[m
+[31m-function isSolid(type){[m
+[31m-	return type=="wall" || type=="explosive" || type=="growth" || isGen(type);[m
+[31m-}[m
+[31m-[m
+[31m-function isLiquid(type){[m
+[31m-	return type=="droplet" || type=="liquidExplosive" || type=="sand";[m
+[31m-}[m
+[31m-[m
+[31m-function isGas(type){[m
+[31m-	return type=="steam" || type=="smoke" || type=="fire";[m
+[31m-}[m
+[31m-function isCombustible(type){[m
+[31m-	return type=="explosive" || type=="liquidExplosive";[m
+[31m-}[m
+[31m-[m
+[31m-function isGen(type){[m
+[31m-	return type.substring(type.length-3) == "Gen";[m
+[31m-}[m
+[31m-function wasParticleGen(particle){[m
+[31m-	try{[m
+[31m-		return particle.old.substring(particle.old.length-3) == "Gen";[m
+[31m-	}catch(err){return false;}[m
+[31m-}[m
+[31m-function isParticleGen(particle){[m
+[31m-	try{[m
+[31m-		return particle.fresh.substring(particle.fresh.length-3) == "Gen";[m
+[31m-	}catch(err){return false;}[m
+[31m-}[m
+\ No newline at end of file[m
+[1mdiff --git a/projects/fallingsand/grow.js b/projects/fallingsand/grow.js[m
+[1mindex 7951616..1cd34da 100755[m
+[1m--- a/projects/fallingsand/grow.js[m
+[1m+++ b/projects/fallingsand/grow.js[m
+[36m@@ -1,3 +1,6 @@[m
+[32m+[m[32m// Copyright (c) 2016 Dustin Doloff[m
+[32m+[m[32m// Licensed under Apache License v2.0[m
+[32m+[m
+ /********************************************************[m
+ TODO: Make liquids fill things faster (low priority)[m
+ TODO: Add game mechanics[m
+[36m@@ -9,1553 +12,1565 @@[m [mTODO: Make liquids run properly[m
+ TODO: speed up game[m
+ ********************************************************/[m
+ [m
+[31m-/*   ///////  // Variables //  ///////   */[m
+[31m-var particleSize = 5;[m
+[31m-var gameSpeed = 30;[m
+[31m-var inBackground = false;[m
+[31m-var opacity = 1; /*0.0-1.0 are valid opacities*/[m
+[31m-var defaultPenSize = 2;[m
+[31m-var penSize = 2;[m
+[31m-var holdForElement = false; /*If true, you must hold down the key for an element, otherwise it defaults to droplet*/[m
+[31m-var shootDist = 30;[m
+[31m-var maxBulletSpeed = 2;[m
+[31m-var showPlayer = true;[m
+[31m-var playerMode = false; /*Restrict to within shootDist*/[m
+[31m-var useGraphics = false; /*Super performance loss*/[m
+[31m-var disableSelect = true; /*enabling prevents the user from accidentally highlighting things when drawing*/[m
+[31m-[m
+[31m-var loadingText = "Loading...";[m
+[31m-[m
+[31m-var world = "./Grow/world4.grw";[m
+[31m-var imageLocation = "./Grow/images/";[m
+[31m-[m
+[31m-var playerColor = "#ff0000";[m
+[31m-var bulletColor = "#000000";[m
+[31m-var plagueColor = "#004400";[m
+[31m-var steamColor = "#aaaaaa";[m
+[31m-var dropletColor = "#9999ff";[m
+[31m-var fireColor = "#ff6600";[m
+[31m-var smokeColor = "#777777";[m
+[31m-var growthColor = "#aaffaa";[m
+[31m-var wallColor = "#cccccc";[m
+[31m-var explosiveColor = "#cccc00";[m
+[31m-var liquidExplosiveColor = "#eeee00";[m
+[31m-var sandColor = "#efe4b0";[m
+[31m-var stickyColor = "#00bb00";[m
+[31m-var cloudColor = "#aaaadd";[m
+[31m-var lightningColor = "#ffff00";[m
+[31m-var iceColor = "#ddddff";[m
+[31m-var lavaColor = "#aa6622";[m
+[31m-var barkColor = "#994400";[m
+[31m-var shrubColor = "#ddaa55";[m
+[31m-var soilColor = "#bbbb88";[m
+[31m-var nutColor = "#ee9900";[m
+[31m-var genColor = "#000000";[m
+[31m-[m
+[31m-var numBullets = 50;[m
+[31m-var bulletExplosionRadius = 3;[m
+[31m-[m
+[31m-var genRate = .4; /*1 is full, 0 is none*/[m
+[31m-[m
+[31m-/*Element specific growth/spawn rate*/[m
+[31m-var iceSpeed = .05;[m
+[31m-var growthSpeed = .5;[m
+[31m-var lavaSpeed = .01;[m
+[31m-[m
+[31m-var lavaCoolSpeed = .01; /*cool on solids*/[m
+[31m-var lavaFireSpeed = .05; /*spawn fire rate*/[m
+[31m-[m
+[31m-var wallMeltLavaSpeed = .08;[m
+[31m-var wallMeltFireSpeed = .03;[m
+[31m-[m
+[31m-var cloudDropletSpeed = .15;[m
+[31m-var cloudLightningSpeed = .00003;[m
+[31m-[m
+[31m-var shrubBarkVertSpeed = .02;[m
+[31m-var shrubBarkHoriSpeed = .5;[m
+[31m-var shrubGrowBarkSpeed = .6;[m
+[31m-var shrubVertSpeed = .4;[m
+[31m-var shrubHoriSpeed = .6;[m
+[31m-var shrubHoriDist = 4;[m
+[31m-var shrubGrowthSpeed = .3;[m
+[31m-var shrubAgeSpeed = .05;[m
+[31m-/*  /////// // End Variables // ///////  */[m
+[31m-[m
+[31m-var canvas;[m
+[31m-var point;[m
+[31m-var body = document.body;[m
+[31m-[m
+[31m-if(disableSelect){[m
+[31m-	body.onselectstart=function(){return false};[m
+[31m-	body.style.MozUserSelect="none";[m
+[31m-}[m
+[31m-[m
+[31m-body.addEventListener('onload', init(), false);[m
+[31m-var rect;[m
+[31m-var prevX, prevY, curX, curY;[m
+[31m-var gen;[m
+[31m-[m
+[31m-var growthImage;[m
+[31m-var dropletImage;[m
+[31m-var steamImage;[m
+[31m-var fireImage;[m
+[31m-var wallImage;[m
+[31m-var genImage;[m
+[31m-[m
+[31m-var particles;[m
+[31m-var modPart;[m
+[31m-var modInd;[m
+[31m-[m
+[31m-var updatedPart; /*2-dimensional array of true/false for if it is updated*/[m
+[31m-var updatedPartList; /*1-dimensional array of indices of updated*/[m
+[31m-var updatedInd; /*Iterate over updatedPartList*/[m
+[31m-[m
+[31m-var isDown;[m
+[31m-var elemType;[m
+[31m-[m
+[31m-var player;[m
+[31m-[m
+[31m-/*Checks if the spot is covered in blocks so you don't click on a hidden link*/[m
+[31m-function isClear(e){[m
+[31m-	try{[m
+[31m-		var x = parseInt(e.clientX/particleSize);[m
+[31m-		var y = parseInt(e.clientY/particleSize);[m
+[31m-		return particles[x][y].fresh=="empty";[m
+[31m-	} catch(err){return true;}[m
+[31m-}[m
+[31m-[m
+[31m-function reset(){[m
+[31m-	point.clearRect(0, 0, window.innerWidth, window.innerHeight);[m
+[31m-	particles = [];[m
+[31m-	modPart = new Array(parseInt(window.innerWidth/particleSize + 1)*parseInt(window.innerHeight/particleSize + 1));[m
+[31m-	modInd = 0;[m
+[31m-	updatedInd = 0;[m
+[31m-	updatedPart = new Array(parseInt(window.innerWidth/particleSize+1));[m
+[31m-	for(var i=0;i<parseInt(window.innerWidth/particleSize + 1);i++){[m
+[31m-		updatedPart[i] = new Array(parseInt(window.innerHeight/particleSize + 1));[m
+[31m-		particles.push(new Array(parseInt(window.innerHeight/particleSize + 1)));[m
+[31m-		for(var j=0;j<parseInt(window.innerHeight/particleSize + 1);j++){[m
+[31m-			particles[i][j] = new Particulate();[m
+[31m-		}[m
+[31m-	}[m
+[31m-	updatedPartList = new Array(updatedPart.length * updatedPart[0].length);[m
+[31m-}[m
+[31m-[m
+[31m-/*Returns the DOM object just beneath the canvas*/[m
+[31m-function getBeneath(event){[m
+[31m-	if(!event)[m
+[31m-		event = window.event;[m
+[31m-	canvas.style.display="none";[m
+[31m-	var starter = document.elementFromPoint(event.pageX-window.scrollX, event.pageY-window.scrollY);[m
+[31m-	canvas.style.display="";[m
+[31m-	return starter;[m
+[31m-}[m
+[31m-[m
+[31m-/*Called to initialize things*/[m
+[31m-function init(){[m
+[31m-	var clickevent = document.createEvent("MouseEvents");[m
+[31m-	clickevent.initEvent("click", true, true);[m
+[31m-[m
+[31m-	body.addEventListener('mousedown',function(event){prevX=event.clientX;prevY=event.clientY;isDown=true;}, false);[m
+[31m-	body.addEventListener('mouseup', function(){isDown=false;}, false);[m
+[31m-	body.addEventListener('click', function(event){[m
+[31m-		if(isClear(event)){[m
+[31m-			try{getBeneath(event).dispatchEvent(clickevent);}catch(e){}[m
+[31m-		}[m
+[31m-		mouseMove(event);}, false);[m
+[31m-	body.addEventListener('mousemove', function(event){curX=event.clientX; curY=event.clientY; var ben = getBeneath(event); if(ben!=null && ben.nodeName=="A") canvas.style.cursor="pointer"; else if(ben!=null) canvas.style.cursor = ben.style.cursor; else canvas.style.cursor="default"; if(isDown) mouseMove(event);}, false);[m
+[31m-	body.addEventListener('keydown', function(event){key(event);}, false);[m
+[31m-	body.addEventListener('keyup', function(event){gen = event.shiftKey;keyUp(event); if(holdForElement){elemType="droplet";}}, false);[m
+[31m-	body.addEventListener('touchmove', function(){touchMove(event);}, false);[m
+[31m-[m
+[31m-	canvas = document.createElement("canvas");[m
+[31m-	canvas.id = "growthCanvas";[m
+[31m-	point = canvas.getContext("2d");[m
+[31m-	if(inBackground)[m
+[31m-		canvas.style.zIndex = -9999;[m
+[31m-	else[m
+[31m-		canvas.style.zIndex = 9998;[m
+[31m-[m
+[31m-	canvas.setAttribute("width", window.innerWidth + "px");[m
+[31m-	canvas.setAttribute("height", window.innerHeight + "px");[m
+[31m-	canvas.style.position = "fixed";[m
+[31m-	canvas.style.left = "0px";[m
+[31m-	canvas.style.top = "0px";[m
+[31m-	body.appendChild(canvas);[m
+[31m-[m
+[31m-	point.globalAlpha = opacity;[m
+[31m-	point.font = "90px Arial";[m
+[31m-	point.fillText(loadingText, (window.innerWidth-point.measureText(loadingText).width)/2, window.innerHeight/2, window.innerWidth);[m
+[31m-	[m
+[31m-	point.fillStyle = "#cccccc";[m
+[31m-	point.font = "85px Arial";[m
+[31m-	point.fillText(loadingText, (window.innerWidth-point.measureText(loadingText).width)/2, (window.innerHeight-2)/2, window.innerWidth);[m
+[31m-[m
+[31m-	reset();[m
+[31m-[m
+[31m-	player = new Player;[m
+[31m-	for(var i=0;i<numBullets;i++)[m
+[31m-		player.bullets[i] = new Bullet();[m
+[31m-	[m
+[31m-	/*Load game*/[m
+[31m-	var client = new XMLHttpRequest();[m
+[31m-	client.open('GET', world);[m
+[31m-	var done = false;[m
+[31m-	client.onreadystatechange = function() {[m
+[31m-		var txt = client.responseText;[m
+[31m-		[m
+[31m-		while(txt != "" && done){[m
+[31m-			var x, y, width, height, type, shape, positioning;[m
+[31m-			txt = txt.substring(txt.indexOf("<")+1);[m
+[31m-			[m
+[31m-			var tagType = txt.substring(0, txt.indexOf(" "));[m
+[31m-			txt = txt.substring(txt.indexOf(" ")+1);[m
+[31m-			if(tagType == "elem"){[m
+[31m-				while(txt.indexOf(">")!=0){[m
+[31m-					var property = txt.substring(0, txt.indexOf("="));[m
+[31m-					txt = txt.substring(txt.indexOf("=\"")+2);[m
+[31m-					var next = txt.indexOf("\"");[m
+[31m-[m
+[31m-					if(property=="shape")[m
+[31m-						shape = txt.substring(0, next);[m
+[31m-					else if(property=="x")[m
+[31m-						x = parseFloat(txt.substring(0, next));[m
+[31m-					else if(property=="y")[m
+[31m-						y = parseFloat(txt.substring(0, next));[m
+[31m-					else if(property=="width")[m
+[31m-						width = parseFloat(txt.substring(0, next));[m
+[31m-					else if(property=="height")[m
+[31m-						height = parseFloat(txt.substring(0, next));[m
+[31m-					else if(property=="type")[m
+[31m-						type = txt.substring(0, next);[m
+[31m-					else if(property=="position")[m
+[31m-						positioning = txt.substring(0, next);[m
+[31m-[m
+[31m-					txt = txt.substring(next+1);[m
+[31m-					while(txt.indexOf(" ")==0 || txt.indexOf("\t")==0 || txt.indexOf("\n")==0)[m
+[31m-						txt = txt.substring(1);[m
+[31m-				}[m
+[31m-			} else if(tagType == "player"){[m
+[31m-				while(txt.indexOf(">")!=0){[m
+[31m-					var property = txt.substring(0, txt.indexOf("="));[m
+[31m-					txt = txt.substring(txt.indexOf("=\"")+2);[m
+[31m-					var next = txt.indexOf("\"");[m
+[31m-					[m
+[31m-					if(property=="x")[m
+[31m-						x = parseFloat(txt.substring(0, next));[m
+[31m-					else if(property=="y")[m
+[31m-						y = parseFloat(txt.substring(0, next));[m
+[31m-					else if(property=="position")[m
+[31m-						positioning = txt.substring(0, next);[m
+[31m-[m
+[31m-					txt = txt.substring(next+1);[m
+[31m-					while(txt.indexOf(" ")==0 || txt.indexOf("\t")==0 || txt.indexOf("\n")==0)[m
+[31m-						txt = txt.substring(1);[m
+[31m-				}[m
+[31m-			}[m
+[31m-			[m
+[31m-			txt = txt.substring(txt.indexOf(">")+1);[m
+[31m-			[m
+[31m-			var partWidth = window.innerWidth/particleSize;[m
+[31m-			var partHeight = window.innerHeight/particleSize;[m
+[31m-			if(tagType=="elem"){[m
+[31m-				if(positioning=="relative"){[m
+[31m-					if(shape=="rectangle")[m
+[31m-						rectanglePoint(parseInt(partWidth*x), parseInt(partHeight*y), partWidth*width, partHeight*height, type, true, []);[m
+[31m-					else if(shape=="circle")[m
+[31m-						circlePoint(parseInt(partWidth*x), parseInt(partHeight*y), parseInt(partWidth*width), type, true, []);[m
+[31m-					else if(shape=="elipse")[m
+[31m-						elipsePoint(parseInt(partWidth*x), parseInt(partHeight*y), parseInt(partWidth*width), parseInt(partHeight*height), type, true, []);[m
+[31m-				} else if(positioning=="absolute"){[m
+[31m-					if(shape=="rectangle")[m
+[31m-						rectanglePoint(x, y, width, height, type, true, []);[m
+[31m-					else if(shape=="circle")[m
+[31m-						circlePoint(x, y, width, type, true, []);[m
+[31m-					else if(shape=="elipse")[m
+[31m-						elipsePoint(x, y, width, height, type, true, []);[m
+[31m-				}[m
+[31m-			} else if(tagType=="player"){[m
+[31m-					point.clearRect(player.x*particleSize, player.y*particleSize, particleSize, particleSize);[m
+[31m-				if(positioning=="relative"){[m
+[31m-					player.x = parseInt(partWidth*x);[m
+[31m-					player.y = parseInt(partHeight*y);[m
+[31m-				} else if(positioning=="absolute"){[m
+[31m-					player.x = parseInt(x);[m
+[31m-					player.y = parseInt(y);[m
+[31m-				}[m
+[31m-				[m
+[31m-			}[m
+[31m-		}[m
+[31m-		done=true;[m
+[31m-	}[m
+[31m-	client.send();[m
+[31m-	/*End load game */[m
+[31m-	[m
+[31m-	/*Load images images*/[m
+[31m-	growthImage = new Image();[m
+[31m-	growthImage.opacity = opacity;[m
+[31m-	growthImage.src = imageLocation + "growth.png";[m
+[31m-	[m
+[31m-	dropletImage = new Image();[m
+[31m-	dropletImage.opacity = opacity;[m
+[31m-	dropletImage.src = imageLocation + "droplet.png";[m
+[31m-	[m
+[31m-	steamImage = new Image();[m
+[31m-	steamImage.opacity = opacity;[m
+[31m-	steamImage.src = imageLocation + "steam.png";[m
+[31m-	[m
+[31m-	fireImage = new Image();[m
+[31m-	fireImage.opacity = opacity;[m
+[31m-	fireImage.src = imageLocation + "fire.png";[m
+[31m-	[m
+[31m-	wallImage = new Image();[m
+[31m-	wallImage.opacity = opacity;[m
+[31m-	wallImage.src = imageLocation + "wall.png";[m
+[31m-	[m
+[31m-	genImage = new Image();[m
+[31m-	genImage.opacity = opacity;[m
+[31m-	genImage.src = imageLocation + "gen.jpg";[m
+[31m-	[m
+[31m-	isDown = false;[m
+[31m-	elemType = "droplet";[m
+[31m-[m
+[31m-	point.clearRect(0,0,window.innerWidth,window.innerHeight);[m
+[31m-	setTimeout("update()",gameSpeed);[m
+[31m-}[m
+[31m-[m
+[31m-/*Called when a key is pressed*/[m
+[31m-function key(e){[m
+[31m-	var code = e.keyCode;[m
+[31m-	if(code==9) /*tab*/[m
+[31m-		setInterval("act(compressParticles())", 1000);[m
+[31m-	else if (code==37)			/*Arrow Keys*/[m
+[31m-		player.move = -1;[m
+[31m-	else if(code==39)[m
+[31m-		player.move = 1;[m
+[31m-	else if(code==38)[m
+[31m-		if(player.jump==0 && !player.hasJumped){[m
+[31m-			player.hasJumped = true;[m
+[31m-			player.jump=5;[m
+[31m-		}[m
+[31m-	if(code==17 && showPlayer) /*CTRL key*/[m
+[31m-		circlePoint(player.x, player.y, 5, elemType, true, []);[m
+[31m-	else if(code==27){ /*Escape*/[m
+[31m-		alert("updatedPart: " + updatedPart[parseInt(curX/particleSize)][parseInt(curY/particleSize)] + "\npariticles: " + particles[parseInt(curX/particleSize)][parseInt(curY/particleSize)].fresh);[m
+[31m-		var x = parseInt(curX/particleSize);[m
+[31m-		var y = parseInt(curY/particleSize);[m
+[31m-			var count=0;[m
+[31m-			for(var i=-1;i<2;i++)[m
+[31m-				for(var j=-1;j<2;j++)[m
+[31m-					if(x+i<0 || x+i>particles.length || y+j<0 || y+j>particles[0].length || isSolid(particles[x+i][y+j].fresh))[m
+[31m-						count++;[m
+[31m-			alert(count);[m
+[31m-	}[m
+[31m-	else if(code==32) /*Space*/[m
+[31m-		player.fireBullet();[m
+[31m-	else if(code==48) /*0*/[m
+[31m-		penSize = defaultPenSize;[m
+[31m-	else if(code>=49 && code<=57) /*1-9*/[m
+[31m-		penSize = code-48;[m
+[31m-	else if(code==65)[m
+[31m-		elemType = "sand";[m
+[31m-	else if(code==66)[m
+[31m-		elemType = "bark";[m
+[31m-	else if(code==67)[m
+[31m-		elemType = "cloud";[m
+[31m-	else if(code==68)[m
+[31m-		elemType = "droplet";[m
+[31m-	else if(code==69)[m
+[31m-		elemType = "eraser";[m
+[31m-	else if(code==70)[m
+[31m-		elemType = "fire";[m
+[31m-	else if(code==71)[m
+[31m-		elemType = "growth";[m
+[31m-	else if(code==72)[m
+[31m-		elemType = "shrub";[m
+[31m-	else if(code==73)[m
+[31m-		elemType = "ice";[m
+[31m-	else if(code==75)[m
+[31m-		elemType = "cloak";[m
+[31m-	else if(code==76)[m
+[31m-		elemType = "lightning";[m
+[31m-	else if(code==77)[m
+[31m-		elemType = "smoke";[m
+[31m-	else if(code==78)[m
+[31m-		elemType = "nut";[m
+[31m-	else if(code==79)[m
+[31m-		elemType = "soil";[m
+[31m-	else if(code==80)[m
+[31m-		elemType = "plague";[m
+[31m-	else if(code==83)[m
+[31m-		elemType = "steam";[m
+[31m-	else if(code==84)[m
+[31m-		elemType = "sticky";[m
+[31m-	else if(code==86)[m
+[31m-		elemType = "lava";[m
+[31m-	else if(code==87)[m
+[31m-		elemType = "wall";[m
+[31m-	else if(code==88)[m
+[31m-		elemType = "explosive";[m
+[31m-	else if(code==90)[m
+[31m-		elemType = "liquidExplosive";[m
+[31m-	else if(code==192){ /*~*/[m
+[31m-		setInterval(function(){[m
+[31m-			var ret = act("");[m
+[31m-			reset();[m
+[31m-			var elem = ret.substring(0, 1);[m
+[31m-			ret = ret.substring(1);[m
+[31m-			while(ret!=""){[m
+[31m-				while(ret.indexOf(";")!=0){[m
+[31m-					var x = ret.substring(0, 3);[m
+[31m-					ret = ret.substring(3);[m
+[31m-					var y = ret.substring(0, 3);[m
+[31m-					ret = ret.substring(3);[m
+[31m-					forcePoint(parseInt(x, 10), parseInt(y, 10), decompressElem(elem));[m
+[31m-				}[m
+[31m-				elem = ret.substring(1, 2);[m
+[31m-				ret = ret.substring(2);[m
+[31m-			}[m
+[31m-		}, 1000);[m
+[31m-		[m
+[31m-	}[m
+[31m-	/*Set gen if the shiftkey is down*/[m
+[31m-	gen = e.shiftKey;[m
+[31m-}[m
+[31m-[m
+[31m-/*Called on body.keyup*/[m
+[31m-function keyUp(e){[m
+[31m-	var code;[m
+[31m-	if (e.keyCode)[m
+[31m-		code = e.keyCode;[m
+[31m-	else if (e.which)[m
+[31m-		code = e.which;[m
+[31m-[m
+[31m-	if(code==37 || code==39)[m
+[31m-		player.move = 0;[m
+[31m-}[m
+[31m-[m
+[31m-/*Particulate class definition*/[m
+[31m-function Particulate(){[m
+[31m-	this.old = "empty";[m
+[31m-	this.fresh = "empty";[m
+[31m-}[m
+[31m-[m
+[31m-/*Player class definition*/[m
+[31m-function Player(){[m
+[31m-	this.x = 50;[m
+[31m-	this.y = 50;[m
+[31m-	this.move = 0;[m
+[31m-	this.jump = 0;[m
+[31m-	this.hasJumped = false;[m
+[31m-	this.bullets = new Array(numBullets);[m
+[31m-	this.fireBullet = function(){[m
+[31m-		for(var i=0;i<numBullets;i++){[m
+[31m-			var bullet = player.bullets[i];[m
+[31m-			if(bullet.x<0 || bullet.y<0 || bullet.x>particles.length || bullet.y>particles[0].length){[m
+[31m-				var x = curX/particleSize;[m
+[31m-				var y = curY/particleSize;[m
+[31m-				var magnitude = Math.sqrt(Math.pow(x-player.x,2) + Math.pow(y-player.y,2));[m
+[31m-				if(magnitude>maxBulletSpeed)[m
+[31m-					magnitude /= maxBulletSpeed;[m
+[31m-				else[m
+[31m-					magnitude = 1;[m
+[31m-				bullet.velX = (x-player.x)/magnitude;[m
+[31m-				bullet.velY = (y-player.y)/magnitude;[m
+[31m-				bullet.x = player.x;[m
+[31m-				bullet.y = player.y;[m
+[31m-				bullet.elem = elemType;[m
+[31m-				return;[m
+[31m-			}[m
+[31m-		}[m
+[31m-	}[m
+[31m-}[m
+[31m-[m
+[31m-/*Bullet class definition*/[m
+[31m-function Bullet(){[m
+[31m-	this.x = -1;[m
+[31m-	this.y = -1;[m
+[31m-	this.velX = 0;[m
+[31m-	this.velY = 0;[m
+[31m-	this.elem = "fire";[m
+[31m-}[m
+[31m-[m
+[31m-/*Called when their is a touch event for mobile devices*/[m
+[31m-function touchMove(evt) {[m
+[31m-	try{[m
+[31m-		evt.preventDefault();[m
+[31m-		var touches = evt.changedTouches;[m
+[31m-		for(var i=0;i<touches.length;i++){[m
+[31m-			circlePoint(parseInt(touches[i].clientX/particleSize), parseInt(touches[i].clientY/particleSize), penSize, getElem(), true, []);[m
+[31m-		}[m
+[31m-	} catch(e){}[m
+[31m-}[m
+[31m-[m
+[31m-/*Called when the mouse moves to allow you to draw stuff*/[m
+[31m-function mouseMove(event){[m
+[31m-	if(event.clientX!=0 || event.clientY!=0){[m
+[31m-		if(playerMode){[m
+[31m-			prevX = event.clientX;[m
+[31m-			prevY = event.clientY;[m
+[31m-			move();[m
+[31m-		}[m
+[31m-		else{[m
+[31m-			var x = parseInt(event.clientX);[m
+[31m-			var y = parseInt(event.clientY);[m
+[31m-			do{[m
+[31m-				circlePoint(parseInt(x/particleSize), parseInt(y/particleSize), penSize, getElem(), true, []);[m
+[31m-				if(Math.abs(x-prevX)>=particleSize)[m
+[31m-					x += particleSize*(x-prevX<0?1:-1);[m
+[31m-				if(Math.abs(y-prevY)>=particleSize)[m
+[31m-					y += particleSize*(y-prevY<0?1:-1);[m
+[31m-			} while(Math.abs(x-prevX)>=particleSize || Math.abs(y-prevY)>=particleSize)[m
+[31m-		}[m
+[31m-		prevX = event.clientX;[m
+[31m-		prevY = event.clientY;[m
+[31m-	}[m
+[31m-}[m
+[31m-[m
+[31m-function move(){[m
+[31m-	var x = parseInt(prevX)/particleSize;[m
+[31m-	var y = parseInt(prevY)/particleSize;[m
+[31m-	var magnitude = Math.sqrt(Math.pow(x-player.x,2) + Math.pow(y-player.y,2));[m
+[31m-	if(magnitude>shootDist)[m
+[31m-		magnitude /= shootDist;[m
+[31m-	else[m
+[31m-		magnitude = 1;[m
+[31m-	x = player.x + (x-player.x)/magnitude;[m
+[31m-	y = player.y + (y-player.y)/magnitude;[m
+[31m-	[m
+[31m-	circlePoint(parseInt(x), parseInt(y), penSize, getElem(), true, []);[m
+[31m-}[m
+[31m-[m
+[31m-/*converts the given elem to a valid elem type*/[m
+[31m-function getElem(){[m
+[31m-	if(gen && elemType != "plague" && !isSolid(elemType))[m
+[31m-		return elemType + "Gen";[m
+[31m-	else if(elemType == "eraser")[m
+[31m-		return "empty";[m
+[31m-	else[m
+[31m-		return elemType;[m
+[31m-}[m
+[31m-[m
+[31m-/*Called repeatedly, handles everything*/[m
+[31m-function update(){[m
+[31m-	for(modInd--;modInd>=0;modInd--){[m
+[31m-		updateAction(modPart[modInd][0], modPart[modInd][1]);[m
+[31m-	}[m
+[31m-	modInd=0;[m
+[31m-	if(showPlayer)[m
+[31m-		try{updatePlayer();}catch(e){}[m
+[31m-	draw();[m
+[31m-	setTimeout("update()",gameSpeed);[m
+[31m-}[m
+[31m-[m
+[31m-/*Causes things on the field to "act"*/[m
+[31m-function updateAction(x, y){[m
+[31m-	var particulate = particles[x][y];[m
+[31m-	if(!particulate)[m
+[31m-		return false;[m
+[31m-	var elem = particulate.fresh;[m
+[31m-	if(elem=="empty" || elem=="wall" || elem=="growth" || elem=="ice" || elem=="explosive" || elem=="bark" || elem=="cloak")[m
+[31m-		return;[m
+[31m-[m
+[31m-	else if(elem=="plague"){[m
+[31m-		var move = Math.floor(Math.random()*4);[m
+[31m-		if(move==0)[m
+[31m-			changePoint(x, y-1, "plague");[m
+[31m-		else if(move==1)[m
+[31m-			changePoint(x, y+1, "plague");[m
+[31m-		else if(move==2)[m
+[31m-			changePoint(x-1, y, "plague");[m
+[31m-		else if(move==3)[m
+[31m-			changePoint(x+1, y, "plague");[m
+[31m-[m
+[31m-		if(Math.random()<.25)[m
+[31m-			changePoint(x, y, "empty");[m
+[31m-	} else if(elem=="steam"){[m
+[31m-		var move = Math.floor(Math.random()*100);[m
+[31m-		if(move>=60)[m
+[31m-			changePoint(x, y-1, "steam");[m
+[31m-		else if(move>=50)[m
+[31m-			changePoint(x-1, y, "steam");[m
+[31m-		else if(move>=40)[m
+[31m-			changePoint(x+1, y, "steam");[m
+[31m-		else if(move==1)[m
+[31m-			changePoint(x, y, "droplet");[m
+[31m-				[m
+[31m-		if(move>=40)[m
+[31m-			changePoint(x, y, "empty");[m
+[31m-	} else if(elem=="cloud"){[m
+[31m-		var x2=-1, y2=-1;[m
+[31m-		var move = Math.floor(Math.random()*300);[m
+[31m-		if     (move<20){x2=x; y2=y-1;}[m
+[31m-		else if(move<40){x2=x; y2=y+1;}[m
+[31m-			[m
+[31m-		else if(move<60){x2=x+1; y2=y;}[m
+[31m-		else if(move<80){x2=x-1; y2=y;}[m
+[31m-			[m
+[31m-		else if(move<100){x2=x-1; y2=y+1;}[m
+[31m-		else if(move<120){x2=x-1; y2=y-1;}[m
+[31m-			[m
+[31m-		else if(move<140){x2=x+1; y2=y-1;}[m
+[31m-		else if(move<160){x2=x+1; y2=y+1;}[m
+[31m-			[m
+[31m-[m
+[31m-		else if(move>265) /*25 & 4 // 278 & 5 //6 is too tight, makes a square*/[m
+[31m-			changePoint(x, y, "empty");[m
+[31m-[m
+[31m-		if(x2!=-1){[m
+[31m-			var sum=0;[m
+[31m-			for(var i=-1;i<2;i++)[m
+[31m-				for(var j=-1;j<2;j++)[m
+[31m-					try{ if(particles[x+i][y+j].fresh == "cloud"){[m
+[31m-						sum++;	[m
+[31m-					} }catch(err){}[m
+[31m-			if(sum>4){[m
+[31m-				changePoint(x2, y2, "cloud");[m
+[31m-			}[m
+[31m-		}[m
+[31m-		var spawn = Math.random();[m
+[31m-		if(spawn<cloudLightningSpeed)[m
+[31m-			changePoint(x, y+1, "lightning");[m
+[31m-		if(spawn<cloudDropletSpeed && particulate.old == "empty"){[m
+[31m-			changePoint(x, y+1, "droplet");[m
+[31m-		}[m
+[31m-	} else if(elem=="lightning"){[m
+[31m-		setTimeout(forcePoint, gameSpeed, x, y, "empty");[m
+[31m-		var move = Math.random()*5;[m
+[31m-		if(move<1){[m
+[31m-			move = Math.floor(move*11)-5;[m
+[31m-			changePoint(move+x, y+1, "lightning");[m
+[31m-			updateAction(move+x, y+1, "lightning");[m
+[31m-		}[m
+[31m-		else{[m
+[31m-			changePoint(x, y+1, "lightning");[m
+[31m-			updateAction(x, y+1, "lightning");[m
+[31m-		}[m
+[31m-	} else if(elem=="sticky" || elem=="droplet" || elem=="sand" || elem=="lava" || elem=="liquidExplosive" || elem=="soil" || elem=="nut"){[m
+[31m-		if(elem=="sticky"){[m
+[31m-			for(var i=-1;i<2;i++)[m
+[31m-				for(var j=-1;j<2;j++)[m
+[31m-					try{ if((i==0 || j==0) && isSolid(particles[x+i][y+j].fresh) || (isSticky(particles[x+i][y+j].fresh) && (!isLiquid(particles[x+i][y+j].fresh) || isClumpy(particles[x+i][y+j].fresh)))){[m
+[31m-						continue;[m
+[31m-					} }catch(err){}[m
+[31m-		}[m
+[31m-		var type = particulate.fresh;[m
+[31m-		if(elem=="lava"){[m
+[31m-			var lavaSum=0;[m
+[31m-			var solidSum=0;[m
+[31m-			for(var i=-1;i<2;i++)[m
+[31m-				for(var j=-1;j<2;j++)[m
+[31m-					try{[m
+[31m-						if(particles[x+i][y+j].fresh == "lava")[m
+[31m-							lavaSum++;[m
+[31m-						else if(isSolid(particles[x+i][y+j].fresh))[m
+[31m-							solidSum++;[m
+[31m-					}catch(err){}[m
+[31m-			if(lavaSum<7 && solidSum>1 && Math.random()<lavaCoolSpeed){[m
+[31m-				forcePoint(x, y, "wall");[m
+[31m-			} else {[m
+[31m-				changePoint(x, y, "empty");[m
+[31m-				changePoint(x, y+1, "lava");[m
+[31m-			}[m
+[31m-			if(Math.random()<lavaFireSpeed)[m
+[31m-				changePoint(x, y, "fire");[m
+[31m-		} else {[m
+[31m-			changePoint(x, y, "empty");[m
+[31m-			changePoint(x, y+1, type);	[m
+[31m-		}[m
+[31m-	} else if(elem=="fire"){[m
+[31m-		var move = Math.floor(Math.random()*9);[m
+[31m-		if(move%3==0)[m
+[31m-			changePoint(x, y-1, "fire");[m
+[31m-		if(move<1)[m
+[31m-			changePoint(x, y-3, "smoke");[m
+[31m-		if(move>6)[m
+[31m-			changePoint(x+1, y, "fire");[m
+[31m-		if(move<2)[m
+[31m-			changePoint(x-1, y, "fire");[m
+[31m-		if(move==0)[m
+[31m-			changePoint(x, y-1, "fire");[m
+[31m-		changePoint(x, y, "empty");[m
+[31m-	} else if(elem=="smoke"){[m
+[31m-		var move = Math.floor(Math.random()*9);[m
+[31m-		var amount = Math.floor(Math.random()*5)-2;[m
+[31m-		if(move>7)[m
+[31m-			changePoint(x, y-Math.abs(amount), "smoke");[m
+[31m-		if(move<6)[m
+[31m-			changePoint(x, y, "empty");[m
+[31m-		if(move>6)[m
+[31m-			changePoint(x+amount, y, "smoke");[m
+[31m-		if(move<2)[m
+[31m-			changePoint(x-amount, y, "smoke");[m
+[31m-	} else if(elem=="shrub"){[m
+[31m-		var grow = Math.random();[m
+[31m-		if(grow<shrubVertSpeed && y-1>=0 && particles[x][y-1].fresh == "empty")[m
+[31m-			changePoint(x, y-1, "shrub");[m
+[31m-		grow = Math.random();[m
+[31m-		if(grow<shrubHoriSpeed){[m
+[31m-			var maxDist = Math.ceil(Math.random()*shrubHoriDist);[m
+[31m-			var dist = 0;[m
+[31m-			grow = Math.random();[m
+[31m-			try{[m
+[31m-			if(grow>.5){[m
+[31m-				while(dist++<maxDist && particles[x+dist][y].fresh=="empty"){[m
+[31m-					changePoint(x+dist, y, "shrub");[m
+[31m-					if(particles[x+dist][y+1].fresh=="empty")[m
+[31m-						changePoint(x+dist, y+1, "bark");[m
+[31m-					if(Math.random()<.5 && particles[x+dist][y-1].fresh=="empty")[m
+[31m-						changePoint(x+dist, y-1, "bark");[m
+[31m-				}[m
+[31m-			} else {[m
+[31m-				while(dist++<maxDist && particles[x-dist][y].fresh=="empty"){[m
+[31m-					changePoint(x-dist,y, "shrub");[m
+[31m-					if(particles[x-dist][y+1].fresh=="empty")[m
+[31m-						changePoint(x-dist, y+1, "bark");[m
+[31m-					if(Math.random()<shrubGrowBarkSpeed && particles[x-dist][y-1].fresh=="empty")[m
+[31m-						changePoint(x-dist, y-1, "bark");[m
+[31m-				}[m
+[31m-			}}catch(err){}[m
+[31m-		}[m
+[31m-		var count=0;[m
+[31m-		for(var i=-1;i<2;i++)[m
+[31m-			for(var j=-1;j<2;j++){[m
+[31m-				try{[m
+[31m-					if(x+i<0 || x+i>particles.length || y+j<0 || y+j>particles[0].length || isSolid(particles[x+i][y+j].fresh))[m
+[31m-						count++;[m
+[31m-					if(x+i>=0 && x+i<particles.length && y+j>=0 && y+j<particles[0].length)[m
+[31m-						if((i+j)%2==0 && particles[x+i][y+j].fresh=="empty")[m
+[31m-							if(j!=0 && Math.random()<shrubBarkVertSpeed)[m
+[31m-								changePoint(x+i,y+j,"bark");[m
+[31m-							else if(Math.random()<shrubBarkHoriSpeed)[m
+[31m-								changePoint(x+i,y+j,"bark");[m
+[31m-						else if(Math.random()<shrubSpeed && particles[x+i][y+j].fresh=="empty")[m
+[31m-							changePoint(x+i,y+j,"growth");[m
+[31m-				} catch(err){}[m
+[31m-			}[m
+[31m-		if(count>=8 && Math.random()<shrubAgeSpeed){[m
+[31m-			forcePoint(x, y, "bark");[m
+[31m-		}[m
+[31m-	} else if(isGen(elem) && isGas(particulate.fresh.substring(0,particulate.fresh.indexOf("Gen")))){[m
+[31m-			changePoint(x, y-1, particulate.fresh.substring(0,particulate.fresh.indexOf("Gen")));[m
+[31m-			updateAction(x, y-1);[m
+[31m-	} else if(isGen(elem) && (elem=="lightningGen" || [m
+[31m-	(particulate.fresh.substring(0,particulate.fresh.indexOf("Gen"))))){[m
+[31m-		var act = Math.random();[m
+[31m-		if(particles[x][y+1] && particles[x][y+1].fresh == "empty" && act < genRate){[m
+[31m-			changePoint(x, y+1, particulate.fresh.substring(0,particulate.fresh.indexOf("Gen")));[m
+[31m-		}[m
+[31m-	}[m
+[31m-	forcePoint(x, y, particles[x][y].fresh);[m
+[31m-}[m
+[31m-[m
+[31m-function draw(){[m
+[31m-	while(updatedInd-->0){[m
+[31m-		var x = updatedPartList[updatedInd][0];[m
+[31m-		var y = updatedPartList[updatedInd][1];[m
+[31m-		updatedPart[x][y] = false;[m
+[31m-[m
+[31m-		var particulate = particles[x][y];[m
+[31m-		var image = '';[m
+[31m-		switch(particulate.fresh){[m
+[31m-			case "empty":[m
+[31m-			case "cloak":[m
+[31m-				point.clearRect(x*particleSize, y*particleSize, particleSize, particleSize);[m
+[31m-				continue;[m
+[31m-			case "plague":[m
+[31m-				point.fillStyle = plagueColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break;[m
+[31m-			case "steam":[m
+[31m-				point.fillStyle = steamColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				image = steamImage;[m
+[31m-				break;[m
+[31m-			case "droplet":[m
+[31m-				point.fillStyle = dropletColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				image = dropletImage;[m
+[31m-				break;[m
+[31m-			case "fire":[m
+[31m-				point.fillStyle = fireColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				image = fireImage;[m
+[31m-				break;[m
+[31m-			case "smoke":[m
+[31m-				point.fillStyle = smokeColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break;[m
+[31m-			case "growth":[m
+[31m-				point.fillStyle = growthColor;[m
+[31m-				image = growthImage;[m
+[31m-				break;[m
+[31m-			case "wall":[m
+[31m-				point.fillStyle = wallColor;[m
+[31m-				image = wallImage;[m
+[31m-				break;[m
+[31m-			case "explosive":[m
+[31m-				point.fillStyle = explosiveColor;[m
+[31m-				break;[m
+[31m-			case "liquidExplosive":[m
+[31m-				point.fillStyle = liquidExplosiveColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break;[m
+[31m-			case "sand":[m
+[31m-				point.fillStyle = sandColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break;[m
+[31m-			case "sticky":[m
+[31m-				point.fillStyle = stickyColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break;[m
+[31m-			case "cloud":[m
+[31m-				point.fillStyle = cloudColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break;[m
+[31m-			case "lightning":[m
+[31m-				point.fillStyle = lightningColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break; [m
+[31m-			case "ice":[m
+[31m-				point.fillStyle = iceColor;[m
+[31m-				break;[m
+[31m-			case "lava":[m
+[31m-				point.fillStyle = lavaColor; [m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break;[m
+[31m-			case "bark":[m
+[31m-				point.fillStyle = barkColor;[m
+[31m-				break;[m
+[31m-			case "shrub":[m
+[31m-				point.fillStyle = shrubColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break;[m
+[31m-			case "soil":[m
+[31m-				point.fillStyle = soilColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break;[m
+[31m-			case "nut":[m
+[31m-				point.fillStyle = nutColor;[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				break;[m
+[31m-			case "dropletGen":[m
+[31m-			case "steamGen":[m
+[31m-			case "fireGen":[m
+[31m-			case "smokeGen":[m
+[31m-			case "sandGen":[m
+[31m-			case "liquidExplosiveGen":[m
+[31m-			case "lightningGen":[m
+[31m-			case "cloudGen":[m
+[31m-			case "stickyGen":[m
+[31m-			case "lavaGen":[m
+[31m-			case "soilGen":[m
+[31m-			case "nutGen":[m
+[31m-				modPart[modInd++] = new Array(x, y);[m
+[31m-				point.fillStyle = genColor;[m
+[31m-				break;[m
+[31m-		}[m
+[31m-		if(image == '' || !useGraphics)[m
+[31m-			point.fillRect(x*particleSize,y*particleSize,particleSize,particleSize);[m
+[31m-		else[m
+[31m-			point.drawImage(image, x*particleSize, y*particleSize, particleSize, particleSize);[m
+[31m-	}[m
+[31m-	[m
+[31m-	updatedInd = 0;[m
+[31m-	if(showPlayer){[m
+[31m-		/*Draw Player*/[m
+[31m-		point.fillStyle = playerColor;[m
+[31m-		point.fillRect(player.x*particleSize, player.y*particleSize, particleSize, particleSize);[m
+[31m-		/*Draw Bullet*/[m
+[31m-		point.fillStyle = bulletColor;[m
+[31m-		for(var i=0;i<numBullets;i++)[m
+[31m-			point.fillRect(player.bullets[i].x*particleSize, player.bullets[i].y*particleSize, particleSize, particleSize);[m
+[31m-	}[m
+[31m-}[m
+[31m-[m
+[31m-function updatePlayer(){[m
+[31m-	forcePoint(player.x, player.y, particles[player.x][player.y].fresh);[m
+[31m-[m
+[31m-	player.x += player.move;[m
+[31m-	try{[m
+[31m-	var particle = particles[player.x][player.y];[m
+[31m-	if(particle && isSolid(particle.fresh)){[m
+[31m-		player.x -= player.move;[m
+[31m-	}}catch(err){}[m
+[31m-	[m
+[31m-	player.y += 1;[m
+[31m-	try{[m
+[31m-	particle = particles[player.x][player.y];[m
+[31m-	if(particle && isSolid(particle.fresh)){[m
+[31m-		player.y -= 1;[m
+[31m-		player.hasJumped = false;[m
+[31m-	}}catch(err){}[m
+[31m-	[m
+[31m-	[m
+[31m-	if(player.jump>0){[m
+[31m-		player.y -= 2;[m
+[31m-		player.jump -= 1;[m
+[31m-		try{[m
+[31m-		particle = particles[player.x][player.y];[m
+[31m-		if(particle && isSolid(particle.fresh)){[m
+[31m-			player.y+= 1;[m
+[31m-			player.jump = 0;[m
+[31m-		}[m
+[31m-		particle = particles[player.x][player.y];[m
+[31m-		if(particle && isSolid(particle.fresh)){[m
+[31m-			player.y+= 1;[m
+[31m-			player.jump = 0;[m
+[31m-		}}catch(err){}[m
+[31m-	}[m
+[31m-[m
+[31m-	for(var i=0;i<numBullets;i++){[m
+[31m-		var bullet = player.bullets[i];[m
+[31m-		point.clearRect(bullet.x*particleSize, bullet.y*particleSize, particleSize, particleSize);[m
+[31m-		bullet.x += bullet.velX;[m
+[31m-		bullet.y += bullet.velY;[m
+[31m-		var x = Math.floor(bullet.x);[m
+[31m-		var y = Math.floor(bullet.y);[m
+[31m-		try{[m
+[31m-			if(isSolid(particles[x][y].fresh) || particles[x][y].fresh == "sticky" || getDensity(particles[x][y].fresh)>getDensity("droplet")){[m
+[31m-				circlePoint(x, y, bulletExplosionRadius, bullet.elem, true, ["growth","explosive","liquidExplosive", "cloak"]);[m
+[31m-				player.bullets[i] = new Bullet();[m
+[31m-			} else {[m
+[31m-				x = Math.ceiling(bullet.x);[m
+[31m-				y = Math.ceiling(bullet.y);[m
+[31m-				if(isSolid(particles[x][y].fresh) || particles[x][y].fresh == "sticky" || getDensity(particles[x][y].fresh)>getDensity("droplet")){[m
+[31m-					circlePoint(x, y, bulletExplosionRadius, bullet.elem, true, ["growth","explosive","liquidExplosive", "cloak"]);[m
+[31m-					player.bullets[i] = new Bullet();[m
+[31m-				}[m
+[31m-			}[m
+[31m-		} catch(err){}[m
+[31m-	}[m
+[31m-}[m
+[31m-[m
+[31m-function forcePoint(x, y, type){[m
+[31m-	try{[m
+[31m-		var particle = particles[x][y];[m
+[31m-		particle.old = particle.fresh;[m
+[31m-		particle.fresh = type;[m
+[31m-[m
+[31m-		if(updatedPart[x][y]!=true){[m
+[31m-			updatedPart[x][y] = true;[m
+[31m-			updatedPartList[updatedInd++] = new Array(x, y);[m
+[31m-		}[m
+[31m-	} catch(err) {}[m
+[31m-}[m
+[31m-[m
+[31m-function changePoint(x, y, type){[m
+[31m-	try{[m
+[31m-		var particle = particles[x][y];[m
+[31m-		particle.old = particle.fresh;[m
+[31m-		particle.fresh = type;[m
+[31m-		if(particle.old == particle.fresh)[m
+[31m-			forcePoint(x, y, type);[m
+[31m-[m
+[31m-		if(updatedPart[x][y]!=true){[m
+[31m-			updatedPart[x][y] = true;[m
+[31m-			updatedPartList[updatedInd++] = new Array(x, y);[m
+[31m-		}[m
+[31m-		[m
+[31m-		if(type == "droplet"){[m
+[31m-			for(var i=-1;i<2;i++)[m
+[31m-				for(var j=-1;j<2;j++)[m
+[31m-					if(particles[x+i][y+j].fresh == "growth" && Math.random()<growthSpeed){[m
+[31m-						setTimeout(changePoint,gameSpeed*3, x, y, "growth");[m
+[31m-					} else if(particles[x+i][y+j].fresh == "ice" && Math.random()<iceSpeed){[m
+[31m-						setTimeout(changePoint,gameSpeed*3, x, y, "ice");[m
+[31m-					} else if(particles[x+i][y+j].fresh == "lava"){[m
+[31m-						setTimeout(changePoint,gameSpeed, x+i, y+j, "wall");[m
+[31m-						setTimeout(changePoint,gameSpeed, x, y, "steam");[m
+[31m-					}[m
+[31m-			[m
+[31m-			if(particle.old == "fire"){[m
+[31m-				forcePoint(x, y, "steam");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(particle.old == "lava"){[m
+[31m-				changePoint(x, y, "wall");[m
+[31m-				changePoint(x, y-1, "steam");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(particle.old == "growth" || particle.old == "ice"){[m
+[31m-				forcePoint(x, y, particle.old);[m
+[31m-				if((particle.fresh=="growth" && Math.random()<growthSpeed) || (particle.fresh=="ice" && Math.random()<iceSpeed)){[m
+[31m-					var grow = Math.floor(Math.random()*10);[m
+[31m-					setTimeout(changePoint,gameSpeed, x, y-1, particle.fresh);[m
+[31m-					if(grow==9)[m
+[31m-						setTimeout(changePoint,gameSpeed, x-1, y-1, particle.fresh);[m
+[31m-					if(grow<7)[m
+[31m-						setTimeout(changePoint,gameSpeed, x-1, y, particle.fresh);[m
+[31m-					if(grow>2)[m
+[31m-						setTimeout(changePoint,gameSpeed, x+1, y, particle.fresh);[m
+[31m-					if(grow==0)[m
+[31m-						setTimeout(changePoint,gameSpeed, x+1, y-1, particle.fresh);[m
+[31m-				} else {[m
+[31m-					changePoint(x, y-1, "droplet");[m
+[31m-				}[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(particle.old == "cloud"){	[m
+[31m-				forcePoint(x, y, "cloud");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(particle.old == "sand"){[m
+[31m-				forcePoint(x, y, "soil");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-		}[m
+[31m-		if(type == "fire"){[m
+[31m-			if(isCombustible(particle.old)){[m
+[31m-				setTimeout(circlePoint,gameSpeed, x, y, 10, "fire", true, ["explosive", "liquidExplosive", "droplet"]);[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			[m
+[31m-			if(particle.old == "droplet"){[m
+[31m-				changePoint(x, y, "steam");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(isFlammable(particle.old)){[m
+[31m-				var burn = Math.floor(Math.random()*5);[m
+[31m-				if(burn<4)[m
+[31m-					setTimeout(changePoint, gameSpeed, x, y-1, "fire");[m
+[31m-				if(burn<3)[m
+[31m-					setTimeout(changePoint, gameSpeed, x-1, y, "fire");[m
+[31m-				if(burn>1)[m
+[31m-					setTimeout(changePoint, gameSpeed, x+1, y, "fire");[m
+[31m-				if(burn<2)[m
+[31m-					setTimeout(changePoint,gameSpeed*3, x, y+1, "fire");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(particle.old == "ice"){[m
+[31m-				forcePoint(x, y, "steam");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(particle.old == "wall"){				[m
+[31m-				if(Math.random()<wallMeltFireSpeed){[m
+[31m-					changePoint(x, y, "lava");[m
+[31m-					return true;[m
+[31m-				}[m
+[31m-			}[m
+[31m-			else if(particle.old == "smoke"){[m
+[31m-				forcePoint(x, y, "fire");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(particle.old == "soil"){[m
+[31m-				forcePoint(x, y, "sand");[m
+[31m-				changePoint(x, y-1, "steam");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-		}[m
+[31m-		if(type == "lava"){[m
+[31m-			for(var i=-1;i<2;i++)[m
+[31m-				for(var j=-1;j<2;j++)[m
+[31m-					/*if(particles[x+i][y+j].fresh=="wall" && Math.random()<wallMeltLavaSpeed){[m
+[31m-						setTimeout(forcePoint,gameSpeed, x+i, y+j, "lava");[m
+[31m-					} else*/ if(isFlammable(particles[x+i][y+j].fresh) && Math.random()<lavaSpeed){[m
+[31m-						setTimeout(changePoint,gameSpeed*3, x+i, y+j, "wall");[m
+[31m-						setTimeout(changePoint,gameSpeed*3, x+i, y+j-1, "fire");[m
+[31m-					}[m
+[31m-			[m
+[31m-			if(isCombustible(particle.old)){[m
+[31m-				setTimeout(circlePoint,gameSpeed, x, y, 10, "fire", true, ["explosive", "liquidExplosive", "droplet"]);[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			[m
+[31m-			/*if(particle.old == "wall"){[m
+[31m-				if(Math.random()<wallMeltLavaSpeed)[m
+[31m-					setTimeout(forcePoint, gameSpeed, x, y, "lava");[m
+[31m-				else{[m
+[31m-					forcePoint(x, y, "wall");[m
+[31m-					forcePoint(x, y-1, "wall");[m
+[31m-				}[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else*/ if(isFlammable(particle.old)){[m
+[31m-				changePoint(x, y-1, "fire");[m
+[31m-				changePoint(x, y+1, "fire");[m
+[31m-				forcePoint(x, y, "wall");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(particle.old == "droplet"){[m
+[31m-				changePoint(x, y, "wall");[m
+[31m-				changePoint(x, y-1, "steam");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(particle.old == "ice"){[m
+[31m-				changePoint(x, y-1, "wall");[m
+[31m-				changePoint(x, y, "droplet");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			else if(particle.old == "soil"){[m
+[31m-				forcePoint(x, y, "wall");[m
+[31m-				changePoint(x, y-1, "lava");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-		}[m
+[31m-		if(type == "steam"){[m
+[31m-			if(particle.old == "ice"){[m
+[31m-				forcePoint(x, y, "ice");[m
+[31m-				var condense = Math.floor(Math.random()*10);[m
+[31m-				if(condense==9)[m
+[31m-					setTimeout(changePoint,gameSpeed, x-1, y+1, "droplet");[m
+[31m-				if(condense==0)[m
+[31m-					setTimeout(changePoint,gameSpeed, x+1, y+1, "droplet");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-			if(particle.old == "sand"){[m
+[31m-				forcePoint(x, y, "soil");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-		}[m
+[31m-		if(type == "smoke"){[m
+[31m-			if(particle.old == "fire" || particle.old == "steam"){[m
+[31m-				forcePoint(x, y, particle.old);[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-		}[m
+[31m-		if(type == "lightning"){[m
+[31m-			if(isCombustible(particle.old) || isSolid(particle.old))[m
+[31m-				circlePoint(x, y, 3, "fire", false, []);[m
+[31m-			else if(particle.old != "empty" && particle.old != "lightning" && particle.old != "droplet" && particle.old != "fire" && !isGas(particle.old))[m
+[31m-				forcePoint(x, y, particle.old);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(type == "shrub"){[m
+[31m-			if(particle.old == "fire" || isSolid(particle.old)){[m
+[31m-				forcePoint(x, y, particle.old);[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-		}[m
+[31m-		if(type == "sand"){[m
+[31m-			if(particle.old == "droplet"){[m
+[31m-				forcePoint(x, y, "soil");[m
+[31m-				return true;[m
+[31m-			}[m
+[31m-		}[m
+[31m-		if(type == "soil"){[m
+[31m-			if(particle.old == "nut"){[m
+[31m-				circlePoint(x, y, 3, "shrub", false, ["soil","sand","droplet"])[m
+[31m-			}[m
+[31m-		}[m
+[31m-		if(type == "nut"){[m
+[31m-			if(particle.old == "soil"){[m
+[31m-				circlePoint(x, y, 3, "shrub", false, ["soil", "sand", "droplet", "nut"])[m
+[31m-			}[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**************  BEGIN GENERAL CASE HANDLING  **************/[m
+[31m-		if(isSolid(particle.old) && isLiquid(type)){[m
+[31m-			forcePoint(x, y, particle.old);[m
+[31m-[m
+[31m-			var flow;[m
+[31m-			if(particles[x-1][y-1].fresh == "empty")[m
+[31m-				if(particles[x+1][y-1].fresh == "empty")[m
+[31m-					flow = Math.floor(Math.random()*3)-1;[m
+[31m-				else[m
+[31m-					flow = Math.floor(Math.random()*2)-1;[m
+[31m-			else[m
+[31m-				if(particles[x+1][y-1].fresh == "empty")[m
+[31m-					flow = Math.floor(Math.random()*2);[m
+[31m-				else[m
+[31m-					flow = 0;[m
+[31m-			changePoint(x+flow, y-1, type);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(isLiquid(particle.old) && isLiquid(type)){[m
+[31m-			if(getDensity(particle.old) >= getDensity(type)){ /*e.g. droplet falling onto soil*/[m
+[31m-				forcePoint(x, y, particle.old);[m
+[31m-				var flow = Math.floor(Math.random()*4);[m
+[31m-				if(flow <=1 && ((isLiquid(particles[x-1][y-1].fresh) && (getDensity(particles[x-1][y-1].fresh) < getDensity(particle.old))) || particles[x-1][y-1].fresh == "empty"))[m
+[31m-					changePoint(x-1, y-1, type);[m
+[31m-				else if(flow >= 2 && ((isLiquid(particles[x+1][y-1].fresh) && (getDensity(particles[x+1][y-1].fresh) < getDensity(particle.old))) || particles[x+1][y-1].fresh == "empty"))[m
+[31m-					changePoint(x+1, y-1, type);[m
+[31m-				else[m
+[31m-					changePoint(x, y-1, type);[m
+[31m-			}[m
+[31m-			else{[m
+[31m-				setTimeout(changePoint, gameSpeed, x, y-1, particle.old);[m
+[31m-				/*var flow = Math.floor(Math.random()*4);[m
+[31m-				forcePoint(x, y, type);[m
+[31m-				if(flow <=1 && (isLiquid(particles[x-1][y-1].fresh) || particles[x-1][y-1].fresh == "empty")){[m
+[31m-					changePoint(x-1, y-1, particle.old);[m
+[31m-				}[m
+[31m-				else if(flow >= 2 && (isLiquid(particles[x+1][y-1].fresh) || particles[x+1][y-1].fresh == "empty"))[m
+[31m-					changePoint(x+1, y-1, particle.old);[m
+[31m-				else[m
+[31m-					setTimeout(forcePoint, gameSpeed, x, y, type);[m
+[31m-				changePoint(x, y-1, particle.old);*/[m
+[31m-				return false;[m
+[31m-			}[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(isSolid(particle.old) && isGas(type)){[m
+[31m-			changePoint(x, y, particle.old);[m
+[31m-			[m
+[31m-			var flow;[m
+[31m-			if(particles[x-1][y+1].fresh == "empty")[m
+[31m-				if(particles[x+1][y+1].fresh == "empty")[m
+[31m-					flow = Math.floor(Math.random()*3)-1;[m
+[31m-				else[m
+[31m-					flow = Math.floor(Math.random()*2)-1;[m
+[31m-			else[m
+[31m-				if(particles[x+1][y+1].fresh == "empty")[m
+[31m-					flow = Math.floor(Math.random()*2);[m
+[31m-				else[m
+[31m-					flow = 0;[m
+[31m-			setTimeout(changePoint, gameSpeed, x + flow, y+1, type);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(isGas(particle.old) && isGas(type) && type != "cloud"){[m
+[31m-			var flow = Math.floor(Math.random()*4);[m
+[31m-			if(flow <=1 && particles[x-1][y+1].fresh == "empty")[m
+[31m-				changePoint(x-1, y+1, type);[m
+[31m-			else if(flow >= 2 && particles[x+1][y+1].fresh == "empty")[m
+[31m-				changePoint(x+1, y+1, type);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(isSolid(particle.old) && isSolid(type)){[m
+[31m-			forcePoint(x, y, particle.old);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		if(isGas(type) && isLiquid(particle.old)){[m
+[31m-			forcePoint(x, y, particle.old);[m
+[31m-			setTimeout(changePoint, gameSpeed,x, y-1, type);[m
+[31m-			return true;[m
+[31m-		}[m
+[31m-		return false;[m
+[31m-	}[m
+[31m-	catch(err){}[m
+[31m-}[m
+[31m-[m
+[31m-/*If force, it forces the change, unless the type is in the exceptions array*/[m
+[31m-/*Same for not forcing*/[m
+[31m-function circlePoint(x, y, r, type, force, exceptions){[m
+[31m-	elipsePoint(x, y, r, r, type, force, exceptions);[m
+[31m-}[m
+[31m-[m
+[31m-function elipsePoint(x, y, xr, yr, type, force, exceptions){[m
+[31m-	try{[m
+[31m-		for(var i=0;i<xr;i++)[m
+[31m-			for(var j=0;j<yr;j++){[m
+[31m-				var dist = Math.sqrt(Math.pow(i/xr,2)+Math.pow(j/yr,2));[m
+[31m-				if(dist<=1){[m
+[31m-					if(force)[m
+[31m-						if(exceptions.indexOf(type)!=-1){[m
+[31m-							try{changePoint(x+i, y+j, type);}catch(err){}[m
+[31m-							try{changePoint(x-i, y+j, type);}catch(err){}[m
+[31m-							try{changePoint(x+i, y-j, type);}catch(err){}[m
+[31m-							try{changePoint(x-i, y-j, type);}catch(err){}[m
+[31m-						}[m
+[31m-						else{[m
+[31m-							try{forcePoint(x+i, y+j, type);}catch(err){}[m
+[31m-							try{forcePoint(x-i, y+j, type);}catch(err){}[m
+[31m-							try{forcePoint(x+i, y-j, type);}catch(err){}[m
+[31m-							try{forcePoint(x-i, y-j, type);}catch(err){}[m
+[31m-						}[m
+[31m-					else[m
+[31m-						if(exceptions.indexOf(type)!=-1){[m
+[31m-							try{forcePoint(x+i, y+j, type);}catch(err){}[m
+[31m-							try{forcePoint(x-i, y+j, type);}catch(err){}[m
+[31m-							try{forcePoint(x+i, y-j, type);}catch(err){}[m
+[31m-							try{forcePoint(x-i, y-j, type);}catch(err){}[m
+[31m-						}[m
+[31m-						else{[m
+[31m-							try{changePoint(x+i, y+j, type);}catch(err){}[m
+[31m-							try{changePoint(x-i, y+j, type);}catch(err){}[m
+[31m-							try{changePoint(x+i, y-j, type);}catch(err){}[m
+[31m-							try{changePoint(x-i, y-j, type);}catch(err){}[m
+[31m-						}[m
+[31m-				}[m
+[31m-			}[m
+[31m-	}[m
+[31m-	catch(err){}[m
+[31m-}[m
+[31m-[m
+[31m-function rectanglePoint(x, y, xr, yr, type, force, exceptions){[m
+[31m-	try{[m
+[31m-		for(var i=0;i<xr;i++)[m
+[31m-			for(var j=0;j<yr;j++)[m
+[31m-				if(force && exceptions.indexOf(type)==-1)[m
+[31m-					try{forcePoint(x+i, y+j, type);}catch(err){}[m
+[31m-				else[m
+[31m-					try{changePoint(x+i, y+j, type);}catch(err){}[m
+[31m-	}catch(err){}[m
+[31m-}[m
+[31m-[m
+[31m-/*Out of 100*/[m
+[31m-function getDensity(type){[m
+[31m-	switch(type){[m
+[31m-		case "liquidExplosive":[m
+[31m-			return 25;[m
+[31m-		case "droplet":[m
+[31m-			return 50;[m
+[31m-		case "sticky":[m
+[31m-			return 80;[m
+[31m-		case "lava":[m
+[31m-			return 85;[m
+[31m-		case "sand":[m
+[31m-			return 90;[m
+[31m-		case "nut":[m
+[31m-			return 95;[m
+[31m-		case "soil":[m
+[31m-			return 95;[m
+[31m-	}[m
+[31m-	throw "Non-fluids do not have densities";[m
+[31m-}[m
+[31m-[m
+[31m-/*Basically, is is solid or does it move */[m
+[31m-function isSolid(type){[m
+[31m-	return type=="wall" || type=="explosive" || type=="growth" || type=="ice" || type=="bark" || type=="shrub" || type=="cloak" || isGen(type);[m
+[31m-}[m
+[31m-[m
+[31m-function isLiquid(type){[m
+[31m-	return type=="droplet" || type=="liquidExplosive" || type=="sand" || type=="sticky" || type=="lava" || type=="soil" || type=="nut";[m
+[31m-}[m
+[31m-[m
+[31m-function isSticky(type){[m
+[31m-	return type=="sticky" || type=="sand";[m
+[31m-}[m
+[31m-[m
+[31m-function isClumpy(type){[m
+[31m-	return type=="sand" || type=="soil";[m
+[31m-}[m
+[31m-[m
+[31m-function isGas(type){[m
+[31m-	return type=="steam" || type=="smoke" || type=="fire" || type=="cloud";[m
+[31m-}[m
+[31m-[m
+[31m-function isCombustible(type){[m
+[31m-	return type=="explosive" || type=="liquidExplosive";[m
+[31m-}[m
+[31m-[m
+[31m-function isFlammable(type){[m
+[31m-	return type=="growth" || type=="bark" || type=="shrub" || type=="nut";[m
+[31m-}[m
+[31m-[m
+[31m-function isGen(type){[m
+[31m-	return type.substring(type.length-3) == "Gen";[m
+[31m-}[m
+[31m-function wasParticleGen(particle){[m
+[31m-	try{[m
+[31m-		return particle.old.substring(particle.old.length-3) == "Gen";[m
+[31m-	}catch(err){return false;}[m
+[31m-}[m
+[31m-function isParticleGen(particle){[m
+[31m-	try{[m
+[31m-		return particle.fresh.substring(particle.fresh.length-3) == "Gen";[m
+[31m-	}catch(err){return false;}[m
+[31m-}[m
+[31m-[m
+[31m-function List(){[m
+[31m-	this.id = "";[m
+[31m-	this.arr = [];[m
+[31m-}[m
+[31m-[m
+[31m-/*Compresses particles into lists of coordinates for each particle type then returns all of them combined */[m
+[31m-function compressParticles(){[m
+[31m-	var p = "";[m
+[31m-	var e = [];[m
+[31m-	var lists = [];[m
+[31m-	for(var i=0;i<particles.length;i++){[m
+[31m-		for(var j=0;j<particles[0].length;j++){[m
+[31m-			var elem = compressElem(particles[i][j].fresh);[m
+[31m-			if(particles[i][j].fresh != "empty"){[m
+[31m-				var contains = -1;[m
+[31m-				for(var k=0;k<lists.length;k++)[m
+[31m-					if(lists[k].id == elem){[m
+[31m-						contains = k;[m
+[31m-						break;[m
+[31m-					}[m
+[31m-				if(contains==-1){[m
+[31m-					lists.push(new List());[m
+[31m-					contains=lists.length-1;[m
+[31m-					lists[contains].id = elem;[m
+[31m-				}[m
+[31m-				var m = i + "";[m
+[31m-				while(m.length<3)[m
+[31m-					m = "0" + m;[m
+[31m-				var n = j + "";[m
+[31m-				while(n.length<3)[m
+[31m-					n = "0" + n;[m
+[31m-				lists[contains].arr.push(m + "" + n);[m
+[31m-			}[m
+[31m-		}[m
+[31m-	}[m
+[31m-	for(var i=0;i<lists.length;i++){[m
+[31m-		p += lists[i].id[m
+[31m-		for(var j=0;j<lists[i].arr.length;j++)[m
+[31m-			p+=lists[i].arr[j];[m
+[31m-		p += ";";[m
+[31m-	}[m
+[31m-	return p;[m
+[31m-}[m
+[31m-[m
+[31m-function compressElem(elem){[m
+[31m-	switch(elem){[m
+[31m-		case "sand":[m
+[31m-			return "a";[m
+[31m-		case "sandGen":[m
+[31m-			return "A";[m
+[31m-		case "bark":[m
+[31m-			return "b";[m
+[31m-		case "cloud":[m
+[31m-			return "c";[m
+[31m-		case "cloudGen":[m
+[31m-			return "C";[m
+[31m-		case "droplet":[m
+[31m-			return "d";[m
+[31m-		case "dropletGen":[m
+[31m-			return "D";[m
+[31m-		case "empty":[m
+[31m-			return "e";[m
+[31m-		case "fire":[m
+[31m-			return "f";[m
+[31m-		case "fireGen":[m
+[31m-			return "F";[m
+[31m-		case "growth":[m
+[31m-			return "g";[m
+[31m-		case "shrub":[m
+[31m-			return "h";[m
+[31m-		case "ice":[m
+[31m-			return "i";[m
+[31m-		case "lightning":[m
+[31m-			return "l";[m
+[31m-		case "lightningGen":[m
+[31m-			return "L";[m
+[31m-		case "cloak":[m
+[31m-			return "k";[m
+[31m-		case "smoke":[m
+[31m-			return "m";[m
+[31m-		case "smokeGen":[m
+[31m-			return "M";[m
+[31m-		case "nut":[m
+[31m-			return "n";[m
+[31m-		case "nutGen":[m
+[31m-			return "N";[m
+[31m-		case "soil":[m
+[31m-			return "o";[m
+[31m-		case "soilGen":[m
+[31m-			return "O";[m
+[31m-		case "plague":[m
+[31m-			return "p";[m
+[31m-		case "steam":[m
+[31m-			return "s";[m
+[31m-		case "steamGen":[m
+[31m-			return "S";[m
+[31m-		case "sticky":[m
+[31m-			return "t";[m
+[31m-		case "stickyGen":[m
+[31m-			return "T";[m
+[31m-		case "lava":[m
+[31m-			return "v";[m
+[31m-		case "lavaGen":[m
+[31m-			return "V";[m
+[31m-		case "wall":[m
+[31m-			return "w";[m
+[31m-		case "explosive":[m
+[31m-			return "x";[m
+[31m-		case "liquidExplosive":[m
+[31m-			return "z";[m
+[31m-		case "liquidExplosiveGen":[m
+[31m-			return "Z";[m
+[31m-	}[m
+[31m-}[m
+[31m-function decompressElem(e){[m
+[31m-	switch(e){[m
+[31m-		case "a":[m
+[31m-			return "sand";[m
+[31m-		case "A":[m
+[31m-			return "sandGen";[m
+[31m-		case "b":[m
+[31m-			return "bark";[m
+[31m-		case "c":[m
+[31m-			return "cloud";[m
+[31m-		case "C":[m
+[31m-			return "cloudGen";[m
+[31m-		case "d":[m
+[31m-			return "droplet";[m
+[31m-		case "D":[m
+[31m-			return "dropletGen";[m
+[31m-		case "e":[m
+[31m-			return "empty";[m
+[31m-		case "f":[m
+[31m-			return "fire";[m
+[31m-		case "F":[m
+[31m-			return "fireGen";[m
+[31m-		case "g":[m
+[31m-			return "growth";[m
+[31m-		case "h":[m
+[31m-			return "shrub";[m
+[31m-		case "i":[m
+[31m-			return "ice";[m
+[31m-		case "l":[m
+[31m-			return "lightning";[m
+[31m-		case "L":[m
+[31m-			return "lightningGen";[m
+[31m-		case "k":[m
+[31m-			return "cloak";[m
+[31m-		case "m":[m
+[31m-			return "smoke";[m
+[31m-		case "M":[m
+[31m-			return "smokeGen";[m
+[31m-		case "n":[m
+[31m-			return "nut";[m
+[31m-		case "N":[m
+[31m-			return "nutGen";[m
+[31m-		case "o":[m
+[31m-			return "soil";[m
+[31m-		case "O":[m
+[31m-			return "soilGen";[m
+[31m-		case "p":[m
+[31m-			return "plague";[m
+[31m-		case "s":[m
+[31m-			return "steam";[m
+[31m-		case "S":[m
+[31m-			return "steamGen";[m
+[31m-		case "t":[m
+[31m-			return "sticky";[m
+[31m-		case "T":[m
+[31m-			return "stickyGen";[m
+[31m-		case "v":[m
+[31m-			return "lava";[m
+[31m-		case "V":[m
+[31m-			return "lavaGen";[m
+[31m-		case "w":[m
+[31m-			return "wall";[m
+[31m-		case "x":[m
+[31m-			return "explosive";[m
+[31m-		case "z":[m
+[31m-			return "liquidExplosive";[m
+[31m-		case "Z":[m
+[31m-			return "liquidExplosiveGen";[m
+[31m-	}[m
+[31m-}[m
+[31m-[m
+[31m-function loadXMLDoc(queryString, func){[m
+[31m-	var xmlhttp = new XMLHttpRequest();[m
+[31m-	xmlhttp.onreadystatechange=function(){[m
+[31m-		if(xmlhttp.readyState==4 && xmlhttp.status==200){[m
+[31m-			func(xmlhttp.responseText);[m
+[31m-		}[m
+[31m-	}[m
+[31m-	/*xmlhttp.open("GET","script.cgi?" + queryString, false);[m
+[31m-	xmlhttp.send();*/[m
+[31m-	xmlhttp.open("POST","script.cgi", false);[m
+[31m-	xmlhttp.setRequestHeader("Content-type","text/plain");[m
+[31m-	xmlhttp.send(queryString);[m
+[31m-}[m
+[31m-[m
+[31m-function act(action){[m
+[31m-	var res;[m
+[31m-	var retry = 0;[m
+[31m-	while(retry<5)[m
+[31m-		try{[m
+[31m-			loadXMLDoc(action, function(r){res = r});[m
+[31m-			retry = 5;[m
+[31m-		} catch(e){[m
+[31m-			retry++;[m
+[31m-			if(retry==5)[m
+[31m-				alert(e);[m
+[31m-		}[m
+[31m-	return res;[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m(function() {[m
+[32m+[m[32m    /*   ///////  // Variables //  ///////   */[m
+[32m+[m[32m    var particleSize = 5;[m
+[32m+[m[32m    var gameSpeed = 30;[m
+[32m+[m[32m    var inBackground = false;[m
+[32m+[m[32m    var opacity = 1; /*0.0-1.0 are valid opacities*/[m
+[32m+[m[32m    var defaultPenSize = 2;[m
+[32m+[m[32m    var penSize = 2;[m
+[32m+[m[32m    var holdForElement = false; /*If true, you must hold down the key for an element, otherwise it defaults to droplet*/[m
+[32m+[m[32m    var shootDist = 30;[m
+[32m+[m[32m    var maxBulletSpeed = 2;[m
+[32m+[m[32m    var showPlayer = true;[m
+[32m+[m[32m    var playerMode = false; /*Restrict to within shootDist*/[m
+[32m+[m[32m    var useGraphics = true; /*Super performance loss*/[m
+[32m+[m[32m    var disableSelect = true; /*enabling prevents the user from accidentally highlighting things when drawing*/[m
+[32m+[m
+[32m+[m[32m    var loadingText = 'Loading...';[m
+[32m+[m
+[32m+[m[32m    const resource_root = RESOURCE_PATHS['projects']['fallingsand']['Grow'][m
+[32m+[m[32m    var world = resource_root['world4.grw'];[m
+[32m+[m[32m    var imageLocation = resource_root['images'];[m
+[32m+[m
+[32m+[m[32m    var playerColor = '#ff0000';[m
+[32m+[m[32m    var bulletColor = '#000000';[m
+[32m+[m[32m    var plagueColor = '#004400';[m
+[32m+[m[32m    var steamColor = '#aaaaaa';[m
+[32m+[m[32m    var dropletColor = '#9999ff';[m
+[32m+[m[32m    var fireColor = '#ff6600';[m
+[32m+[m[32m    var smokeColor = '#777777';[m
+[32m+[m[32m    var growthColor = '#aaffaa';[m
+[32m+[m[32m    var wallColor = '#cccccc';[m
+[32m+[m[32m    var explosiveColor = '#cccc00';[m
+[32m+[m[32m    var liquidExplosiveColor = '#eeee00';[m
+[32m+[m[32m    var sandColor = '#efe4b0';[m
+[32m+[m[32m    var stickyColor = '#00bb00';[m
+[32m+[m[32m    var cloudColor = '#aaaadd';[m
+[32m+[m[32m    var lightningColor = '#ffff00';[m
+[32m+[m[32m    var iceColor = '#ddddff';[m
+[32m+[m[32m    var lavaColor = '#aa6622';[m
+[32m+[m[32m    var barkColor = '#994400';[m
+[32m+[m[32m    var shrubColor = '#ddaa55';[m
+[32m+[m[32m    var soilColor = '#bbbb88';[m
+[32m+[m[32m    var nutColor = '#ee9900';[m
+[32m+[m[32m    var genColor = '#000000';[m
+[32m+[m
+[32m+[m[32m    var numBullets = 50;[m
+[32m+[m[32m    var bulletExplosionRadius = 3;[m
+[32m+[m
+[32m+[m[32m    var genRate = .4; /*1 is full, 0 is none*/[m
+[32m+[m
+[32m+[m[32m    /*Element specific growth/spawn rate*/[m
+[32m+[m[32m    var iceSpeed = .05;[m
+[32m+[m[32m    var growthSpeed = .5;[m
+[32m+[m[32m    var lavaSpeed = .01;[m
+[32m+[m
+[32m+[m[32m    var lavaCoolSpeed = .01; /*cool on solids*/[m
+[32m+[m[32m    var lavaFireSpeed = .05; /*spawn fire rate*/[m
+[32m+[m
+[32m+[m[32m    var wallMeltLavaSpeed = .08;[m
+[32m+[m[32m    var wallMeltFireSpeed = .03;[m
+[32m+[m
+[32m+[m[32m    var cloudDropletSpeed = .15;[m
+[32m+[m[32m    var cloudLightningSpeed = .00003;[m
+[32m+[m
+[32m+[m[32m    var shrubBarkVertSpeed = .02;[m
+[32m+[m[32m    var shrubBarkHoriSpeed = .5;[m
+[32m+[m[32m    var shrubGrowBarkSpeed = .6;[m
+[32m+[m[32m    var shrubVertSpeed = .4;[m
+[32m+[m[32m    var shrubHoriSpeed = .6;[m
+[32m+[m[32m    var shrubHoriDist = 4;[m
+[32m+[m[32m    var shrubGrowthSpeed = .3;[m
+[32m+[m[32m    var shrubAgeSpeed = .05;[m
+[32m+[m[32m    /*  /////// // End Variables // ///////  */[m
+[32m+[m
+[32m+[m[32m    var canvas;[m
+[32m+[m[32m    var point;[m
+[32m+[m[32m    var body = document.body;[m
+[32m+[m
+[32m+[m[32m    if (disableSelect) {[m
+[32m+[m[32m        body.onselectstart=function() {    return false};[m
+[32m+[m[32m        body.style.MozUserSelect='none';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    body.addEventListener('onload', init(), false);[m
+[32m+[m[32m    var rect;[m
+[32m+[m[32m    var prevX, prevY, curX, curY;[m
+[32m+[m[32m    var gen;[m
+[32m+[m
+[32m+[m[32m    var growthImage;[m
+[32m+[m[32m    var dropletImage;[m
+[32m+[m[32m    var steamImage;[m
+[32m+[m[32m    var fireImage;[m
+[32m+[m[32m    var wallImage;[m
+[32m+[m[32m    var genImage;[m
+[32m+[m
+[32m+[m[32m    var particles;[m
+[32m+[m[32m    var modPart;[m
+[32m+[m[32m    var modInd;[m
+[32m+[m
+[32m+[m[32m    var updatedPart; /*2-dimensional array of true/false for if it is updated*/[m
+[32m+[m[32m    var updatedPartList; /*1-dimensional array of indices of updated*/[m
+[32m+[m[32m    var updatedInd; /*Iterate over updatedPartList*/[m
+[32m+[m
+[32m+[m[32m    var isDown;[m
+[32m+[m[32m    var elemType;[m
+[32m+[m
+[32m+[m[32m    var player;[m
+[32m+[m
+[32m+[m[32m    /*Checks if the spot is covered in blocks so you don't click on a hidden link*/[m
+[32m+[m[32m    function isClear(e) {[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            var x = parseInt(e.clientX/particleSize);[m
+[32m+[m[32m            var y = parseInt(e.clientY/particleSize);[m
+[32m+[m[32m            return particles[x][y].fresh=='empty';[m
+[32m+[m[32m        } catch(e) {    return true; }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function reset() {[m
+[32m+[m[32m        point.clearRect(0, 0, window.innerWidth, window.innerHeight);[m
+[32m+[m[32m        particles = [];[m
+[32m+[m[32m        modPart = new Array(parseInt(window.innerWidth/particleSize + 1)*parseInt(window.innerHeight/particleSize + 1));[m
+[32m+[m[32m        modInd = 0;[m
+[32m+[m[32m        updatedInd = 0;[m
+[32m+[m[32m        updatedPart = new Array(parseInt(window.innerWidth/particleSize+1));[m
+[32m+[m[32m        for (var i=0;i<parseInt(window.innerWidth/particleSize + 1);i++) {[m
+[32m+[m[32m            updatedPart[i] = new Array(parseInt(window.innerHeight/particleSize + 1));[m
+[32m+[m[32m            particles.push(new Array(parseInt(window.innerHeight/particleSize + 1)));[m
+[32m+[m[32m            for (var j=0;j<parseInt(window.innerHeight/particleSize + 1);j++) {[m
+[32m+[m[32m                particles[i][j] = new Particulate();[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[32m        updatedPartList = new Array(updatedPart.length * updatedPart[0].length);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Returns the DOM object just beneath the canvas*/[m
+[32m+[m[32m    function getBeneath(event) {[m
+[32m+[m[32m        if (!event)[m
+[32m+[m[32m            event = window.event;[m
+[32m+[m[32m        canvas.style.display='none';[m
+[32m+[m[32m        var starter = document.elementFromPoint(event.pageX-window.scrollX, event.pageY-window.scrollY);[m
+[32m+[m[32m        canvas.style.display='';[m
+[32m+[m[32m        return starter;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Called to initialize things*/[m
+[32m+[m[32m    function init() {[m
+[32m+[m[32m        var clickevent = document.createEvent('MouseEvents');[m
+[32m+[m[32m        clickevent.initEvent('click', true, true);[m
+[32m+[m
+[32m+[m[32m        body.addEventListener('mousedown',function(event) { prevX=event.clientX; prevY=event.clientY; isDown=true; }, false);[m
+[32m+[m[32m        body.addEventListener('mouseup', function() { isDown=false; }, false);[m
+[32m+[m[32m        body.addEventListener('click', function(event) {[m
+[32m+[m[32m            if (isClear(event)) {[m
+[32m+[m[32m                try { getBeneath(event).dispatchEvent(clickevent); } catch (e) { }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            mouseMove(event); }, false);[m
+[32m+[m[32m        body.addEventListener('mousemove', function(event) {    curX=event.clientX; curY=event.clientY; var ben = getBeneath(event); if (ben!=null && ben.nodeName=='A') canvas.style.cursor='pointer'; else if (ben!=null) canvas.style.cursor = ben.style.cursor; else canvas.style.cursor='default'; if (isDown) mouseMove(event); }, false);[m
+[32m+[m[32m        body.addEventListener('keydown', function(event) {    key(event); }, false);[m
+[32m+[m[32m        body.addEventListener('keyup', function(event) {    gen = event.shiftKey;keyUp(event); if (holdForElement) {    elemType='droplet'; }}, false);[m
+[32m+[m[32m        body.addEventListener('touchmove', function(event) {    touchMove(event); }, false);[m
+[32m+[m
+[32m+[m[32m        canvas = document.createElement('canvas');[m
+[32m+[m[32m        canvas.id = 'growthCanvas';[m
+[32m+[m[32m        point = canvas.getContext('2d');[m
+[32m+[m[32m        if (inBackground) {[m
+[32m+[m[32m            canvas.style.zIndex = -9999;[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            canvas.style.zIndex = 9998;[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        canvas.setAttribute('width', window.innerWidth + 'px');[m
+[32m+[m[32m        canvas.setAttribute('height', window.innerHeight + 'px');[m
+[32m+[m[32m        canvas.style.position = 'fixed';[m
+[32m+[m[32m        canvas.style.left = '0px';[m
+[32m+[m[32m        canvas.style.top = '0px';[m
+[32m+[m[32m        body.appendChild(canvas);[m
+[32m+[m
+[32m+[m[32m        point.globalAlpha = opacity;[m
+[32m+[m[32m        point.font = '90px Arial';[m
+[32m+[m[32m        point.fillText(loadingText, (window.innerWidth-point.measureText(loadingText).width)/2, window.innerHeight/2, window.innerWidth);[m
+[32m+[m
+[32m+[m[32m        point.fillStyle = '#cccccc';[m
+[32m+[m[32m        point.font = '85px Arial';[m
+[32m+[m[32m        point.fillText(loadingText, (window.innerWidth-point.measureText(loadingText).width)/2, (window.innerHeight-2)/2, window.innerWidth);[m
+[32m+[m
+[32m+[m[32m        reset();[m
+[32m+[m
+[32m+[m[32m        player = new Player;[m
+[32m+[m[32m        for (var i = 0; i < numBullets; i++) {[m
+[32m+[m[32m            player.bullets[i] = new Bullet();[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        /*Load game*/[m
+[32m+[m[32m        var client = new XMLHttpRequest();[m
+[32m+[m[32m        client.open('GET', world);[m
+[32m+[m[32m        var done = false;[m
+[32m+[m[32m        client.onreadystatechange = function() {[m
+[32m+[m[32m            var txt = client.responseText;[m
+[32m+[m
+[32m+[m[32m            while (txt != '' && done) {[m
+[32m+[m[32m                var x, y, width, height, type, shape, positioning;[m
+[32m+[m[32m                txt = txt.substring(txt.indexOf('<')+1);[m
+[32m+[m
+[32m+[m[32m                var tagType = txt.substring(0, txt.indexOf(' '));[m
+[32m+[m[32m                txt = txt.substring(txt.indexOf(' ')+1);[m
+[32m+[m[32m                if (tagType == 'elem') {[m
+[32m+[m[32m                    while (txt.indexOf('>')!=0) {[m
+[32m+[m[32m                        var property = txt.substring(0, txt.indexOf('='));[m
+[32m+[m[32m                        txt = txt.substring(txt.indexOf('="')+2);[m
+[32m+[m[32m                        var next = txt.indexOf('"');[m
+[32m+[m
+[32m+[m[32m                        if (property=='shape')[m
+[32m+[m[32m                            shape = txt.substring(0, next);[m
+[32m+[m[32m                        else if (property=='x')[m
+[32m+[m[32m                            x = parseFloat(txt.substring(0, next));[m
+[32m+[m[32m                        else if (property=='y')[m
+[32m+[m[32m                            y = parseFloat(txt.substring(0, next));[m
+[32m+[m[32m                        else if (property=='width')[m
+[32m+[m[32m                            width = parseFloat(txt.substring(0, next));[m
+[32m+[m[32m                        else if (property=='height')[m
+[32m+[m[32m                            height = parseFloat(txt.substring(0, next));[m
+[32m+[m[32m                        else if (property=='type')[m
+[32m+[m[32m                            type = txt.substring(0, next);[m
+[32m+[m[32m                        else if (property=='position')[m
+[32m+[m[32m                            positioning = txt.substring(0, next);[m
+[32m+[m
+[32m+[m[32m                        txt = txt.substring(next+1);[m
+[32m+[m[32m                        while (txt.indexOf(' ')==0 || txt.indexOf('\t')==0 || txt.indexOf('\n')==0)[m
+[32m+[m[32m                            txt = txt.substring(1);[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                } else if (tagType == 'player') {[m
+[32m+[m[32m                    while (txt.indexOf('>')!=0) {[m
+[32m+[m[32m                        var property = txt.substring(0, txt.indexOf('='));[m
+[32m+[m[32m                        txt = txt.substring(txt.indexOf('="')+2);[m
+[32m+[m[32m                        var next = txt.indexOf('"');[m
+[32m+[m
+[32m+[m[32m                        if (property=='x')[m
+[32m+[m[32m                            x = parseFloat(txt.substring(0, next));[m
+[32m+[m[32m                        else if (property=='y')[m
+[32m+[m[32m                            y = parseFloat(txt.substring(0, next));[m
+[32m+[m[32m                        else if (property=='position')[m
+[32m+[m[32m                            positioning = txt.substring(0, next);[m
+[32m+[m
+[32m+[m[32m                        txt = txt.substring(next+1);[m
+[32m+[m[32m                        while (txt.indexOf(' ')==0 || txt.indexOf('\t')==0 || txt.indexOf('\n')==0)[m
+[32m+[m[32m                            txt = txt.substring(1);[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                txt = txt.substring(txt.indexOf('>')+1);[m
+[32m+[m
+[32m+[m[32m                var partWidth = window.innerWidth/particleSize;[m
+[32m+[m[32m                var partHeight = window.innerHeight/particleSize;[m
+[32m+[m[32m                if (tagType=='elem') {[m
+[32m+[m[32m                    if (positioning=='relative') {[m
+[32m+[m[32m                        if (shape=='rectangle')[m
+[32m+[m[32m                            rectanglePoint(parseInt(partWidth*x), parseInt(partHeight*y), partWidth*width, partHeight*height, type, true, []);[m
+[32m+[m[32m                        else if (shape=='circle')[m
+[32m+[m[32m                            circlePoint(parseInt(partWidth*x), parseInt(partHeight*y), parseInt(partWidth*width), type, true, []);[m
+[32m+[m[32m                        else if (shape=='elipse')[m
+[32m+[m[32m                            elipsePoint(parseInt(partWidth*x), parseInt(partHeight*y), parseInt(partWidth*width), parseInt(partHeight*height), type, true, []);[m
+[32m+[m[32m                    } else if (positioning=='absolute') {[m
+[32m+[m[32m                        if (shape=='rectangle')[m
+[32m+[m[32m                            rectanglePoint(x, y, width, height, type, true, []);[m
+[32m+[m[32m                        else if (shape=='circle')[m
+[32m+[m[32m                            circlePoint(x, y, width, type, true, []);[m
+[32m+[m[32m                        else if (shape=='elipse')[m
+[32m+[m[32m                            elipsePoint(x, y, width, height, type, true, []);[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                } else if (tagType=='player') {[m
+[32m+[m[32m                        point.clearRect(player.x*particleSize, player.y*particleSize, particleSize, particleSize);[m
+[32m+[m[32m                    if (positioning=='relative') {[m
+[32m+[m[32m                        player.x = parseInt(partWidth*x);[m
+[32m+[m[32m                        player.y = parseInt(partHeight*y);[m
+[32m+[m[32m                    } else if (positioning=='absolute') {[m
+[32m+[m[32m                        player.x = parseInt(x);[m
+[32m+[m[32m                        player.y = parseInt(y);[m
+[32m+[m[32m                    }[m
+[32m+[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            done=true;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        client.send();[m
+[32m+[m[32m        /*End load game */[m
+[32m+[m
+[32m+[m[32m        /*Load images images*/[m
+[32m+[m[32m        growthImage = new Image();[m
+[32m+[m[32m        growthImage.opacity = opacity;[m
+[32m+[m[32m        growthImage.src = imageLocation['growth.png'];[m
+[32m+[m
+[32m+[m[32m        dropletImage = new Image();[m
+[32m+[m[32m        dropletImage.opacity = opacity;[m
+[32m+[m[32m        dropletImage.src = imageLocation['droplet.png'];[m
+[32m+[m
+[32m+[m[32m        steamImage = new Image();[m
+[32m+[m[32m        steamImage.opacity = opacity;[m
+[32m+[m[32m        steamImage.src = imageLocation['steam.png'];[m
+[32m+[m
+[32m+[m[32m        fireImage = new Image();[m
+[32m+[m[32m        fireImage.opacity = opacity;[m
+[32m+[m[32m        fireImage.src = imageLocation['fire.png'];[m
+[32m+[m
+[32m+[m[32m        wallImage = new Image();[m
+[32m+[m[32m        wallImage.opacity = opacity;[m
+[32m+[m[32m        wallImage.src = imageLocation['wall.png'];[m
+[32m+[m
+[32m+[m[32m        genImage = new Image();[m
+[32m+[m[32m        genImage.opacity = opacity;[m
+[32m+[m[32m        genImage.src = imageLocation['gen.png'];[m
+[32m+[m
+[32m+[m[32m        isDown = false;[m
+[32m+[m[32m        elemType = 'droplet';[m
+[32m+[m
+[32m+[m[32m        point.clearRect(0,0,window.innerWidth,window.innerHeight);[m
+[32m+[m[32m        setTimeout(update, gameSpeed);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Called when a key is pressed*/[m
+[32m+[m[32m    function key(e) {[m
+[32m+[m[32m        var code = e.keyCode;[m
+[32m+[m[32m        if (code==9) /*tab*/[m
+[32m+[m[32m            setInterval(() => act(compressParticles()), 1000);[m
+[32m+[m[32m        else if (code==37)            /*Arrow Keys*/[m
+[32m+[m[32m            player.move = -1;[m
+[32m+[m[32m        else if (code==39)[m
+[32m+[m[32m            player.move = 1;[m
+[32m+[m[32m        else if (code==38)[m
+[32m+[m[32m            if (player.jump==0 && !player.hasJumped) {[m
+[32m+[m[32m                player.hasJumped = true;[m
+[32m+[m[32m                player.jump=5;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        if (code==17 && showPlayer) /*CTRL key*/[m
+[32m+[m[32m            circlePoint(player.x, player.y, 5, elemType, true, []);[m
+[32m+[m[32m        else if (code==27) {     /*Escape*/[m
+[32m+[m[32m            alert('updatedPart: ' + updatedPart[parseInt(curX/particleSize)][parseInt(curY/particleSize)] + '\npariticles: ' + particles[parseInt(curX/particleSize)][parseInt(curY/particleSize)].fresh);[m
+[32m+[m[32m            var x = parseInt(curX/particleSize);[m
+[32m+[m[32m            var y = parseInt(curY/particleSize);[m
+[32m+[m[32m                var count=0;[m
+[32m+[m[32m                for (var i=-1;i<2;i++)[m
+[32m+[m[32m                    for (var j=-1;j<2;j++)[m
+[32m+[m[32m                        if (x+i<0 || x+i>particles.length || y+j<0 || y+j>particles[0].length || isSolid(particles[x+i][y+j].fresh))[m
+[32m+[m[32m                            count++;[m
+[32m+[m[32m                alert(count);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        else if (code==32) /*Space*/[m
+[32m+[m[32m            player.fireBullet();[m
+[32m+[m[32m        else if (code==48) /*0*/[m
+[32m+[m[32m            penSize = defaultPenSize;[m
+[32m+[m[32m        else if (code>=49 && code<=57) /*1-9*/[m
+[32m+[m[32m            penSize = code-48;[m
+[32m+[m[32m        else if (code==65)[m
+[32m+[m[32m            elemType = 'sand';[m
+[32m+[m[32m        else if (code==66)[m
+[32m+[m[32m            elemType = 'bark';[m
+[32m+[m[32m        else if (code==67)[m
+[32m+[m[32m            elemType = 'cloud';[m
+[32m+[m[32m        else if (code==68)[m
+[32m+[m[32m            elemType = 'droplet';[m
+[32m+[m[32m        else if (code==69)[m
+[32m+[m[32m            elemType = 'eraser';[m
+[32m+[m[32m        else if (code==70)[m
+[32m+[m[32m            elemType = 'fire';[m
+[32m+[m[32m        else if (code==71)[m
+[32m+[m[32m            elemType = 'growth';[m
+[32m+[m[32m        else if (code==72)[m
+[32m+[m[32m            elemType = 'shrub';[m
+[32m+[m[32m        else if (code==73)[m
+[32m+[m[32m            elemType = 'ice';[m
+[32m+[m[32m        else if (code==75)[m
+[32m+[m[32m            elemType = 'cloak';[m
+[32m+[m[32m        else if (code==76)[m
+[32m+[m[32m            elemType = 'lightning';[m
+[32m+[m[32m        else if (code==77)[m
+[32m+[m[32m            elemType = 'smoke';[m
+[32m+[m[32m        else if (code==78)[m
+[32m+[m[32m            elemType = 'nut';[m
+[32m+[m[32m        else if (code==79)[m
+[32m+[m[32m            elemType = 'soil';[m
+[32m+[m[32m        else if (code==80)[m
+[32m+[m[32m            elemType = 'plague';[m
+[32m+[m[32m        else if (code==83)[m
+[32m+[m[32m            elemType = 'steam';[m
+[32m+[m[32m        else if (code==84)[m
+[32m+[m[32m            elemType = 'sticky';[m
+[32m+[m[32m        else if (code==86)[m
+[32m+[m[32m            elemType = 'lava';[m
+[32m+[m[32m        else if (code==87)[m
+[32m+[m[32m            elemType = 'wall';[m
+[32m+[m[32m        else if (code==88)[m
+[32m+[m[32m            elemType = 'explosive';[m
+[32m+[m[32m        else if (code==90)[m
+[32m+[m[32m            elemType = 'liquidExplosive';[m
+[32m+[m[32m        else if (code==192) {     /*~*/[m
+[32m+[m[32m            setInterval(function() {[m
+[32m+[m[32m                var ret = act('');[m
+[32m+[m[32m                reset();[m
+[32m+[m[32m                var elem = ret.substring(0, 1);[m
+[32m+[m[32m                ret = ret.substring(1);[m
+[32m+[m[32m                while (ret!='') {[m
+[32m+[m[32m                    while (ret.indexOf(';')!=0) {[m
+[32m+[m[32m                        var x = ret.substring(0, 3);[m
+[32m+[m[32m                        ret = ret.substring(3);[m
+[32m+[m[32m                        var y = ret.substring(0, 3);[m
+[32m+[m[32m                        ret = ret.substring(3);[m
+[32m+[m[32m                        forcePoint(parseInt(x, 10), parseInt(y, 10), decompressElem(elem));[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                    elem = ret.substring(1, 2);[m
+[32m+[m[32m                    ret = ret.substring(2);[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }, 1000);[m
+[32m+[m
+[32m+[m[32m        }[m
+[32m+[m[32m        /*Set gen if the shiftkey is down*/[m
+[32m+[m[32m        gen = e.shiftKey;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Called on body.keyup*/[m
+[32m+[m[32m    function keyUp(e) {[m
+[32m+[m[32m        var code;[m
+[32m+[m[32m        if (e.keyCode)[m
+[32m+[m[32m            code = e.keyCode;[m
+[32m+[m[32m        else if (e.which)[m
+[32m+[m[32m            code = e.which;[m
+[32m+[m
+[32m+[m[32m        if (code==37 || code==39)[m
+[32m+[m[32m            player.move = 0;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Particulate class definition*/[m
+[32m+[m[32m    function Particulate() {[m
+[32m+[m[32m        this.old = 'empty';[m
+[32m+[m[32m        this.fresh = 'empty';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Player class definition*/[m
+[32m+[m[32m    function Player() {[m
+[32m+[m[32m        this.x = 50;[m
+[32m+[m[32m        this.y = 50;[m
+[32m+[m[32m        this.move = 0;[m
+[32m+[m[32m        this.jump = 0;[m
+[32m+[m[32m        this.hasJumped = false;[m
+[32m+[m[32m        this.bullets = new Array(numBullets);[m
+[32m+[m[32m        this.fireBullet = function() {[m
+[32m+[m[32m            for (var i=0;i<numBullets;i++) {[m
+[32m+[m[32m                var bullet = player.bullets[i];[m
+[32m+[m[32m                if (bullet.x<0 || bullet.y<0 || bullet.x>particles.length || bullet.y>particles[0].length) {[m
+[32m+[m[32m                    var x = curX/particleSize;[m
+[32m+[m[32m                    var y = curY/particleSize;[m
+[32m+[m[32m                    var magnitude = Math.sqrt(Math.pow(x-player.x,2) + Math.pow(y-player.y,2));[m
+[32m+[m[32m                    if (magnitude>maxBulletSpeed)[m
+[32m+[m[32m                        magnitude /= maxBulletSpeed;[m
+[32m+[m[32m                    else[m
+[32m+[m[32m                        magnitude = 1;[m
+[32m+[m[32m                    bullet.velX = (x-player.x)/magnitude;[m
+[32m+[m[32m                    bullet.velY = (y-player.y)/magnitude;[m
+[32m+[m[32m                    bullet.x = player.x;[m
+[32m+[m[32m                    bullet.y = player.y;[m
+[32m+[m[32m                    bullet.elem = elemType;[m
+[32m+[m[32m                    return;[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Bullet class definition*/[m
+[32m+[m[32m    function Bullet() {[m
+[32m+[m[32m        this.x = -1;[m
+[32m+[m[32m        this.y = -1;[m
+[32m+[m[32m        this.velX = 0;[m
+[32m+[m[32m        this.velY = 0;[m
+[32m+[m[32m        this.elem = 'fire';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Called when their is a touch event for mobile devices*/[m
+[32m+[m[32m    function touchMove(evt) {[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            evt.preventDefault();[m
+[32m+[m[32m            var touches = evt.changedTouches;[m
+[32m+[m[32m            for (var i=0;i<touches.length;i++) {[m
+[32m+[m[32m                circlePoint(parseInt(touches[i].clientX/particleSize), parseInt(touches[i].clientY/particleSize), penSize, getElem(), true, []);[m
+[32m+[m[32m            }[m
+[32m+[m[32m        } catch(e) { }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Called when the mouse moves to allow you to draw stuff*/[m
+[32m+[m[32m    function mouseMove(event) {[m
+[32m+[m[32m        if (event.clientX!=0 || event.clientY!=0) {[m
+[32m+[m[32m            if (playerMode) {[m
+[32m+[m[32m                prevX = event.clientX;[m
+[32m+[m[32m                prevY = event.clientY;[m
+[32m+[m[32m                move();[m
+[32m+[m[32m            }[m
+[32m+[m[32m            else{[m
+[32m+[m[32m                var x = parseInt(event.clientX);[m
+[32m+[m[32m                var y = parseInt(event.clientY);[m
+[32m+[m[32m                do{[m
+[32m+[m[32m                    circlePoint(parseInt(x/particleSize), parseInt(y/particleSize), penSize, getElem(), true, []);[m
+[32m+[m[32m                    if (Math.abs(x-prevX)>=particleSize)[m
+[32m+[m[32m                        x += particleSize*(x-prevX<0?1:-1);[m
+[32m+[m[32m                    if (Math.abs(y-prevY)>=particleSize)[m
+[32m+[m[32m                        y += particleSize*(y-prevY<0?1:-1);[m
+[32m+[m[32m                } while (Math.abs(x-prevX)>=particleSize || Math.abs(y-prevY)>=particleSize)[m
+[32m+[m[32m            }[m
+[32m+[m[32m            prevX = event.clientX;[m
+[32m+[m[32m            prevY = event.clientY;[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function move() {[m
+[32m+[m[32m        var x = parseInt(prevX)/particleSize;[m
+[32m+[m[32m        var y = parseInt(prevY)/particleSize;[m
+[32m+[m[32m        var magnitude = Math.sqrt(Math.pow(x-player.x,2) + Math.pow(y-player.y,2));[m
+[32m+[m[32m        if (magnitude>shootDist)[m
+[32m+[m[32m            magnitude /= shootDist;[m
+[32m+[m[32m        else[m
+[32m+[m[32m            magnitude = 1;[m
+[32m+[m[32m        x = player.x + (x-player.x)/magnitude;[m
+[32m+[m[32m        y = player.y + (y-player.y)/magnitude;[m
+[32m+[m
+[32m+[m[32m        circlePoint(parseInt(x), parseInt(y), penSize, getElem(), true, []);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*converts the given elem to a valid elem type*/[m
+[32m+[m[32m    function getElem() {[m
+[32m+[m[32m        if (gen && elemType != 'plague' && !isSolid(elemType))[m
+[32m+[m[32m            return elemType + 'Gen';[m
+[32m+[m[32m        else if (elemType == 'eraser')[m
+[32m+[m[32m            return 'empty';[m
+[32m+[m[32m        else[m
+[32m+[m[32m            return elemType;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Called repeatedly, handles everything*/[m
+[32m+[m[32m    function update() {[m
+[32m+[m[32m        for (modInd--;modInd>=0;modInd--) {[m
+[32m+[m[32m            updateAction(modPart[modInd][0], modPart[modInd][1]);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        modInd=0;[m
+[32m+[m[32m        if (showPlayer)[m
+[32m+[m[32m            try { updatePlayer(); } catch (e) { }[m
+[32m+[m[32m        draw();[m
+[32m+[m[32m        setTimeout(update, gameSpeed);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Causes things on the field to 'act'*/[m
+[32m+[m[32m    function updateAction(x, y) {[m
+[32m+[m[32m        var particulate = particles[x][y];[m
+[32m+[m[32m        if (!particulate)[m
+[32m+[m[32m            return false;[m
+[32m+[m[32m        var elem = particulate.fresh;[m
+[32m+[m[32m        if (elem=='empty' || elem=='wall' || elem=='growth' || elem=='ice' || elem=='explosive' || elem=='bark' || elem=='cloak')[m
+[32m+[m[32m            return;[m
+[32m+[m
+[32m+[m[32m        else if (elem=='plague') {[m
+[32m+[m[32m            var move = Math.floor(Math.random()*4);[m
+[32m+[m[32m            if (move==0)[m
+[32m+[m[32m                changePoint(x, y-1, 'plague');[m
+[32m+[m[32m            else if (move==1)[m
+[32m+[m[32m                changePoint(x, y+1, 'plague');[m
+[32m+[m[32m            else if (move==2)[m
+[32m+[m[32m                changePoint(x-1, y, 'plague');[m
+[32m+[m[32m            else if (move==3)[m
+[32m+[m[32m                changePoint(x+1, y, 'plague');[m
+[32m+[m
+[32m+[m[32m            if (Math.random()<.25)[m
+[32m+[m[32m                changePoint(x, y, 'empty');[m
+[32m+[m[32m        } else if (elem=='steam') {[m
+[32m+[m[32m            var move = Math.floor(Math.random()*100);[m
+[32m+[m[32m            if (move>=60)[m
+[32m+[m[32m                changePoint(x, y-1, 'steam');[m
+[32m+[m[32m            else if (move>=50)[m
+[32m+[m[32m                changePoint(x-1, y, 'steam');[m
+[32m+[m[32m            else if (move>=40)[m
+[32m+[m[32m                changePoint(x+1, y, 'steam');[m
+[32m+[m[32m            else if (move==1)[m
+[32m+[m[32m                changePoint(x, y, 'droplet');[m
+[32m+[m
+[32m+[m[32m            if (move>=40)[m
+[32m+[m[32m                changePoint(x, y, 'empty');[m
+[32m+[m[32m        } else if (elem=='cloud') {[m
+[32m+[m[32m            var x2=-1, y2=-1;[m
+[32m+[m[32m            var move = Math.floor(Math.random()*300);[m
+[32m+[m[32m            if     (move<20) {    x2=x; y2=y-1; }[m
+[32m+[m[32m            else if (move<40) {    x2=x; y2=y+1; }[m
+[32m+[m
+[32m+[m[32m            else if (move<60) {    x2=x+1; y2=y; }[m
+[32m+[m[32m            else if (move<80) {    x2=x-1; y2=y; }[m
+[32m+[m
+[32m+[m[32m            else if (move<100) {    x2=x-1; y2=y+1; }[m
+[32m+[m[32m            else if (move<120) {    x2=x-1; y2=y-1; }[m
+[32m+[m
+[32m+[m[32m            else if (move<140) {    x2=x+1; y2=y-1; }[m
+[32m+[m[32m            else if (move<160) {    x2=x+1; y2=y+1; }[m
+[32m+[m
+[32m+[m
+[32m+[m[32m            else if (move>265) /*25 & 4 // 278 & 5 //6 is too tight, makes a square*/[m
+[32m+[m[32m                changePoint(x, y, 'empty');[m
+[32m+[m
+[32m+[m[32m            if (x2!=-1) {[m
+[32m+[m[32m                var sum=0;[m
+[32m+[m[32m                for (var i=-1;i<2;i++)[m
+[32m+[m[32m                    for (var j=-1;j<2;j++)[m
+[32m+[m[32m                        try { if (particles[x+i][y+j].fresh == 'cloud') {[m
+[32m+[m[32m                            sum++;[m
+[32m+[m[32m                        } } catch (e) { }[m
+[32m+[m[32m                if (sum>4) {[m
+[32m+[m[32m                    changePoint(x2, y2, 'cloud');[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            var spawn = Math.random();[m
+[32m+[m[32m            if (spawn<cloudLightningSpeed)[m
+[32m+[m[32m                changePoint(x, y+1, 'lightning');[m
+[32m+[m[32m            if (spawn<cloudDropletSpeed && particulate.old == 'empty') {[m
+[32m+[m[32m                changePoint(x, y+1, 'droplet');[m
+[32m+[m[32m            }[m
+[32m+[m[32m        } else if (elem=='lightning') {[m
+[32m+[m[32m            setTimeout(forcePoint, gameSpeed, x, y, 'empty');[m
+[32m+[m[32m            var move = Math.random()*5;[m
+[32m+[m[32m            if (move<1) {[m
+[32m+[m[32m                move = Math.floor(move*11)-5;[m
+[32m+[m[32m                changePoint(move+x, y+1, 'lightning');[m
+[32m+[m[32m                updateAction(move+x, y+1, 'lightning');[m
+[32m+[m[32m            }[m
+[32m+[m[32m            else{[m
+[32m+[m[32m                changePoint(x, y+1, 'lightning');[m
+[32m+[m[32m                updateAction(x, y+1, 'lightning');[m
+[32m+[m[32m            }[m
+[32m+[m[32m        } else if (elem=='sticky' || elem=='droplet' || elem=='sand' || elem=='lava' || elem=='liquidExplosive' || elem=='soil' || elem=='nut') {[m
+[32m+[m[32m            if (elem=='sticky') {[m
+[32m+[m[32m                for (var i=-1;i<2;i++)[m
+[32m+[m[32m                    for (var j=-1;j<2;j++)[m
+[32m+[m[32m                        try { if ((i==0 || j==0) && isSolid(particles[x+i][y+j].fresh) || (isSticky(particles[x+i][y+j].fresh) && (!isLiquid(particles[x+i][y+j].fresh) || isClumpy(particles[x+i][y+j].fresh)))) {[m
+[32m+[m[32m                            continue;[m
+[32m+[m[32m                        } } catch (e) { }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            var type = particulate.fresh;[m
+[32m+[m[32m            if (elem=='lava') {[m
+[32m+[m[32m                var lavaSum=0;[m
+[32m+[m[32m                var solidSum=0;[m
+[32m+[m[32m                for (var i=-1;i<2;i++)[m
+[32m+[m[32m                    for (var j=-1;j<2;j++)[m
+[32m+[m[32m                        try {[m
+[32m+[m[32m                            if (particles[x+i][y+j].fresh == 'lava')[m
+[32m+[m[32m                                lavaSum++;[m
+[32m+[m[32m                            else if (isSolid(particles[x+i][y+j].fresh))[m
+[32m+[m[32m                                solidSum++;[m
+[32m+[m[32m                        } catch (e) { }[m
+[32m+[m[32m                if (lavaSum<7 && solidSum>1 && Math.random()<lavaCoolSpeed) {[m
+[32m+[m[32m                    forcePoint(x, y, 'wall');[m
+[32m+[m[32m                } else {[m
+[32m+[m[32m                    changePoint(x, y, 'empty');[m
+[32m+[m[32m                    changePoint(x, y+1, 'lava');[m
+[32m+[m[32m                }[m
+[32m+[m[32m                if (Math.random()<lavaFireSpeed)[m
+[32m+[m[32m                    changePoint(x, y, 'fire');[m
+[32m+[m[32m            } else {[m
+[32m+[m[32m                changePoint(x, y, 'empty');[m
+[32m+[m[32m                changePoint(x, y+1, type);[m
+[32m+[m[32m            }[m
+[32m+[m[32m        } else if (elem=='fire') {[m
+[32m+[m[32m            var move = Math.floor(Math.random()*9);[m
+[32m+[m[32m            if (move%3==0)[m
+[32m+[m[32m                changePoint(x, y-1, 'fire');[m
+[32m+[m[32m            if (move<1)[m
+[32m+[m[32m                changePoint(x, y-3, 'smoke');[m
+[32m+[m[32m            if (move>6)[m
+[32m+[m[32m                changePoint(x+1, y, 'fire');[m
+[32m+[m[32m            if (move<2)[m
+[32m+[m[32m                changePoint(x-1, y, 'fire');[m
+[32m+[m[32m            if (move==0)[m
+[32m+[m[32m                changePoint(x, y-1, 'fire');[m
+[32m+[m[32m            changePoint(x, y, 'empty');[m
+[32m+[m[32m        } else if (elem=='smoke') {[m
+[32m+[m[32m            var move = Math.floor(Math.random()*9);[m
+[32m+[m[32m            var amount = Math.floor(Math.random()*5)-2;[m
+[32m+[m[32m            if (move>7)[m
+[32m+[m[32m                changePoint(x, y-Math.abs(amount), 'smoke');[m
+[32m+[m[32m            if (move<6)[m
+[32m+[m[32m                changePoint(x, y, 'empty');[m
+[32m+[m[32m            if (move>6)[m
+[32m+[m[32m                changePoint(x+amount, y, 'smoke');[m
+[32m+[m[32m            if (move<2)[m
+[32m+[m[32m                changePoint(x-amount, y, 'smoke');[m
+[32m+[m[32m        } else if (elem=='shrub') {[m
+[32m+[m[32m            var grow = Math.random();[m
+[32m+[m[32m            if (grow<shrubVertSpeed && y-1>=0 && particles[x][y-1].fresh == 'empty')[m
+[32m+[m[32m                changePoint(x, y-1, 'shrub');[m
+[32m+[m[32m            grow = Math.random();[m
+[32m+[m[32m            if (grow<shrubHoriSpeed) {[m
+[32m+[m[32m                var maxDist = Math.ceil(Math.random()*shrubHoriDist);[m
+[32m+[m[32m                var dist = 0;[m
+[32m+[m[32m                grow = Math.random();[m
+[32m+[m[32m                try {[m
+[32m+[m	[32m                if (grow>.5) {[m
+[32m+[m	[32m                    while (dist++<maxDist && particles[x+dist][y].fresh=='empty') {[m
+[32m+[m	[32m                        changePoint(x+dist, y, 'shrub');[m
+[32m+[m	[32m                        if (particles[x+dist][y+1].fresh=='empty')[m
+[32m+[m	[32m                            changePoint(x+dist, y+1, 'bark');[m
+[32m+[m	[32m                        if (Math.random()<.5 && particles[x+dist][y-1].fresh=='empty')[m
+[32m+[m	[32m                            changePoint(x+dist, y-1, 'bark');[m
+[32m+[m	[32m                    }[m
+[32m+[m	[32m                } else {[m
+[32m+[m	[32m                    while (dist++<maxDist && particles[x-dist][y].fresh=='empty') {[m
+[32m+[m	[32m                        changePoint(x-dist,y, 'shrub');[m
+[32m+[m	[32m                        if (particles[x-dist][y+1].fresh=='empty')[m
+[32m+[m	[32m                            changePoint(x-dist, y+1, 'bark');[m
+[32m+[m	[32m                        if (Math.random()<shrubGrowBarkSpeed && particles[x-dist][y-1].fresh=='empty')[m
+[32m+[m	[32m                            changePoint(x-dist, y-1, 'bark');[m
+[32m+[m	[32m                    }[m
+[32m+[m	[32m                }[m
+[32m+[m	[32m            } catch (e) { }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            var count=0;[m
+[32m+[m[32m            for (var i=-1;i<2;i++)[m
+[32m+[m[32m                for (var j=-1;j<2;j++) {[m
+[32m+[m[32m                    try {[m
+[32m+[m[32m                        if (x+i<0 || x+i>particles.length || y+j<0 || y+j>particles[0].length || isSolid(particles[x+i][y+j].fresh))[m
+[32m+[m[32m                            count++;[m
+[32m+[m[32m                        if (x+i>=0 && x+i<particles.length && y+j>=0 && y+j<particles[0].length)[m
+[32m+[m[32m                            if ((i+j)%2==0 && particles[x+i][y+j].fresh=='empty')[m
+[32m+[m[32m                                if (j!=0 && Math.random()<shrubBarkVertSpeed)[m
+[32m+[m[32m                                    changePoint(x+i,y+j,'bark');[m
+[32m+[m[32m                                else if (Math.random()<shrubBarkHoriSpeed)[m
+[32m+[m[32m                                    changePoint(x+i,y+j,'bark');[m
+[32m+[m[32m                            else if (Math.random()<shrubGrowthSpeed && particles[x+i][y+j].fresh=='empty')[m
+[32m+[m[32m                                changePoint(x+i,y+j,'growth');[m
+[32m+[m[32m                    } catch(e) { }[m
+[32m+[m[32m                }[m
+[32m+[m[32m            if (count>=8 && Math.random()<shrubAgeSpeed) {[m
+[32m+[m[32m                forcePoint(x, y, 'bark');[m
+[32m+[m[32m            }[m
+[32m+[m[32m        } else if (isGen(elem) && isGas(particulate.fresh.substring(0,particulate.fresh.indexOf('Gen')))) {[m
+[32m+[m[32m                changePoint(x, y-1, particulate.fresh.substring(0,particulate.fresh.indexOf('Gen')));[m
+[32m+[m[32m                updateAction(x, y-1);[m
+[32m+[m[32m        } else if (isGen(elem) && (elem=='lightningGen' ||[m
+[32m+[m[32m        (particulate.fresh.substring(0,particulate.fresh.indexOf('Gen'))))) {[m
+[32m+[m[32m            var act = Math.random();[m
+[32m+[m[32m            if (particles[x][y+1] && particles[x][y+1].fresh == 'empty' && act < genRate) {[m
+[32m+[m[32m                changePoint(x, y+1, particulate.fresh.substring(0,particulate.fresh.indexOf('Gen')));[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[32m        forcePoint(x, y, particles[x][y].fresh);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function draw() {[m
+[32m+[m[32m        while (updatedInd-->0) {[m
+[32m+[m[32m            var x = updatedPartList[updatedInd][0];[m
+[32m+[m[32m            var y = updatedPartList[updatedInd][1];[m
+[32m+[m[32m            updatedPart[x][y] = false;[m
+[32m+[m
+[32m+[m[32m            var particulate = particles[x][y];[m
+[32m+[m[32m            var image = '';[m
+[32m+[m[32m            switch(particulate.fresh) {[m
+[32m+[m[32m                case 'empty':[m
+[32m+[m[32m                case 'cloak':[m
+[32m+[m[32m                    point.clearRect(x*particleSize, y*particleSize, particleSize, particleSize);[m
+[32m+[m[32m                    continue;[m
+[32m+[m[32m                case 'plague':[m
+[32m+[m[32m                    point.fillStyle = plagueColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'steam':[m
+[32m+[m[32m                    point.fillStyle = steamColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    image = steamImage;[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'droplet':[m
+[32m+[m[32m                    point.fillStyle = dropletColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    image = dropletImage;[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'fire':[m
+[32m+[m[32m                    point.fillStyle = fireColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    image = fireImage;[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'smoke':[m
+[32m+[m[32m                    point.fillStyle = smokeColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'growth':[m
+[32m+[m[32m                    point.fillStyle = growthColor;[m
+[32m+[m[32m                    image = growthImage;[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'wall':[m
+[32m+[m[32m                    point.fillStyle = wallColor;[m
+[32m+[m[32m                    image = wallImage;[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'explosive':[m
+[32m+[m[32m                    point.fillStyle = explosiveColor;[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'liquidExplosive':[m
+[32m+[m[32m                    point.fillStyle = liquidExplosiveColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'sand':[m
+[32m+[m[32m                    point.fillStyle = sandColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'sticky':[m
+[32m+[m[32m                    point.fillStyle = stickyColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'cloud':[m
+[32m+[m[32m                    point.fillStyle = cloudColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'lightning':[m
+[32m+[m[32m                    point.fillStyle = lightningColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'ice':[m
+[32m+[m[32m                    point.fillStyle = iceColor;[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'lava':[m
+[32m+[m[32m                    point.fillStyle = lavaColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'bark':[m
+[32m+[m[32m                    point.fillStyle = barkColor;[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'shrub':[m
+[32m+[m[32m                    point.fillStyle = shrubColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'soil':[m
+[32m+[m[32m                    point.fillStyle = soilColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'nut':[m
+[32m+[m[32m                    point.fillStyle = nutColor;[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case 'dropletGen':[m
+[32m+[m[32m                case 'steamGen':[m
+[32m+[m[32m                case 'fireGen':[m
+[32m+[m[32m                case 'smokeGen':[m
+[32m+[m[32m                case 'sandGen':[m
+[32m+[m[32m                case 'liquidExplosiveGen':[m
+[32m+[m[32m                case 'lightningGen':[m
+[32m+[m[32m                case 'cloudGen':[m
+[32m+[m[32m                case 'stickyGen':[m
+[32m+[m[32m                case 'lavaGen':[m
+[32m+[m[32m                case 'soilGen':[m
+[32m+[m[32m                case 'nutGen':[m
+[32m+[m[32m                    modPart[modInd++] = new Array(x, y);[m
+[32m+[m[32m                    point.fillStyle = genColor;[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (image == '' || !useGraphics) {[m
+[32m+[m[32m                point.fillRect(x*particleSize,y*particleSize,particleSize,particleSize);[m
+[32m+[m[32m            } else {[m
+[32m+[m[32m                point.drawImage(image, x*particleSize, y*particleSize, particleSize, particleSize);[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        updatedInd = 0;[m
+[32m+[m[32m        if (showPlayer) {[m
+[32m+[m[32m            /*Draw Player*/[m
+[32m+[m[32m            point.fillStyle = playerColor;[m
+[32m+[m[32m            point.fillRect(player.x*particleSize, player.y*particleSize, particleSize, particleSize);[m
+[32m+[m[32m            /*Draw Bullet*/[m
+[32m+[m[32m            point.fillStyle = bulletColor;[m
+[32m+[m[32m            for (var i=0;i<numBullets;i++) {[m
+[32m+[m[32m                point.fillRect(player.bullets[i].x*particleSize, player.bullets[i].y*particleSize, particleSize, particleSize);[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function updatePlayer() {[m
+[32m+[m[32m        forcePoint(player.x, player.y, particles[player.x][player.y].fresh);[m
+[32m+[m
+[32m+[m[32m        player.x += player.move;[m
+[32m+[m[32m        try {[m
+[32m+[m[32m        var particle = particles[player.x][player.y];[m
+[32m+[m[32m        if (particle && isSolid(particle.fresh)) {[m
+[32m+[m[32m            player.x -= player.move;[m
+[32m+[m[32m        }} catch (e) { }[m
+[32m+[m
+[32m+[m[32m        player.y += 1;[m
+[32m+[m[32m        try {[m
+[32m+[m[32m        particle = particles[player.x][player.y];[m
+[32m+[m[32m        if (particle && isSolid(particle.fresh)) {[m
+[32m+[m[32m            player.y -= 1;[m
+[32m+[m[32m            player.hasJumped = false;[m
+[32m+[m[32m        }} catch (e) { }[m
+[32m+[m
+[32m+[m
+[32m+[m[32m        if (player.jump>0) {[m
+[32m+[m[32m            player.y -= 2;[m
+[32m+[m[32m            player.jump -= 1;[m
+[32m+[m[32m            try {[m
+[32m+[m[32m            particle = particles[player.x][player.y];[m
+[32m+[m[32m            if (particle && isSolid(particle.fresh)) {[m
+[32m+[m[32m                player.y+= 1;[m
+[32m+[m[32m                player.jump = 0;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            particle = particles[player.x][player.y];[m
+[32m+[m[32m            if (particle && isSolid(particle.fresh)) {[m
+[32m+[m[32m                player.y+= 1;[m
+[32m+[m[32m                player.jump = 0;[m
+[32m+[m[32m            }} catch (e) { }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        for (var i=0;i<numBullets;i++) {[m
+[32m+[m[32m            var bullet = player.bullets[i];[m
+[32m+[m[32m            point.clearRect(bullet.x*particleSize, bullet.y*particleSize, particleSize, particleSize);[m
+[32m+[m[32m            bullet.x += bullet.velX;[m
+[32m+[m[32m            bullet.y += bullet.velY;[m
+[32m+[m[32m            var x = Math.floor(bullet.x);[m
+[32m+[m[32m            var y = Math.floor(bullet.y);[m
+[32m+[m[32m            try {[m
+[32m+[m[32m                if (isSolid(particles[x][y].fresh) || particles[x][y].fresh == 'sticky' || getDensity(particles[x][y].fresh)>getDensity('droplet')) {[m
+[32m+[m[32m                    circlePoint(x, y, bulletExplosionRadius, bullet.elem, true, ['growth','explosive','liquidExplosive', 'cloak']);[m
+[32m+[m[32m                    player.bullets[i] = new Bullet();[m
+[32m+[m[32m                } else {[m
+[32m+[m[32m                    x = Math.ceiling(bullet.x);[m
+[32m+[m[32m                    y = Math.ceiling(bullet.y);[m
+[32m+[m[32m                    if (isSolid(particles[x][y].fresh) || particles[x][y].fresh == 'sticky' || getDensity(particles[x][y].fresh)>getDensity('droplet')) {[m
+[32m+[m[32m                        circlePoint(x, y, bulletExplosionRadius, bullet.elem, true, ['growth','explosive','liquidExplosive', 'cloak']);[m
+[32m+[m[32m                        player.bullets[i] = new Bullet();[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                }[m
+[32m+[m[32m            } catch(e) { }[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function forcePoint(x, y, type) {[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            var particle = particles[x][y];[m
+[32m+[m[32m            particle.old = particle.fresh;[m
+[32m+[m[32m            particle.fresh = type;[m
+[32m+[m
+[32m+[m[32m            if (updatedPart[x][y]!=true) {[m
+[32m+[m[32m                updatedPart[x][y] = true;[m
+[32m+[m[32m                updatedPartList[updatedInd++] = new Array(x, y);[m
+[32m+[m[32m            }[m
+[32m+[m[32m        } catch(e) {}[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function changePoint(x, y, type) {[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            var particle = particles[x][y];[m
+[32m+[m[32m            particle.old = particle.fresh;[m
+[32m+[m[32m            particle.fresh = type;[m
+[32m+[m[32m            if (particle.old == particle.fresh)[m
+[32m+[m[32m                forcePoint(x, y, type);[m
+[32m+[m
+[32m+[m[32m            if (updatedPart[x][y]!=true) {[m
+[32m+[m[32m                updatedPart[x][y] = true;[m
+[32m+[m[32m                updatedPartList[updatedInd++] = new Array(x, y);[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            if (type == 'droplet') {[m
+[32m+[m[32m                for (var i=-1;i<2;i++)[m
+[32m+[m[32m                    for (var j=-1;j<2;j++)[m
+[32m+[m[32m                        if (particles[x+i][y+j].fresh == 'growth' && Math.random()<growthSpeed) {[m
+[32m+[m[32m                            setTimeout(changePoint,gameSpeed*3, x, y, 'growth');[m
+[32m+[m[32m                        } else if (particles[x+i][y+j].fresh == 'ice' && Math.random()<iceSpeed) {[m
+[32m+[m[32m                            setTimeout(changePoint,gameSpeed*3, x, y, 'ice');[m
+[32m+[m[32m                        } else if (particles[x+i][y+j].fresh == 'lava') {[m
+[32m+[m[32m                            setTimeout(changePoint,gameSpeed, x+i, y+j, 'wall');[m
+[32m+[m[32m                            setTimeout(changePoint,gameSpeed, x, y, 'steam');[m
+[32m+[m[32m                        }[m
+[32m+[m
+[32m+[m[32m                if (particle.old == 'fire') {[m
+[32m+[m[32m                    forcePoint(x, y, 'steam');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'lava') {[m
+[32m+[m[32m                    changePoint(x, y, 'wall');[m
+[32m+[m[32m                    changePoint(x, y-1, 'steam');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'growth' || particle.old == 'ice') {[m
+[32m+[m[32m                    forcePoint(x, y, particle.old);[m
+[32m+[m[32m                    if ((particle.fresh=='growth' && Math.random()<growthSpeed) || (particle.fresh=='ice' && Math.random()<iceSpeed)) {[m
+[32m+[m[32m                        var grow = Math.floor(Math.random()*10);[m
+[32m+[m[32m                        setTimeout(changePoint,gameSpeed, x, y-1, particle.fresh);[m
+[32m+[m[32m                        if (grow==9)[m
+[32m+[m[32m                            setTimeout(changePoint,gameSpeed, x-1, y-1, particle.fresh);[m
+[32m+[m[32m                        if (grow<7)[m
+[32m+[m[32m                            setTimeout(changePoint,gameSpeed, x-1, y, particle.fresh);[m
+[32m+[m[32m                        if (grow>2)[m
+[32m+[m[32m                            setTimeout(changePoint,gameSpeed, x+1, y, particle.fresh);[m
+[32m+[m[32m                        if (grow==0)[m
+[32m+[m[32m                            setTimeout(changePoint,gameSpeed, x+1, y-1, particle.fresh);[m
+[32m+[m[32m                    } else {[m
+[32m+[m[32m                        changePoint(x, y-1, 'droplet');[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'cloud') {[m
+[32m+[m[32m                    forcePoint(x, y, 'cloud');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'sand') {[m
+[32m+[m[32m                    forcePoint(x, y, 'soil');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (type == 'fire') {[m
+[32m+[m[32m                if (isCombustible(particle.old)) {[m
+[32m+[m[32m                    setTimeout(circlePoint,gameSpeed, x, y, 10, 'fire', true, ['explosive', 'liquidExplosive', 'droplet']);[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                if (particle.old == 'droplet') {[m
+[32m+[m[32m                    changePoint(x, y, 'steam');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (isFlammable(particle.old)) {[m
+[32m+[m[32m                    var burn = Math.floor(Math.random()*5);[m
+[32m+[m[32m                    if (burn<4)[m
+[32m+[m[32m                        setTimeout(changePoint, gameSpeed, x, y-1, 'fire');[m
+[32m+[m[32m                    if (burn<3)[m
+[32m+[m[32m                        setTimeout(changePoint, gameSpeed, x-1, y, 'fire');[m
+[32m+[m[32m                    if (burn>1)[m
+[32m+[m[32m                        setTimeout(changePoint, gameSpeed, x+1, y, 'fire');[m
+[32m+[m[32m                    if (burn<2)[m
+[32m+[m[32m                        setTimeout(changePoint,gameSpeed*3, x, y+1, 'fire');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'ice') {[m
+[32m+[m[32m                    forcePoint(x, y, 'steam');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'wall') {[m
+[32m+[m[32m                    if (Math.random()<wallMeltFireSpeed) {[m
+[32m+[m[32m                        changePoint(x, y, 'lava');[m
+[32m+[m[32m                        return true;[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'smoke') {[m
+[32m+[m[32m                    forcePoint(x, y, 'fire');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'soil') {[m
+[32m+[m[32m                    forcePoint(x, y, 'sand');[m
+[32m+[m[32m                    changePoint(x, y-1, 'steam');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (type == 'lava') {[m
+[32m+[m[32m                for (var i=-1;i<2;i++)[m
+[32m+[m[32m                    for (var j=-1;j<2;j++)[m
+[32m+[m[32m                        /*if (particles[x+i][y+j].fresh=='wall' && Math.random()<wallMeltLavaSpeed) {[m
+[32m+[m[32m                            setTimeout(forcePoint,gameSpeed, x+i, y+j, 'lava');[m
+[32m+[m[32m                        } else*/ if (isFlammable(particles[x+i][y+j].fresh) && Math.random()<lavaSpeed) {[m
+[32m+[m[32m                            setTimeout(changePoint,gameSpeed*3, x+i, y+j, 'wall');[m
+[32m+[m[32m                            setTimeout(changePoint,gameSpeed*3, x+i, y+j-1, 'fire');[m
+[32m+[m[32m                        }[m
+[32m+[m
+[32m+[m[32m                if (isCombustible(particle.old)) {[m
+[32m+[m[32m                    setTimeout(circlePoint,gameSpeed, x, y, 10, 'fire', true, ['explosive', 'liquidExplosive', 'droplet']);[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                /*if (particle.old == 'wall') {[m
+[32m+[m[32m                    if (Math.random()<wallMeltLavaSpeed)[m
+[32m+[m[32m                        setTimeout(forcePoint, gameSpeed, x, y, 'lava');[m
+[32m+[m[32m                    else{[m
+[32m+[m[32m                        forcePoint(x, y, 'wall');[m
+[32m+[m[32m                        forcePoint(x, y-1, 'wall');[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else*/ if (isFlammable(particle.old)) {[m
+[32m+[m[32m                    changePoint(x, y-1, 'fire');[m
+[32m+[m[32m                    changePoint(x, y+1, 'fire');[m
+[32m+[m[32m                    forcePoint(x, y, 'wall');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'droplet') {[m
+[32m+[m[32m                    changePoint(x, y, 'wall');[m
+[32m+[m[32m                    changePoint(x, y-1, 'steam');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'ice') {[m
+[32m+[m[32m                    changePoint(x, y-1, 'wall');[m
+[32m+[m[32m                    changePoint(x, y, 'droplet');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else if (particle.old == 'soil') {[m
+[32m+[m[32m                    forcePoint(x, y, 'wall');[m
+[32m+[m[32m                    changePoint(x, y-1, 'lava');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (type == 'steam') {[m
+[32m+[m[32m                if (particle.old == 'ice') {[m
+[32m+[m[32m                    forcePoint(x, y, 'ice');[m
+[32m+[m[32m                    var condense = Math.floor(Math.random()*10);[m
+[32m+[m[32m                    if (condense==9)[m
+[32m+[m[32m                        setTimeout(changePoint,gameSpeed, x-1, y+1, 'droplet');[m
+[32m+[m[32m                    if (condense==0)[m
+[32m+[m[32m                        setTimeout(changePoint,gameSpeed, x+1, y+1, 'droplet');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                if (particle.old == 'sand') {[m
+[32m+[m[32m                    forcePoint(x, y, 'soil');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (type == 'smoke') {[m
+[32m+[m[32m                if (particle.old == 'fire' || particle.old == 'steam') {[m
+[32m+[m[32m                    forcePoint(x, y, particle.old);[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (type == 'lightning') {[m
+[32m+[m[32m                if (isCombustible(particle.old) || isSolid(particle.old))[m
+[32m+[m[32m                    circlePoint(x, y, 3, 'fire', false, []);[m
+[32m+[m[32m                else if (particle.old != 'empty' && particle.old != 'lightning' && particle.old != 'droplet' && particle.old != 'fire' && !isGas(particle.old))[m
+[32m+[m[32m                    forcePoint(x, y, particle.old);[m
+[32m+[m[32m                return true;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (type == 'shrub') {[m
+[32m+[m[32m                if (particle.old == 'fire' || isSolid(particle.old)) {[m
+[32m+[m[32m                    forcePoint(x, y, particle.old);[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (type == 'sand') {[m
+[32m+[m[32m                if (particle.old == 'droplet') {[m
+[32m+[m[32m                    forcePoint(x, y, 'soil');[m
+[32m+[m[32m                    return true;[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (type == 'soil') {[m
+[32m+[m[32m                if (particle.old == 'nut') {[m
+[32m+[m[32m                    circlePoint(x, y, 3, 'shrub', false, ['soil','sand','droplet'])[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (type == 'nut') {[m
+[32m+[m[32m                if (particle.old == 'soil') {[m
+[32m+[m[32m                    circlePoint(x, y, 3, 'shrub', false, ['soil', 'sand', 'droplet', 'nut'])[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            /**************  BEGIN GENERAL CASE HANDLING  **************/[m
+[32m+[m[32m            if (isSolid(particle.old) && isLiquid(type)) {[m
+[32m+[m[32m                forcePoint(x, y, particle.old);[m
+[32m+[m
+[32m+[m[32m                var flow;[m
+[32m+[m[32m                if (particles[x-1][y-1].fresh == 'empty')[m
+[32m+[m[32m                    if (particles[x+1][y-1].fresh == 'empty')[m
+[32m+[m[32m                        flow = Math.floor(Math.random()*3)-1;[m
+[32m+[m[32m                    else[m
+[32m+[m[32m                        flow = Math.floor(Math.random()*2)-1;[m
+[32m+[m[32m                else[m
+[32m+[m[32m                    if (particles[x+1][y-1].fresh == 'empty')[m
+[32m+[m[32m                        flow = Math.floor(Math.random()*2);[m
+[32m+[m[32m                    else[m
+[32m+[m[32m                        flow = 0;[m
+[32m+[m[32m                changePoint(x+flow, y-1, type);[m
+[32m+[m[32m                return true;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (isLiquid(particle.old) && isLiquid(type)) {[m
+[32m+[m[32m                if (getDensity(particle.old) >= getDensity(type)) {     /*e.g. droplet falling onto soil*/[m
+[32m+[m[32m                    forcePoint(x, y, particle.old);[m
+[32m+[m[32m                    var flow = Math.floor(Math.random()*4);[m
+[32m+[m[32m                    if (flow <=1 && ((isLiquid(particles[x-1][y-1].fresh) && (getDensity(particles[x-1][y-1].fresh) < getDensity(particle.old))) || particles[x-1][y-1].fresh == 'empty'))[m
+[32m+[m[32m                        changePoint(x-1, y-1, type);[m
+[32m+[m[32m                    else if (flow >= 2 && ((isLiquid(particles[x+1][y-1].fresh) && (getDensity(particles[x+1][y-1].fresh) < getDensity(particle.old))) || particles[x+1][y-1].fresh == 'empty'))[m
+[32m+[m[32m                        changePoint(x+1, y-1, type);[m
+[32m+[m[32m                    else[m
+[32m+[m[32m                        changePoint(x, y-1, type);[m
+[32m+[m[32m                }[m
+[32m+[m[32m                else{[m
+[32m+[m[32m                    setTimeout(changePoint, gameSpeed, x, y-1, particle.old);[m
+[32m+[m[32m                    /*var flow = Math.floor(Math.random()*4);[m
+[32m+[m[32m                    forcePoint(x, y, type);[m
+[32m+[m[32m                    if (flow <=1 && (isLiquid(particles[x-1][y-1].fresh) || particles[x-1][y-1].fresh == 'empty')) {[m
+[32m+[m[32m                        changePoint(x-1, y-1, particle.old);[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                    else if (flow >= 2 && (isLiquid(particles[x+1][y-1].fresh) || particles[x+1][y-1].fresh == 'empty'))[m
+[32m+[m[32m                        changePoint(x+1, y-1, particle.old);[m
+[32m+[m[32m                    else[m
+[32m+[m[32m                        setTimeout(forcePoint, gameSpeed, x, y, type);[m
+[32m+[m[32m                    changePoint(x, y-1, particle.old);*/[m
+[32m+[m[32m                    return false;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                return true;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (isSolid(particle.old) && isGas(type)) {[m
+[32m+[m[32m                changePoint(x, y, particle.old);[m
+[32m+[m
+[32m+[m[32m                var flow;[m
+[32m+[m[32m                if (particles[x-1][y+1].fresh == 'empty')[m
+[32m+[m[32m                    if (particles[x+1][y+1].fresh == 'empty')[m
+[32m+[m[32m                        flow = Math.floor(Math.random()*3)-1;[m
+[32m+[m[32m                    else[m
+[32m+[m[32m                        flow = Math.floor(Math.random()*2)-1;[m
+[32m+[m[32m                else[m
+[32m+[m[32m                    if (particles[x+1][y+1].fresh == 'empty')[m
+[32m+[m[32m                        flow = Math.floor(Math.random()*2);[m
+[32m+[m[32m                    else[m
+[32m+[m[32m                        flow = 0;[m
+[32m+[m[32m                setTimeout(changePoint, gameSpeed, x + flow, y+1, type);[m
+[32m+[m[32m                return true;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (isGas(particle.old) && isGas(type) && type != 'cloud') {[m
+[32m+[m[32m                var flow = Math.floor(Math.random()*4);[m
+[32m+[m[32m                if (flow <=1 && particles[x-1][y+1].fresh == 'empty')[m
+[32m+[m[32m                    changePoint(x-1, y+1, type);[m
+[32m+[m[32m                else if (flow >= 2 && particles[x+1][y+1].fresh == 'empty')[m
+[32m+[m[32m                    changePoint(x+1, y+1, type);[m
+[32m+[m[32m                return true;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (isSolid(particle.old) && isSolid(type)) {[m
+[32m+[m[32m                forcePoint(x, y, particle.old);[m
+[32m+[m[32m                return true;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (isGas(type) && isLiquid(particle.old)) {[m
+[32m+[m[32m                forcePoint(x, y, particle.old);[m
+[32m+[m[32m                setTimeout(changePoint, gameSpeed,x, y-1, type);[m
+[32m+[m[32m                return true;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            return false;[m
+[32m+[m[32m        } catch (e) { }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*If force, it forces the change, unless the type is in the exceptions array*/[m
+[32m+[m[32m    /*Same for not forcing*/[m
+[32m+[m[32m    function circlePoint(x, y, r, type, force, exceptions) {[m
+[32m+[m[32m        elipsePoint(x, y, r, r, type, force, exceptions);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function elipsePoint(x, y, xr, yr, type, force, exceptions) {[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            for (var i=0;i<xr;i++) {[m
+[32m+[m[32m                for (var j=0;j<yr;j++) {[m
+[32m+[m[32m                    var dist = Math.sqrt(Math.pow(i/xr,2)+Math.pow(j/yr,2));[m
+[32m+[m[32m                    if (dist<=1) {[m
+[32m+[m[32m                        if (force) {[m
+[32m+[m[32m                            if (exceptions.indexOf(type)!=-1) {[m
+[32m+[m[32m                                try { changePoint(x+i, y+j, type); } catch (e) { }[m
+[32m+[m[32m                                try { changePoint(x-i, y+j, type); } catch (e) { }[m
+[32m+[m[32m                                try { changePoint(x+i, y-j, type); } catch (e) { }[m
+[32m+[m[32m                                try { changePoint(x-i, y-j, type); } catch (e) { }[m
+[32m+[m[32m                            } else {[m
+[32m+[m[32m                                try { forcePoint(x+i, y+j, type); } catch (e) { }[m
+[32m+[m[32m                                try { forcePoint(x-i, y+j, type); } catch (e) { }[m
+[32m+[m[32m                                try { forcePoint(x+i, y-j, type); } catch (e) { }[m
+[32m+[m[32m                                try { forcePoint(x-i, y-j, type); } catch (e) { }[m
+[32m+[m[32m                            }[m
+[32m+[m[32m                        } else {[m
+[32m+[m[32m                            if (exceptions.indexOf(type)!=-1) {[m
+[32m+[m[32m                                try { forcePoint(x+i, y+j, type); } catch (e) { }[m
+[32m+[m[32m                                try { forcePoint(x-i, y+j, type); } catch (e) { }[m
+[32m+[m[32m                                try { forcePoint(x+i, y-j, type); } catch (e) { }[m
+[32m+[m[32m                                try { forcePoint(x-i, y-j, type); } catch (e) { }[m
+[32m+[m[32m                            } else {[m
+[32m+[m[32m                                try { changePoint(x+i, y+j, type); } catch (e) { }[m
+[32m+[m[32m                                try { changePoint(x-i, y+j, type); } catch (e) { }[m
+[32m+[m[32m                                try { changePoint(x+i, y-j, type); } catch (e) { }[m
+[32m+[m[32m                                try { changePoint(x-i, y-j, type); } catch (e) { }[m
+[32m+[m[32m                            }[m
+[32m+[m[32m                        }[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m        } catch(e) { }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function rectanglePoint(x, y, xr, yr, type, force, exceptions) {[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            for (var i=0;i<xr;i++) {[m
+[32m+[m[32m                for (var j=0;j<yr;j++) {[m
+[32m+[m[32m                    if (force && exceptions.indexOf(type)==-1) {[m
+[32m+[m[32m                        try { forcePoint(x+i, y+j, type); } catch (e) { }[m
+[32m+[m[32m                    } else {[m
+[32m+[m[32m                        try { changePoint(x+i, y+j, type); } catch (e) { }[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m        } catch (e) { }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Out of 100*/[m
+[32m+[m[32m    function getDensity(type) {[m
+[32m+[m[32m        switch(type) {[m
+[32m+[m[32m            case 'liquidExplosive':[m
+[32m+[m[32m                return 25;[m
+[32m+[m[32m            case 'droplet':[m
+[32m+[m[32m                return 50;[m
+[32m+[m[32m            case 'sticky':[m
+[32m+[m[32m                return 80;[m
+[32m+[m[32m            case 'lava':[m
+[32m+[m[32m                return 85;[m
+[32m+[m[32m            case 'sand':[m
+[32m+[m[32m                return 90;[m
+[32m+[m[32m            case 'nut':[m
+[32m+[m[32m                return 95;[m
+[32m+[m[32m            case 'soil':[m
+[32m+[m[32m                return 95;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        throw 'Non-fluids do not have densities';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Basically, is is solid or does it move */[m
+[32m+[m[32m    function isSolid(type) {[m
+[32m+[m[32m        return type=='wall' || type=='explosive' || type=='growth' || type=='ice' || type=='bark' || type=='shrub' || type=='cloak' || isGen(type);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function isLiquid(type) {[m
+[32m+[m[32m        return type=='droplet' || type=='liquidExplosive' || type=='sand' || type=='sticky' || type=='lava' || type=='soil' || type=='nut';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function isSticky(type) {[m
+[32m+[m[32m        return type=='sticky' || type=='sand';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function isClumpy(type) {[m
+[32m+[m[32m        return type=='sand' || type=='soil';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function isGas(type) {[m
+[32m+[m[32m        return type=='steam' || type=='smoke' || type=='fire' || type=='cloud';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function isCombustible(type) {[m
+[32m+[m[32m        return type=='explosive' || type=='liquidExplosive';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function isFlammable(type) {[m
+[32m+[m[32m        return type=='growth' || type=='bark' || type=='shrub' || type=='nut';[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function isGen(type) {[m
+[32m+[m[32m        return type.substring(type.length-3) == 'Gen';[m
+[32m+[m[32m    }[m
+[32m+[m[32m    function wasParticleGen(particle) {[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            return particle.old.substring(particle.old.length-3) == 'Gen';[m
+[32m+[m[32m        } catch (e) {    return false; }[m
+[32m+[m[32m    }[m
+[32m+[m[32m    function isParticleGen(particle) {[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            return particle.fresh.substring(particle.fresh.length-3) == 'Gen';[m
+[32m+[m[32m        } catch (e) {    return false; }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function List() {[m
+[32m+[m[32m        this.id = '';[m
+[32m+[m[32m        this.arr = [];[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /*Compresses particles into lists of coordinates for each particle type then returns all of them combined */[m
+[32m+[m[32m    function compressParticles() {[m
+[32m+[m[32m        var p = '';[m
+[32m+[m[32m        var e = [];[m
+[32m+[m[32m        var lists = [];[m
+[32m+[m[32m        for (var i=0;i<particles.length;i++) {[m
+[32m+[m[32m            for (var j=0;j<particles[0].length;j++) {[m
+[32m+[m[32m                var elem = compressElem(particles[i][j].fresh);[m
+[32m+[m[32m                if (particles[i][j].fresh != 'empty') {[m
+[32m+[m[32m                    var contains = -1;[m
+[32m+[m[32m                    for (var k=0;k<lists.length;k++)[m
+[32m+[m[32m                        if (lists[k].id == elem) {[m
+[32m+[m[32m                            contains = k;[m
+[32m+[m[32m                            break;[m
+[32m+[m[32m                        }[m
+[32m+[m[32m                    if (contains==-1) {[m
+[32m+[m[32m                        lists.push(new List());[m
+[32m+[m[32m                        contains=lists.length-1;[m
+[32m+[m[32m                        lists[contains].id = elem;[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                    var m = i + '';[m
+[32m+[m[32m                    while (m.length<3) {[m
+[32m+[m[32m                        m = '0' + m;[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                    var n = j + '';[m
+[32m+[m[32m                    while (n.length<3) {[m
+[32m+[m[32m                        n = '0' + n;[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                    lists[contains].arr.push(m + '' + n);[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[32m        for (var i=0;i<lists.length;i++) {[m
+[32m+[m[32m            p += lists[i].id[m
+[32m+[m[32m            for (var j=0;j<lists[i].arr.length;j++) {[m
+[32m+[m[32m                p+=lists[i].arr[j];[m
+[32m+[m[32m            }[m
+[32m+[m[32m            p += ';';[m
+[32m+[m[32m        }[m
+[32m+[m[32m        return p;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function compressElem(elem) {[m
+[32m+[m[32m        switch(elem) {[m
+[32m+[m[32m            case 'sand':[m
+[32m+[m[32m                return 'a';[m
+[32m+[m[32m            case 'sandGen':[m
+[32m+[m[32m                return 'A';[m
+[32m+[m[32m            case 'bark':[m
+[32m+[m[32m                return 'b';[m
+[32m+[m[32m            case 'cloud':[m
+[32m+[m[32m                return 'c';[m
+[32m+[m[32m            case 'cloudGen':[m
+[32m+[m[32m                return 'C';[m
+[32m+[m[32m            case 'droplet':[m
+[32m+[m[32m                return 'd';[m
+[32m+[m[32m            case 'dropletGen':[m
+[32m+[m[32m                return 'D';[m
+[32m+[m[32m            case 'empty':[m
+[32m+[m[32m                return 'e';[m
+[32m+[m[32m            case 'fire':[m
+[32m+[m[32m                return 'f';[m
+[32m+[m[32m            case 'fireGen':[m
+[32m+[m[32m                return 'F';[m
+[32m+[m[32m            case 'growth':[m
+[32m+[m[32m                return 'g';[m
+[32m+[m[32m            case 'shrub':[m
+[32m+[m[32m                return 'h';[m
+[32m+[m[32m            case 'ice':[m
+[32m+[m[32m                return 'i';[m
+[32m+[m[32m            case 'lightning':[m
+[32m+[m[32m                return 'l';[m
+[32m+[m[32m            case 'lightningGen':[m
+[32m+[m[32m                return 'L';[m
+[32m+[m[32m            case 'cloak':[m
+[32m+[m[32m                return 'k';[m
+[32m+[m[32m            case 'smoke':[m
+[32m+[m[32m                return 'm';[m
+[32m+[m[32m            case 'smokeGen':[m
+[32m+[m[32m                return 'M';[m
+[32m+[m[32m            case 'nut':[m
+[32m+[m[32m                return 'n';[m
+[32m+[m[32m            case 'nutGen':[m
+[32m+[m[32m                return 'N';[m
+[32m+[m[32m            case 'soil':[m
+[32m+[m[32m                return 'o';[m
+[32m+[m[32m            case 'soilGen':[m
+[32m+[m[32m                return 'O';[m
+[32m+[m[32m            case 'plague':[m
+[32m+[m[32m                return 'p';[m
+[32m+[m[32m            case 'steam':[m
+[32m+[m[32m                return 's';[m
+[32m+[m[32m            case 'steamGen':[m
+[32m+[m[32m                return 'S';[m
+[32m+[m[32m            case 'sticky':[m
+[32m+[m[32m                return 't';[m
+[32m+[m[32m            case 'stickyGen':[m
+[32m+[m[32m                return 'T';[m
+[32m+[m[32m            case 'lava':[m
+[32m+[m[32m                return 'v';[m
+[32m+[m[32m            case 'lavaGen':[m
+[32m+[m[32m                return 'V';[m
+[32m+[m[32m            case 'wall':[m
+[32m+[m[32m                return 'w';[m
+[32m+[m[32m            case 'explosive':[m
+[32m+[m[32m                return 'x';[m
+[32m+[m[32m            case 'liquidExplosive':[m
+[32m+[m[32m                return 'z';[m
+[32m+[m[32m            case 'liquidExplosiveGen':[m
+[32m+[m[32m                return 'Z';[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m[32m    function decompressElem(e) {[m
+[32m+[m[32m        switch(e) {[m
+[32m+[m[32m            case 'a':[m
+[32m+[m[32m                return 'sand';[m
+[32m+[m[32m            case 'A':[m
+[32m+[m[32m                return 'sandGen';[m
+[32m+[m[32m            case 'b':[m
+[32m+[m[32m                return 'bark';[m
+[32m+[m[32m            case 'c':[m
+[32m+[m[32m                return 'cloud';[m
+[32m+[m[32m            case 'C':[m
+[32m+[m[32m                return 'cloudGen';[m
+[32m+[m[32m            case 'd':[m
+[32m+[m[32m                return 'droplet';[m
+[32m+[m[32m            case 'D':[m
+[32m+[m[32m                return 'dropletGen';[m
+[32m+[m[32m            case 'e':[m
+[32m+[m[32m                return 'empty';[m
+[32m+[m[32m            case 'f':[m
+[32m+[m[32m                return 'fire';[m
+[32m+[m[32m            case 'F':[m
+[32m+[m[32m                return 'fireGen';[m
+[32m+[m[32m            case 'g':[m
+[32m+[m[32m                return 'growth';[m
+[32m+[m[32m            case 'h':[m
+[32m+[m[32m                return 'shrub';[m
+[32m+[m[32m            case 'i':[m
+[32m+[m[32m                return 'ice';[m
+[32m+[m[32m            case 'l':[m
+[32m+[m[32m                return 'lightning';[m
+[32m+[m[32m            case 'L':[m
+[32m+[m[32m                return 'lightningGen';[m
+[32m+[m[32m            case 'k':[m
+[32m+[m[32m                return 'cloak';[m
+[32m+[m[32m            case 'm':[m
+[32m+[m[32m                return 'smoke';[m
+[32m+[m[32m            case 'M':[m
+[32m+[m[32m                return 'smokeGen';[m
+[32m+[m[32m            case 'n':[m
+[32m+[m[32m                return 'nut';[m
+[32m+[m[32m            case 'N':[m
+[32m+[m[32m                return 'nutGen';[m
+[32m+[m[32m            case 'o':[m
+[32m+[m[32m                return 'soil';[m
+[32m+[m[32m            case 'O':[m
+[32m+[m[32m                return 'soilGen';[m
+[32m+[m[32m            case 'p':[m
+[32m+[m[32m                return 'plague';[m
+[32m+[m[32m            case 's':[m
+[32m+[m[32m                return 'steam';[m
+[32m+[m[32m            case 'S':[m
+[32m+[m[32m                return 'steamGen';[m
+[32m+[m[32m            case 't':[m
+[32m+[m[32m                return 'sticky';[m
+[32m+[m[32m            case 'T':[m
+[32m+[m[32m                return 'stickyGen';[m
+[32m+[m[32m            case 'v':[m
+[32m+[m[32m                return 'lava';[m
+[32m+[m[32m            case 'V':[m
+[32m+[m[32m                return 'lavaGen';[m
+[32m+[m[32m            case 'w':[m
+[32m+[m[32m                return 'wall';[m
+[32m+[m[32m            case 'x':[m
+[32m+[m[32m                return 'explosive';[m
+[32m+[m[32m            case 'z':[m
+[32m+[m[32m                return 'liquidExplosive';[m
+[32m+[m[32m            case 'Z':[m
+[32m+[m[32m                return 'liquidExplosiveGen';[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function loadXMLDoc(queryString, func) {[m
+[32m+[m[32m        var xmlhttp = new XMLHttpRequest();[m
+[32m+[m[32m        xmlhttp.onreadystatechange=function() {[m
+[32m+[m[32m            if (xmlhttp.readyState==4 && xmlhttp.status==200) {[m
+[32m+[m[32m                func(xmlhttp.responseText);[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[32m        /*xmlhttp.open('GET','script.cgi?' + queryString, false);[m
+[32m+[m[32m        xmlhttp.send();*/[m
+[32m+[m[32m        xmlhttp.open('POST','script.cgi', false);[m
+[32m+[m[32m        xmlhttp.setRequestHeader('Content-type','text/plain');[m
+[32m+[m[32m        xmlhttp.send(queryString);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    function act(action) {[m
+[32m+[m[32m        var res;[m
+[32m+[m[32m        var retry = 0;[m
+[32m+[m[32m        while (retry<5)[m
+[32m+[m[32m            try {[m
+[32m+[m[32m                loadXMLDoc(action, function(r) {    res = r});[m
+[32m+[m[32m                retry = 5;[m
+[32m+[m[32m            } catch(e) {[m
+[32m+[m[32m                retry++;[m
+[32m+[m[32m                if (retry==5)[m
+[32m+[m[32m                    alert(e);[m
+[32m+[m[32m            }[m
+[32m+[m[32m        return res;[m
+[32m+[m[32m    }[m
+[32m+[m[32m})()[m
+\ No newline at end of file[m
