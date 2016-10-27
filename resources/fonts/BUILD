@@ -1,7 +1,7 @@
 # Copyright (c) 2016 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("@rules_web//:web.bzl",
+load("@rules_web//fonts:fonts.bzl",
     "minify_ttf",
     "ttf_to_woff",
     "ttf_to_woff2",

@@ -1,15 +1,25 @@
 # Copyright (c) 2016 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("@rules_web//:web.bzl",
+load("@rules_web//html:html.bzl",
     "html_page",
     "minify_html",
-    "minify_png",
+)
+
+load("@rules_web//images:images.bzl",
     "favicon_image_generator",
-    "zip_site",
+    "minify_png",
+)
+
+load("@rules_web//site_zip:site_zip.bzl",
+    "generate_zip_server_python_file",
     "minify_site_zip",
     "rename_zip_paths",
     "zip_server",
+    "zip_site",
+)
+
+load("@rules_web//deploy:deploy.bzl",
     "deploy_site_zip_s3_script",
 )
 

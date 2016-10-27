@@ -1,15 +1,17 @@
 # Copyright (c) 2016 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("@rules_web//:web.bzl",
-    "closure_compile",
+load("@rules_web//html:html.bzl",
     "html_page",
     "minify_html",
+)
+
+load("@rules_web//images:images.bzl",
     "minify_png",
-    "zip_site",
-    "minify_site_zip",
-    "rename_zip_paths",
-    "zip_server",
+)
+
+load("@rules_web//js:js.bzl",
+    "closure_compile",
 )
 
 minify_png(
