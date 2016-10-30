@@ -12,6 +12,7 @@ load("@rules_web//images:images.bzl",
 
 load("@rules_web//js:js.bzl",
     "closure_compile",
+    "resource_map",
 )
 
 minify_png(
@@ -44,16 +45,6 @@ minify_png(
     png = "Grow/images/wall.png",
 )
 
-closure_compile(
-    name = "fallingsand_js",
-    srcs = [
-        "grow.js",
-    ],
-    compilation_level = "ADVANCED",
-    warning_level = "QUIET",
-    extra_args = [ "--jscomp_off", "checkVars" ],
-)
-
 filegroup(
     name = "worlds",
     srcs = [
@@ -61,6 +52,31 @@ filegroup(
         "Grow/world3.grw",
         "Grow/world4.grw",
     ],
+)
+
+resource_map(
+    name = "fallingsand_resource_map",
+    constant_name = "RESOURCE_PATHS",
+    deps = [
+        ":droplet_png",
+        ":fire_png",
+        ":gen_png",
+        ":growth_png",
+        ":steam_png",
+        ":wall_png",
+        ":worlds",
+    ],
+)
+
+closure_compile(
+    name = "fallingsand_js",
+    srcs = [
+        ":fallingsand_resource_map",
+        "grow.js",
+    ],
+    compilation_level = "ADVANCED",
+    #warning_level = "QUIET",
+    #extra_args = [ "--jscomp_off", "checkVars" ],
 )
 
 html_page(
