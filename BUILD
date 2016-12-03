@@ -133,5 +133,5 @@ deploy_site_zip_s3_script(
     aws_access_key = "fake key",
     aws_secret_key = "fake secret",
     bucket = "test.dustindoloff.com",
-    zip = ":rename_index_www_dustindoloff_com_zip",
+    zip_file = ":rename_index_www_dustindoloff_com_zip",
 )
