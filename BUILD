@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Dustin Doloff
+# Copyright (c) 2016-2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
 load("@rules_web//html:html.bzl",
@@ -126,12 +126,12 @@ zip_server(
     port = 8080,
 )
 
-# BUG: Script does not run correctly due to Bazel limitation of not being able to run a target from
-# within another target.
-deploy_site_zip_s3_script(
-    name = "deploy_test_dustindoloff_com",
-    aws_access_key = "fake key",
-    aws_secret_key = "fake secret",
-    bucket = "test.dustindoloff.com",
-    zip_file = ":rename_index_www_dustindoloff_com_zip",
-)
+[
+    deploy_site_zip_s3_script(
+        name = "deploy_{site}".format(site=bucket),
+        bucket = bucket,
+        zip_file = ":rename_index_www_dustindoloff_com_zip",
+    )
+
+    for bucket in [ "test.dustindoloff.com" ]
+]
