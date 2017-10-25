@@ -92,8 +92,8 @@ TODO: speed up game
 
     init();
     if (disableSelect) {
-        body.onselectstart = function() {    return false};
-        body.style.MozUserSelect='none';
+        body.onselectstart = () => false;
+        body.style.MozUserSelect = 'none';
     }
 
     var prevX, prevY, curX, curY;
@@ -293,7 +293,7 @@ TODO: speed up game
                 }
             }
             done = true;
-        }
+        };
         client.send();
         /* End load game */
 
@@ -487,7 +487,7 @@ TODO: speed up game
                     return;
                 }
             }
-        }
+        };
     }
 
     /**
@@ -529,7 +529,7 @@ TODO: speed up game
                         x += particleSize*(x - prevX<0?1:-1);
                     if (Math.abs(y - prevY)>=particleSize)
                         y += particleSize*(y - prevY<0?1:-1);
-                } while (Math.abs(x - prevX) >= particleSize || Math.abs(y - prevY) >= particleSize)
+                } while (Math.abs(x - prevX) >= particleSize || Math.abs(y - prevY) >= particleSize);
             }
             prevX = event.clientX;
             prevY = event.clientY;
@@ -1166,12 +1166,12 @@ TODO: speed up game
             }
             if (type == 'soil') {
                 if (particle.old == 'nut') {
-                    circlePoint(x, y, 3, 'shrub', false, ['soil','sand','droplet'])
+                    circlePoint(x, y, 3, 'shrub', false, ['soil','sand','droplet']);
                 }
             }
             if (type == 'nut') {
                 if (particle.old == 'soil') {
-                    circlePoint(x, y, 3, 'shrub', false, ['soil', 'sand', 'droplet', 'nut'])
+                    circlePoint(x, y, 3, 'shrub', false, ['soil', 'sand', 'droplet', 'nut']);
                 }
             }
 
@@ -1420,7 +1420,7 @@ TODO: speed up game
             }
         }
         for (var i = 0;i<lists.length;i++) {
-            p += lists[i].id
+            p += lists[i].id;
             for (var j = 0;j<lists[i].arr.length;j++) {
                 p+=lists[i].arr[j];
             }
@@ -1499,6 +1499,7 @@ TODO: speed up game
                 return 'Z';
         }
     }
+
     function decompressElem(e) {
         switch(e) {
             case 'a':
@@ -1576,7 +1577,7 @@ TODO: speed up game
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 func(xmlhttp.responseText);
             }
-        }
+        };
         /* xmlhttp.open('GET','script.cgi?' + queryString, false);
         xmlhttp.send();*/
         xmlhttp.open('POST','script.cgi', false);
@@ -1589,7 +1590,9 @@ TODO: speed up game
         var retry = 0;
         while (retry<5)
             try {
-                loadXMLDoc(action, function(r) {    res = r});
+                loadXMLDoc(action, function(r) {
+                    res = r;
+                });
                 retry = 5;
             } catch(e) {
                 retry++;
@@ -1598,4 +1601,4 @@ TODO: speed up game
             }
         return res;
     }
-})()
+})();

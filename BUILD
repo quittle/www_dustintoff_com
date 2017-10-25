@@ -23,7 +23,7 @@ load("@rules_web//deploy:deploy.bzl",
     "deploy_site_zip_s3_script",
 )
 
-favicon_sizes = set([
+favicon_sizes = depset([
     # Powers of 2
     16, 32, 64, 128, 256,
     # Old iOS home screen

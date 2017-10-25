@@ -8,7 +8,7 @@ var nav, main;
  * @return {boolean} True if the device is mobile or false if it isn't
  */
 function isMobile() {
-    return window.matchMedia && window.matchMedia('(max-width: 799px)').matches
+    return window.matchMedia && window.matchMedia('(max-width: 799px)').matches;
 }
 
 /**
@@ -37,7 +37,7 @@ function onScrollOrTouch() {
 function init() {
     nav = document.querySelector('nav');
     main = document.querySelector('main');
-    onHashChange()
+    onHashChange();
 
     // Register event listeners
     window.addEventListener('hashchange', onHashChange);
@@ -47,8 +47,8 @@ function init() {
 
     const scrollEvents = ['scroll', 'touchstart', 'touchend', 'touchcancel', 'touchleave', 'touchmove'];
     for (let i = 0; i < scrollEvents.length; i++) {
-        window.addEventListener(scrollEvents[i], onScrollOrTouch)
-    };
+        window.addEventListener(scrollEvents[i], onScrollOrTouch);
+    }
 }
 
 /**
@@ -64,13 +64,13 @@ function onHashChange(opt_e) {
             let offset = 0;
             do {
                 offset += parseInt(sectionElement.offsetTop, 10);
-                sectionElement = sectionElement.parentNode
+                sectionElement = sectionElement.parentNode;
             } while (sectionElement && sectionElement.offsetTop);
             /** @type {number} */ const navHeight = parseInt(
                     window.getComputedStyle(document.querySelector('nav'))
                             .getPropertyValue('height'),
                     10);
-            window.scrollBy(0, offset + navHeight - document.body.scrollTop)
+            window.scrollBy(0, offset + navHeight - document.body.scrollTop);
         }
     }
 
