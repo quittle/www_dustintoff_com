@@ -13,7 +13,6 @@ load("@rules_web//images:images.bzl",
 
 load("@rules_web//site_zip:site_zip.bzl",
     "generate_zip_server_python_file",
-    "minify_site_zip",
     "rename_zip_paths",
     "zip_server",
     "zip_site",
@@ -97,32 +96,25 @@ zip_site(
     out_zip = "www_dustindoloff_com.zip",
 )
 
-minify_site_zip(
-    name = "www_dustindoloff_com_zip",
-    site_zip = ":www_dustindoloff_com",
-    root_files = [
-        ":min_favicon",
-        ":index_min",
-        "//projects/fallingsand:min_fallingsand_html",
-    ],
-    minified_zip = "www_dustindoloff_com.min.zip",
-)
-
 rename_zip_paths(
     name = "rename_index_www_dustindoloff_com_zip",
-    source_zip = ":www_dustindoloff_com_zip",
+    source_zip = ":www_dustindoloff_com",
     path_map_labels_in = [
         ":min_favicon", ":index_min", "//projects/fallingsand:min_fallingsand_html",
     ],
     path_map_labels_out = [
         "favicon.png", "index.html", "projects/fallingsand",
     ],
-    out_zip = "www_dustindoloff_com_final.zip",
+)
+
+alias(
+    name = "final_www_dustindoloff_com_zip",
+    actual = ":rename_index_www_dustindoloff_com_zip",
 )
 
 zip_server(
     name = "www_dustindoloff_com_zip_server",
-    zip = ":rename_index_www_dustindoloff_com_zip",
+    zip = ":final_www_dustindoloff_com_zip",
     port = 8080,
 )
 
@@ -130,7 +122,7 @@ zip_server(
     deploy_site_zip_s3_script(
         name = "deploy_{site}".format(site=bucket),
         bucket = bucket,
-        zip_file = ":rename_index_www_dustindoloff_com_zip",
+        zip_file = ":final_www_dustindoloff_com_zip",
     )
 
     for bucket in [ "test.dustindoloff.com" ]
