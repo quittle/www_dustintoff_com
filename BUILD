@@ -92,6 +92,8 @@ zip_site(
         ":min_favicon",
         ":index_min",
         "//projects/fallingsand:min_fallingsand_html",
+        "//projects/commentube:min_commentube",
+        "//projects/commentube:min_commentube_help",
     ],
     out_zip = "www_dustindoloff_com.zip",
 )
@@ -99,12 +101,13 @@ zip_site(
 rename_zip_paths(
     name = "rename_index_www_dustindoloff_com_zip",
     source_zip = ":www_dustindoloff_com",
-    path_map_labels_in = [
-        ":min_favicon", ":index_min", "//projects/fallingsand:min_fallingsand_html",
-    ],
-    path_map_labels_out = [
-        "favicon.png", "index.html", "projects/fallingsand",
-    ],
+    path_map = {
+        ":min_favicon": "favicon.png",
+        ":index_min": "index.html",
+        "//projects/fallingsand:min_fallingsand_html": "projects/fallingsand/index.html",
+        "//projects/commentube:min_commentube": "projects/commentube/index.html",
+        "//projects/commentube:min_commentube_help": "projects/commentube/help.html",
+    },
 )
 
 alias(
