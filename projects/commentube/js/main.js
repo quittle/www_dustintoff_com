@@ -7,14 +7,14 @@ var drawingLines = new Array(), commentLines = new Array(), commentCanvases = ne
 function getVideoPlayer(){
 	//Get the video id from the input box
 	videoid = extractYoutubeVideoId(document.getElementById("videoid").value);
-	
+
 	//Set the hash at the top of the page for easy sharing of page
 	window.location.hash = videoid;
-	
+
 	//unhide page
 	commentHolder.style.display = "";
 	playerSection.style.display = "";
-	
+
 	if(player != null){ //Clear old things if already loaded
 		var playerHolder = document.getElementById("playerHolder");
 		playerHolder.innerHTML = "";
@@ -29,6 +29,7 @@ function getVideoPlayer(){
 		playerVars: {
 			controls: 0,
 			modestbranding: 1,
+			enablejsapi: 1,
 			theme: "light",
 			html5: 1
 		},
@@ -37,7 +38,7 @@ function getVideoPlayer(){
 			'onStateChange': onPlayerStateChange
 		}
 	});
-	
+
 	commentBox.innerHTML = "";
 }
 
@@ -47,19 +48,19 @@ function onYouTubeIframeAPIReady() {}
 // The API will call this function when the video player is ready.
 function onPlayerReady(event) {
 	event.target.playVideo();
-	
+
 	//Resize to fix issues
 	resizeCommentCanvas();
 	commentCanvas.style.display = "";
-	
+
 	playerMonitor = new PlayerMonitor(event.target);
-	
+
 	//Update progressbar
 	playerMonitor.onTime(-1, 0, function(p){
 		progress.style.width = (p.getCurrentTime() / p.getDuration())*100 + "%";
 		progress.style.paddingRight = p.getVideoLoadedFraction() * 100 - parseFloat(progress.style.width) + "%";
 	});
-	
+
 	//Update rolling comments position
 	playerMonitor.onTime(-1, 0, function(p){
 		if(rollingCommentsHolder.hasChildNodes()){
@@ -81,7 +82,7 @@ function onPlayerReady(event) {
 			}
 		}
 	});
-	
+
 	//Update highlighting of rolling comments
 	/*playerMonitor.onTime(-1, 0, function(p){
 		if(rollingCommentsHolder.hasChildNodes()){
@@ -91,7 +92,7 @@ function onPlayerReady(event) {
 			}
 		}
 	});*/
-	
+
 	playerMonitor.start(10);
 }
 
@@ -118,10 +119,13 @@ function onPlayerStateChange(event) {
 
 /* My code */
 function resizeCommentCanvas(){
-	playerWrapper.style.width = parseInt(style(playerHolder, "width")) + "px";
-	playerWrapper.style.height = parseInt(playerWrapper.style.width) * .5625 + "px"; // Maintain 16:9 ratio
-	commentCanvas.setAttribute("width", parseInt(style(playerHolder, "width")) + 50 + "px");
-	commentCanvas.setAttribute("height", parseInt(style(playerHolder, "height")) + 50 + "px");
+	var width = parseInt(style(playerHolder, "width"), 10);
+	var height = width * 0.5625; // Maintain 16:9 ration
+	playerWrapper.style.width = width + "px";
+	playerWrapper.style.height = height + "px";
+	player.setSize(width, height);
+	commentCanvas.setAttribute("width", width + 50 + "px");
+	commentCanvas.setAttribute("height", height + 50 + "px");
 	commentCanvasContext = commentCanvas.getContext("2d"); //Get context again so I can draw properly
 	commentCanvasContext.lineWidth = 3;
 	commentCanvasContext.strokeStyle = "#000";
@@ -132,10 +136,10 @@ function editComment(e){
 	if(key == 13 && !e.shiftKey){ // Enter
 		if(commentArea.value == "")
 			return false;
-		
+
 		commentSent.style.visibility = "visible";
 		commentSent.style.opacity = 1;
-		
+
 		var time = player.getCurrentTime();
 		var c = commentArea.value.replace(/ /g, '&nbsp;').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;').replace(/\</g, "&lt;").replace(/\>/g, "&gt;").replace(/\n/g, '<br />').replace(/\//g, "//").replace(/\\/g, "\\");
 		addComment(time, new Date().getTime(), c, drawingLines);
@@ -154,7 +158,7 @@ function editComment(e){
 		});
 
 		playVideo();
-		
+
 		commentArea.value = "";
 		curTimeBox.innerHTML = "";
 		clearCanvas();
@@ -168,14 +172,14 @@ function editComment(e){
 function addComment(time, date, commentString, lines){
 	if(commentString == "")
 		return false;
-	
+
 	var fTime = "Time: " + friendlyTime(time);
-	
+
 	var d = new Date(parseInt(date));
 	date = d.toLocaleDateString();
 
 	var comment = genEl("div", {"class":"comment", "lines":lines});
-	
+
 		var commentLeftBlock = genEl("span", {"class":"commentLeftBlock"});
 		commentLeftBlock.appendChild(genEl("div", {"class":"commentTimeListItem"}, null, fTime));
 		commentLeftBlock.appendChild(genEl("div", {"class": "commentDateListItem"}, null, date));
@@ -183,7 +187,7 @@ function addComment(time, date, commentString, lines){
 
 	comment.appendChild(commentLeftBlock);
 	comment.appendChild(genEl("span", {"class": "commentListItem"}, null, commentString));
-		
+
 	var jumpTo = function(){
 		player.seekTo(time, true);
 		pauseVideo();
@@ -191,9 +195,9 @@ function addComment(time, date, commentString, lines){
 		drawLines(lines);
 	};
 	comment.appendChild(genEl("span", {"class":"commentJump","onclick":jumpTo}, null, "Jump To"));
-	
+
 	var rollingComment = genEl("div", {"class":"rollingComment", "time":time, "onclick":jumpTo});
-	
+
 	var newLine = commentString.indexOf("<br /");
 	rollingComment.innerHTML = newLine==-1?commentString:commentString.substring(0, newLine) + "...";
 	var inserted = false;
@@ -208,7 +212,7 @@ function addComment(time, date, commentString, lines){
 	}
 	if(!inserted) // Default to adding to end
 		rollingCommentsHolder.appendChild(rollingComment);
-	
+
 	var commentPip = genEl("span", {"class":"commentPip", "onclick":jumpTo}, {"left":(100*time / player.getDuration()) + "%"});
 	commentPip.onmouseover = function(){
 		var commentPipHover = genEl("span", {"class":"commentPipHover"}, null, commentString);
@@ -277,7 +281,7 @@ function init(){
 	commentCanvas = document.getElementById("commentCanvas");
 	commentHolder = document.getElementById("commentHolder");
 	commentSent = document.getElementById("commentSent");
-	
+
 	//Stop the right-click context-menu
 	var rFalse = function(){return false;};
 	document.getElementById("wrapper").onselectstart = rFalse;
@@ -288,7 +292,7 @@ function init(){
 	playerSection.onselectstart = rFalse;
 	divider.onselectstart = rFalse;
 	commentHolder.onselectstart = rFalse;
-	
+
 	progressBar.addEventListener("contextmenu", function(e){
 		e.preventDefault();
 	});
@@ -301,7 +305,7 @@ function init(){
 	progressCursor.addEventListener("contextmenu", function(e){
 		e.preventDefault();
 	});
-	
+
 
 	var isMouseDownCanvas; //boolean
 	var prevX, prevY, startX, startY; //int
@@ -332,7 +336,7 @@ function init(){
 			if(e.clientX!=0 || e.clientY!=0){
 				var x = getRelativeX(e, commentCanvas);
 				var y = getRelativeY(e, commentCanvas);
-				
+
 				var cWidth = getWidth(commentCanvas);
 				var cHeight = getHeight(commentCanvas);
 				//Record lines
@@ -340,7 +344,7 @@ function init(){
 				for(var i in arr)
 					arr[i] = arr[i].toFixed(4);
 				drawingLines.push(arr);
-				
+
 				drawLine(prevX, prevY, x, y);
 				prevX = x;
 				prevY = y;
@@ -356,7 +360,7 @@ function init(){
 			}
 		}
 	});
-	
+
 	progressBar.addEventListener("mouseout", function(){
 		progressBar.style.zIndex = "";
 	});
@@ -382,22 +386,22 @@ function init(){
 	progressBar.addEventListener("mousemove", moveCursor);
 	progressBar.addEventListener("click", function(){isMouseDownProgressCursor = true; moveCursor(event);setCursor(event);});
 	commentCanvas.addEventListener("mousemove", moveCursor);
-	
+
 	progressCursor.addEventListener("mouseup", setCursor);
 	progressBar.addEventListener("mouseup", setCursor);
 	commentCanvas.addEventListener("mouseup", setCursor);
-	
+
 	progressCursor.addEventListener("mouseout", function(e){
 		progressCursor.style.zIndex = 101;
 	});
-	
+
 	var isMouseDownDivider; //boolean
 	divider.addEventListener("mousedown", function(e){
 		isMouseDownDivider = true;
 		playerSection.style.cursor = "-webkit-grabbing";
 		rollingComments.style.cursor = "-webkit-grabbing";
 	});
-	
+
 	var moveDivider = function(e){
 		if(isMouseDownDivider)
 			divider.style.left = restrict(getRelativeX(e, playerSection) - getWidth(divider)/2, 660, 850) + "px";
@@ -416,7 +420,7 @@ function init(){
 	commentCanvas.addEventListener("mousemove", moveDivider);
 	rollingComments.addEventListener("mousemove", moveDivider);
 	divider.addEventListener("mousemove", moveDivider);
-	
+
 	commentCanvas.addEventListener("mouseup", setDivider);
 	rollingComments.addEventListener("mouseup", setDivider);
 	divider.addEventListener("mouseup", setDivider);
@@ -431,7 +435,7 @@ function PlayerMonitor(ytPlayer){
 	//Construction
 	var player = ytPlayer;
 	var timeFuncs = new Array();
-	
+
 	this.start = function(interval){
 		if(!interval)
 			interval = 100;
@@ -444,7 +448,7 @@ function PlayerMonitor(ytPlayer){
 			}
 		}, interval);
 	}
-	
+
 	this.onTime = function(time, acc, func, obj){
 		timeFuncs.push(new TimeFunc(time, acc, func, obj));
 	}
