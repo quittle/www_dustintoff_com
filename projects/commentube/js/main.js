@@ -27,11 +27,16 @@ function getVideoPlayer(){
 		width: '100%',
 		videoId: videoid,
 		playerVars: {
+			autoplay: 1,
 			controls: 0,
-			modestbranding: 1,
 			enablejsapi: 1,
-			theme: "light",
-			html5: 1
+			html5: 1,
+			iv_load_policy: 3,
+			loop: 1,
+			modestbranding: 1,
+			rel: 0,
+			showinfo: 0,
+			theme: 'light',
 		},
 		events: {
 			'onReady': onPlayerReady,
