@@ -106,17 +106,11 @@ var loadedAlready;
 function onPlayerStateChange(event) {
 	if(event.data == YT.PlayerState.PLAYING && !loadedAlready){
 		loadedAlready = true;
-		loadXMLDoc("load=" + videoid, function(ret){
-			ret = ret.split("\n");
-			for(var i=0;i<ret.length;i++){
-				var split = ret[i].split("__xfg!8YXk_!j23F_!USLe825__");
-				if(split.length>1){
-					var t = split[0];
-					var d = split[1] + "000"; // PHP stores the date in seconds, javascript handles milliseconds
-					var c = split[2];
-					var l = split[3].split(",");
-					addComment(t, d, c, l);
-				}
+		getVideoData(videoid, function(data) {
+			console.log(data);
+			for (var i = 0; i < data.length; i++) {
+				var comment = data[i];
+				addComment(comment.timestamp, comment.date, comment.comment, comment.lines);
 			}
 		});
 	}
@@ -146,21 +140,34 @@ function editComment(e){
 		commentSent.style.opacity = 1;
 
 		var time = player.getCurrentTime();
-		var c = commentArea.value.replace(/ /g, '&nbsp;').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;').replace(/\</g, "&lt;").replace(/\>/g, "&gt;").replace(/\n/g, '<br />').replace(/\//g, "//").replace(/\\/g, "\\");
-		addComment(time, new Date().getTime(), c, drawingLines);
-		c = c.replace(/%/g, "%25").replace(/&/g, "%26");
+		var comment = commentArea.value.replace(/ /g, '&nbsp;').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;').replace(/\</g, "&lt;").replace(/\>/g, "&gt;").replace(/\n/g, '<br />').replace(/\//g, "//").replace(/\\/g, "\\");
+		var date = new Date().getTime();
+		addComment(time, date, comment, drawingLines);
+		comment = comment.replace(/%/g, "%25").replace(/&/g, "%26");
 
-		loadXMLDoc("video="+videoid+ "&time="+time+ "&comment="+c+ "&lines="+drawingLines, function (ret){
+		storeComment(videoid, time, date, comment, drawingLines, function() {
 			commentSent.innerHTML = "Comment sent.";
-			var c = setInterval(function(){
+			var timer = setInterval(function() {
 				commentSent.style.opacity = parseFloat(commentSent.style.opacity) - 0.005;
 				if(parseFloat(commentSent.style.opacity) < 0){
 					commentSent.style.visibility = "hidden";
 					commentSent.style.opacity = 1;
-					cancelTimer(c);
+					clearInterval(timer);
 				}
 			}, 10);
 		});
+
+		// loadXMLDoc("video="+videoid+ "&time="+time+ "&comment="+c+ "&lines="+drawingLines, function (ret){
+		// 	commentSent.innerHTML = "Comment sent.";
+		// 	var c = setInterval(function(){
+		// 		commentSent.style.opacity = parseFloat(commentSent.style.opacity) - 0.005;
+		// 		if(parseFloat(commentSent.style.opacity) < 0){
+		// 			commentSent.style.visibility = "hidden";
+		// 			commentSent.style.opacity = 1;
+		// 			cancelTimer(c);
+		// 		}
+		// 	}, 10);
+		// });
 
 		playVideo();
 
@@ -175,8 +182,9 @@ function editComment(e){
 	return true;
 }
 function addComment(time, date, commentString, lines){
-	if(commentString == "")
+	if (!commentString) {
 		return false;
+	}
 
 	var fTime = "Time: " + friendlyTime(time);
 
@@ -197,6 +205,7 @@ function addComment(time, date, commentString, lines){
 		player.seekTo(time, true);
 		pauseVideo();
 		clearCanvas();
+		console.log("drawing lines: " + lines);
 		drawLines(lines);
 	};
 	comment.appendChild(genEl("span", {"class":"commentJump","onclick":jumpTo}, null, "Jump To"));
@@ -463,6 +472,33 @@ function TimeFunc(time, acc, func, obj){
 	this.acc = acc;
 	this.func = func;
 	this.obj = obj;
+}
+
+function getVideoData(videoId, callback) {
+	var dataString = window.localStorage.getItem(videoId);
+	if (dataString) {
+		callback(JSON.parse(dataString));
+	} else {
+		callback([]);
+	}
+}
+
+function storeVideoData(videoId, data, onCompletionHandler) {
+	window.localStorage.setItem(videoId, JSON.stringify(data));
+	onCompletionHandler();
+}
+
+function storeComment(videoId, timestamp, date, comment, lines, onCompletionHandler) {
+	getVideoData(videoId, function(data) {
+		data.push({
+			timestamp: timestamp,
+			date: date,
+			comment: comment,
+			lines: lines,
+		});
+		storeVideoData(videoId, data, onCompletionHandler);
+	});
+	var comments = JSON.parse(window.localStorage.getItem(videoId, '[]'));
 }
 
 function loadXMLDoc(queryString, func){
