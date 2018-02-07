@@ -91,9 +91,6 @@ zip_site(
     root_files = [
         ":min_favicon",
         ":index_min",
-        "//projects/fallingsand:min_fallingsand_html",
-        "//projects/commentube:min_commentube",
-        "//projects/commentube:min_commentube_help",
     ],
     out_zip = "www_dustindoloff_com.zip",
 )
@@ -104,9 +101,6 @@ rename_zip_paths(
     path_map = {
         ":min_favicon": "favicon.png",
         ":index_min": "index.html",
-        "//projects/fallingsand:min_fallingsand_html": "projects/fallingsand/index.html",
-        "//projects/commentube:min_commentube": "projects/commentube/index.html",
-        "//projects/commentube:min_commentube_help": "projects/commentube/help.html",
     },
 )
 
@@ -116,7 +110,7 @@ alias(
 )
 
 zip_server(
-    name = "www_dustindoloff_com_zip_server",
+    name = "zip_server",
     zip = ":final_www_dustindoloff_com_zip",
     port = 8080,
 )
