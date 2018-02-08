@@ -16,7 +16,7 @@
 			document.getElementById("upgrade0").dispatchEvent(dustinEvent);
 		},1000);
 	}
-	
+
 	setInterval(function(){
 		gc = document.getElementById("goldenCookie");
 		if(gc.style.display != "none"){
@@ -40,7 +40,7 @@
 
 		var products = document.querySelectorAll(".product.unlocked");
 		var l = products.length;
-		
+
 		var cps = getCount(cookies.querySelector("div").innerHTML.substring(13).split(" "));
 		var total = getCount((cookies.childNodes[0].textContent).split(" "));
 
@@ -71,8 +71,7 @@ function heavenly(){
 
 alert("Using cookie cheater version 1.3.0");
 
-/*Use this next line to activate the cheat
-
-d=document;d.body.appendChild(d.createElement("script")).src="http://dustindoloff.com/test/cookie/cheat.js?"+Date()
-with(document)body.appendChild(createElement("script")).src="http://dustindoloff.com/test/cookie/cheat.js?"+Date()
+/*
+    Use this next line to activate the cheat
+    (function(){with(document){body.appendChild(createElement("script")).src="http://dustindoloff.com/test/cookie/cheat.js?"}})()
 */
