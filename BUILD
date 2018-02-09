@@ -87,17 +87,17 @@ favicon_image_generator(
 )
 
 zip_site(
-    name = "www_dustindoloff_com",
+    name = "www_dustintoff_com",
     root_files = [
         ":min_favicon",
         ":index_min",
     ],
-    out_zip = "www_dustindoloff_com.zip",
+    out_zip = "www_dustintoff_com.zip",
 )
 
 rename_zip_paths(
-    name = "rename_index_www_dustindoloff_com_zip",
-    source_zip = ":www_dustindoloff_com",
+    name = "rename_index_www_dustintoff_com_zip",
+    source_zip = ":www_dustintoff_com",
     path_map = {
         ":min_favicon": "favicon.png",
         ":index_min": "index.html",
@@ -105,13 +105,13 @@ rename_zip_paths(
 )
 
 alias(
-    name = "final_www_dustindoloff_com_zip",
-    actual = ":rename_index_www_dustindoloff_com_zip",
+    name = "final_www_dustintoff_com_zip",
+    actual = ":rename_index_www_dustintoff_com_zip",
 )
 
 zip_server(
     name = "zip_server",
-    zip = ":final_www_dustindoloff_com_zip",
+    zip = ":final_www_dustintoff_com_zip",
     port = 8080,
 )
 
@@ -119,8 +119,8 @@ zip_server(
     deploy_site_zip_s3_script(
         name = "deploy_{site}".format(site=bucket),
         bucket = bucket,
-        zip_file = ":final_www_dustindoloff_com_zip",
+        zip_file = ":final_www_dustintoff_com_zip",
     )
 
-    for bucket in [ "test.dustindoloff.com" ]
+    for bucket in [ "test.dustintoff.com", "www.dustintoff.com" ]
 ]

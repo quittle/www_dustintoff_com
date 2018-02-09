@@ -8,3 +8,7 @@ before_install:
 
 script:
     - bazel build //...
+
+deploy:
+    provider: script
+    script: bazel run deploy_www.dustintoff.com
