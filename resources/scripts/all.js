@@ -1,7 +1,5 @@
-// Copyright (c) 2016 Dustin Doloff
+// Copyright (c) 2016, 2018 Dustin Doloff
 // Licensed under Apache License v2.0
-
-var nav, main;
 
 /**
  * Checks if the device is mobile
@@ -12,43 +10,15 @@ function isMobile() {
 }
 
 /**
- * Callback for scroll or touch events
- */
-function onScrollOrTouch() {
-    /*
-    if (isMobile() && nav && main) {
-        var a = nav.classList;
-        if (pageYOffset > 0) {
-            a.add('mobile-scroll');
-            var b = getComputedStyle(nav);
-            main.style.paddingTop = parseInt(b.getPropertyValue('height')) + parseInt(b.getPropertyValue(
-                'padding-top')) + parseInt(b.getPropertyValue('border-bottom')) + 'px'
-        } else {
-            a.remove('mobile-scroll');
-            main.style.paddingTop = ''
-        }
-    }
-    */
-}
-
-/**
  * Initialization function
  */
 function init() {
-    nav = document.querySelector('nav');
-    main = document.querySelector('main');
     onHashChange();
 
     // Register event listeners
     window.addEventListener('hashchange', onHashChange);
     window.addEventListener('load', onHashChange);
     window.addEventListener('load', init);
-    window.addEventListener('resize', onScrollOrTouch);
-
-    const scrollEvents = ['scroll', 'touchstart', 'touchend', 'touchcancel', 'touchleave', 'touchmove'];
-    for (let i = 0; i < scrollEvents.length; i++) {
-        window.addEventListener(scrollEvents[i], onScrollOrTouch);
-    }
 }
 
 /**
