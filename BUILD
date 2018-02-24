@@ -64,7 +64,7 @@ html_page(
         "//resources/fonts:silkscreen",
         "//resources/style:main_css",
     ],
-    js_files = [
+    deferred_js_files = [
         "//resources/scripts:all_js",
     ],
 )
