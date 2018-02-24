@@ -3,13 +3,13 @@
 
 load("@rules_web//js:js.bzl",
     "closure_compile",
-    "minify_js",
 )
 
-minify_js(
+closure_compile(
     name = "all_js",
     srcs = [ ":main_js", "google-analytics.js" ],
     visibility = [ "//visibility:public" ],
+    compilation_level = "WHITESPACE_ONLY",
 )
 
 closure_compile(
