@@ -15,8 +15,8 @@ github_repository(
     name = "rules_web",
     user = "quittle",
     project = "rules_web",
-    commit = "991ac2e94e6ab9b5a26f285a923b8683f6603e71",
-    sha256 = "12d51d372436fdf2acee3983d7cc51e817526c9ba0bb1a068b0ef41067204ae7",
+    commit = "a9832ebe706c478a217dac8160160adde5902be2",
+    sha256 = "ea1dd568567e2ca090667b28e33a75b5edc7ad2051e35755a696f0a1a59dd903",
 )
 
 load("@rules_web//:rules_web_repositories.bzl", "rules_web_repositories")
