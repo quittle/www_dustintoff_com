@@ -14,3 +14,4 @@ script:
 deploy:
     provider: script
     script: bazel run deploy_www.dustintoff.com
+    skip_cleanup: true
