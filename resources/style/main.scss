@@ -231,16 +231,12 @@ main::after,#home:target main::after {
     right: -4000px;
 }
 
-25%,75% {
-    border-right-width: 10px;
-}
-
 @-moz-keyframes sections-fall-main-before-home {
-    0%,100% {
+    0%, 100% {
         border-right-width: 0;
     }
 
-    25%,75% {
+    25%, 75% {
         border-right-width: 10px;
     }
 }
@@ -292,10 +288,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-main-before-home 1600ms steps(30);
     -webkit-animation: sections-fall-main-before-home 1600ms steps(30);
     animation: sections-fall-main-before-home 1600ms steps(30);
-}
-
-25%,75% {
-    border-left-width: 10px;
 }
 
 @-moz-keyframes sections-fall-main-after-home {
@@ -357,10 +349,6 @@ main::after,#home:target main::after {
     animation: sections-fall-main-after-home 1600ms steps(30);
 }
 
-25%,75% {
-    border-top-width: 8px;
-}
-
 @-moz-keyframes sections-fall-section-home {
     0%,100% {
         border-top-width: 0;
@@ -418,12 +406,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-section-home 1600ms steps(30);
     -webkit-animation: sections-fall-section-home 1600ms steps(30);
     animation: sections-fall-section-home 1600ms steps(30);
-}
-
-25%,75% {
-    border-top-width: 8px;
-    border-left-width: 10px;
-    border-right-width: 10px;
 }
 
 @-moz-keyframes sections-fall-container-home {
@@ -505,10 +487,6 @@ main::after,#home:target main::after {
     animation: sections-fall-container-home 1600ms steps(30);
 }
 
-25%,75% {
-    box-shadow: 0 -1px 0 0 #eee inset;
-}
-
 @-moz-keyframes sections-fall-main-home {
     0%,100% {
         box-shadow: 0;
@@ -566,10 +544,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-main-home 1600ms steps(30);
     -webkit-animation: sections-fall-main-home 1600ms steps(30);
     animation: sections-fall-main-home 1600ms steps(30);
-}
-
-25%,75% {
-    border-right-width: 10px;
 }
 
 @-moz-keyframes sections-fall-main-before-resume {
@@ -631,10 +605,6 @@ main::after,#home:target main::after {
     animation: sections-fall-main-before-resume 1600ms steps(30);
 }
 
-25%,75% {
-    border-left-width: 10px;
-}
-
 @-moz-keyframes sections-fall-main-after-resume {
     0%,100% {
         border-left-width: 0;
@@ -694,10 +664,6 @@ main::after,#home:target main::after {
     animation: sections-fall-main-after-resume 1600ms steps(30);
 }
 
-25%,75% {
-    border-top-width: 8px;
-}
-
 @-moz-keyframes sections-fall-section-resume {
     0%,100% {
         border-top-width: 0;
@@ -755,12 +721,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-section-resume 1600ms steps(30);
     -webkit-animation: sections-fall-section-resume 1600ms steps(30);
     animation: sections-fall-section-resume 1600ms steps(30);
-}
-
-25%,75% {
-    border-top-width: 8px;
-    border-left-width: 10px;
-    border-right-width: 10px;
 }
 
 @-moz-keyframes sections-fall-container-resume {
@@ -842,10 +802,6 @@ main::after,#home:target main::after {
     animation: sections-fall-container-resume 1600ms steps(30);
 }
 
-25%,75% {
-    box-shadow: 0 -1px 0 0 #eee inset;
-}
-
 @-moz-keyframes sections-fall-main-resume {
     0%,100% {
         box-shadow: 0;
@@ -903,10 +859,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-main-resume 1600ms steps(30);
     -webkit-animation: sections-fall-main-resume 1600ms steps(30);
     animation: sections-fall-main-resume 1600ms steps(30);
-}
-
-25%,75% {
-    border-right-width: 10px;
 }
 
 @-moz-keyframes sections-fall-main-before-projects {
@@ -968,10 +920,6 @@ main::after,#home:target main::after {
     animation: sections-fall-main-before-projects 1600ms steps(30);
 }
 
-25%,75% {
-    border-left-width: 10px;
-}
-
 @-moz-keyframes sections-fall-main-after-projects {
     0%,100% {
         border-left-width: 0;
@@ -1031,10 +979,6 @@ main::after,#home:target main::after {
     animation: sections-fall-main-after-projects 1600ms steps(30);
 }
 
-25%,75% {
-    border-top-width: 8px;
-}
-
 @-moz-keyframes sections-fall-section-projects {
     0%,100% {
         border-top-width: 0;
@@ -1092,12 +1036,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-section-projects 1600ms steps(30);
     -webkit-animation: sections-fall-section-projects 1600ms steps(30);
     animation: sections-fall-section-projects 1600ms steps(30);
-}
-
-25%,75% {
-    border-top-width: 8px;
-    border-left-width: 10px;
-    border-right-width: 10px;
 }
 
 @-moz-keyframes sections-fall-container-projects {
@@ -1179,10 +1117,6 @@ main::after,#home:target main::after {
     animation: sections-fall-container-projects 1600ms steps(30);
 }
 
-25%,75% {
-    box-shadow: 0 -1px 0 0 #eee inset;
-}
-
 @-moz-keyframes sections-fall-main-projects {
     0%,100% {
         box-shadow: 0;
@@ -1240,10 +1174,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-main-projects 1600ms steps(30);
     -webkit-animation: sections-fall-main-projects 1600ms steps(30);
     animation: sections-fall-main-projects 1600ms steps(30);
-}
-
-25%,75% {
-    border-right-width: 10px;
 }
 
 @-moz-keyframes sections-fall-main-before-links {
@@ -1305,10 +1235,6 @@ main::after,#home:target main::after {
     animation: sections-fall-main-before-links 1600ms steps(30);
 }
 
-25%,75% {
-    border-left-width: 10px;
-}
-
 @-moz-keyframes sections-fall-main-after-links {
     0%,100% {
         border-left-width: 0;
@@ -1368,10 +1294,6 @@ main::after,#home:target main::after {
     animation: sections-fall-main-after-links 1600ms steps(30);
 }
 
-25%,75% {
-    border-top-width: 8px;
-}
-
 @-moz-keyframes sections-fall-section-links {
     0%,100% {
         border-top-width: 0;
@@ -1429,12 +1351,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-section-links 1600ms steps(30);
     -webkit-animation: sections-fall-section-links 1600ms steps(30);
     animation: sections-fall-section-links 1600ms steps(30);
-}
-
-25%,75% {
-    border-top-width: 8px;
-    border-left-width: 10px;
-    border-right-width: 10px;
 }
 
 @-moz-keyframes sections-fall-container-links {
@@ -1516,10 +1432,6 @@ main::after,#home:target main::after {
     animation: sections-fall-container-links 1600ms steps(30);
 }
 
-25%,75% {
-    box-shadow: 0 -1px 0 0 #eee inset;
-}
-
 @-moz-keyframes sections-fall-main-links {
     0%,100% {
         box-shadow: 0;
@@ -1577,10 +1489,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-main-links 1600ms steps(30);
     -webkit-animation: sections-fall-main-links 1600ms steps(30);
     animation: sections-fall-main-links 1600ms steps(30);
-}
-
-25%,75% {
-    border-right-width: 10px;
 }
 
 @-moz-keyframes sections-fall-main-before-contact {
@@ -1642,10 +1550,6 @@ main::after,#home:target main::after {
     animation: sections-fall-main-before-contact 1600ms steps(30);
 }
 
-25%,75% {
-    border-left-width: 10px;
-}
-
 @-moz-keyframes sections-fall-main-after-contact {
     0%,100% {
         border-left-width: 0;
@@ -1705,10 +1609,6 @@ main::after,#home:target main::after {
     animation: sections-fall-main-after-contact 1600ms steps(30);
 }
 
-25%,75% {
-    border-top-width: 8px;
-}
-
 @-moz-keyframes sections-fall-section-contact {
     0%,100% {
         border-top-width: 0;
@@ -1766,12 +1666,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-section-contact 1600ms steps(30);
     -webkit-animation: sections-fall-section-contact 1600ms steps(30);
     animation: sections-fall-section-contact 1600ms steps(30);
-}
-
-25%,75% {
-    border-top-width: 8px;
-    border-left-width: 10px;
-    border-right-width: 10px;
 }
 
 @-moz-keyframes sections-fall-container-contact {
@@ -1851,10 +1745,6 @@ main::after,#home:target main::after {
     -o-animation: sections-fall-container-contact 1600ms steps(30);
     -webkit-animation: sections-fall-container-contact 1600ms steps(30);
     animation: sections-fall-container-contact 1600ms steps(30);
-}
-
-25%,75% {
-    box-shadow: 0 -1px 0 0 #eee inset;
 }
 
 @-moz-keyframes sections-fall-main-contact {
