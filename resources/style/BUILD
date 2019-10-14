@@ -1,7 +1,8 @@
 # Copyright (c) 2016 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("@io_bazel_rules_sass//:defs.bzl",
+load(
+    "@io_bazel_rules_sass//:defs.bzl",
     "sass_binary",
     "sass_library",
 )
@@ -33,11 +34,11 @@ sass_library(
 sass_binary(
     name = "main_css",
     src = "main.scss",
+    sourcemap = False,
+    visibility = ["//visibility:public"],
     deps = [
+        ":navbar_css",
         ":reset_css",
         ":sections_css",
-        ":navbar_css",
     ],
-    sourcemap = False,
-    visibility = [ "//visibility:public" ],
 )

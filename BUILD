@@ -1,34 +1,40 @@
 # Copyright (c) 2016-2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("@rules_web//html:html.bzl",
+load(
+    "@rules_web//html:html.bzl",
     "html_page",
     "minify_html",
 )
-
-load("@rules_web//images:images.bzl",
+load(
+    "@rules_web//images:images.bzl",
     "favicon_image_generator",
     "minify_png",
 )
-
-load("@rules_web//site_zip:site_zip.bzl",
-    "generate_zip_server_python_file",
+load(
+    "@rules_web//site_zip:site_zip.bzl",
     "rename_zip_paths",
     "zip_server",
     "zip_site",
 )
-
-load("@rules_web//deploy:deploy.bzl",
+load(
+    "@rules_web//deploy:deploy.bzl",
     "deploy_site_zip_s3_script",
 )
 
 favicon_sizes = depset([
     # Powers of 2
-    16, 32, 64, 128, 256,
+    16,
+    32,
+    64,
+    128,
+    256,
     # Old iOS home screen
     57,
     # IE 11 tile
-    70, 15, 310,
+    70,
+    15,
+    310,
     # iPad home screen
     76,
     # Google TV
@@ -52,14 +58,13 @@ favicon_sizes = depset([
     # Because it's the largest size I have
     310,
 ])
-favicon_images = [ "favicon/{size}.png".format(size = size) for size in favicon_sizes.to_list() ]
+
+favicon_images = ["favicon/{size}.png".format(size = size) for size in favicon_sizes.to_list()]
 
 html_page(
     name = "index",
-    config = "//:index.json",
     body = "//:index_body.html",
-    favicon_images = favicon_images,
-    favicon_sizes = favicon_sizes,
+    config = "//:index.json",
     css_files = [
         "//resources/fonts:silkscreen",
         "//resources/style:main_css",
@@ -67,6 +72,8 @@ html_page(
     deferred_js_files = [
         "//resources/scripts:all_js",
     ],
+    favicon_images = favicon_images,
+    favicon_sizes = favicon_sizes,
 )
 
 minify_html(
@@ -81,27 +88,27 @@ minify_png(
 
 favicon_image_generator(
     name = "favicon",
+    image = ":min_favicon",
     output_files = favicon_images,
     output_sizes = favicon_sizes,
-    image = ":min_favicon",
 )
 
 zip_site(
     name = "www_dustintoff_com",
+    out_zip = "www_dustintoff_com.zip",
     root_files = [
         ":min_favicon",
         ":index_min",
     ],
-    out_zip = "www_dustintoff_com.zip",
 )
 
 rename_zip_paths(
     name = "rename_index_www_dustintoff_com_zip",
-    source_zip = ":www_dustintoff_com",
     path_map = {
         ":min_favicon": "favicon.png",
         ":index_min": "index.html",
     },
+    source_zip = ":www_dustintoff_com",
 )
 
 alias(
@@ -111,16 +118,18 @@ alias(
 
 zip_server(
     name = "zip_server",
-    zip = ":final_www_dustintoff_com_zip",
     port = 8080,
+    zip = ":final_www_dustintoff_com_zip",
 )
 
 [
     deploy_site_zip_s3_script(
-        name = "deploy_{site}".format(site=bucket),
+        name = "deploy_{site}".format(site = bucket),
         bucket = bucket,
         zip_file = ":final_www_dustintoff_com_zip",
     )
-
-    for bucket in [ "test.dustintoff.com", "www.dustintoff.com" ]
+    for bucket in [
+        "test.dustintoff.com",
+        "www.dustintoff.com",
+    ]
 ]
