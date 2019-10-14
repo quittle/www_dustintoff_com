@@ -52,7 +52,7 @@ favicon_sizes = depset([
     # Because it's the largest size I have
     310,
 ])
-favicon_images = [ "favicon/{size}.png".format(size = size) for size in favicon_sizes ]
+favicon_images = [ "favicon/{size}.png".format(size = size) for size in favicon_sizes.to_list() ]
 
 html_page(
     name = "index",
