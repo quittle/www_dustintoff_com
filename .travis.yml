@@ -1,4 +1,6 @@
-dist: bionic
+language: android
+
+dist: trusty
 
 env:
     - BAZEL_VERSION='0.29.1'
