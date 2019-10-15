@@ -15,9 +15,9 @@ load("@bazel_repository_toolbox//:github_repository.bzl", "github_repository")
 
 github_repository(
     name = "rules_web",
-    commit = "5bf0cf545a1da4a2695118b50d66b49201783c98",
+    commit = "4787f2f8788f2acdbe033646d802352c5790d893",
     project = "rules_web",
-    sha256 = "5764b5eb64c4c61c8c52ed2a2a68f020f9200d8495ceeb2c720341173fc8b06f",
+    sha256 = "953f63b02cb9f4ebaf98f8c07c95f8e57055f0b12dce68892492daed4e4c77c1",
     user = "quittle",
 )
 
