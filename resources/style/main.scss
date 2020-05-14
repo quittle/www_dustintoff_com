@@ -48,7 +48,7 @@ main {
         width: 100%;
         height: 100%;
         background: #fff;
-        transition: left 800ms linear 400ms,right 800ms linear 400ms;
+        transition: left 800ms linear 400ms, right 800ms linear 400ms;
     }
 
     &::before {
@@ -58,6 +58,14 @@ main {
     &::after {
         right: 0;
     }
+}
+
+h3 {
+    border-bottom: .1em solid black;
+    border-image: linear-gradient(to right, black, transparent, transparent) 1;
+    margin-bottom: 1em;
+    padding-bottom: 0.3em;
+    transform: translateX(-1em);
 }
 
 #container::before,
