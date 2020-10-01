@@ -1,0 +1,2 @@
+/** @type {function(...*)} */
+function ga() {}

@@ -18,6 +18,12 @@ closure_compile(
 
 closure_compile(
     name = "main_js",
-    srcs = ["all.js"],
+    srcs = [
+        "all.js",
+        "analytics-listeners.js"
+    ],
+    externs = [
+        "google-analytics-externs.js"
+    ],
     compilation_level = "ADVANCED",
 )
