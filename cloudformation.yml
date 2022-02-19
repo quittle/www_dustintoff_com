@@ -1,0 +1,149 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  DeploymentContentVersion:
+    Type: String
+    Description: This can be any unique string that identifies the files you are deploying.
+  DomainHostedZoneId:
+    Type: String
+    Description: The fixed hosted zone id that managed the domain dustintoff.com in Route 53
+    Default: Z1ER5K5Q0HJR06
+  StackNameSuffix:
+    Type: String
+    Default: ""
+  RootDomain:
+    Type: String
+    Default: "dustintoff.com"
+  WwwDomain:
+    Type: String
+    Default: "www.dustintoff.com"
+
+Resources:
+  # Bucket
+  DustinToffComBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join ["", [dustintoff.com, !Ref StackNameSuffix]]
+  DustinToffComBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref DustinToffComBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - s3:GetObject
+              - s3:ListBucket
+            Effect: Allow
+            Resource:
+              - !Join ["", [!GetAtt DustinToffComBucket.Arn, "/*"]]
+              - !GetAtt DustinToffComBucket.Arn
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
+
+  # Deployment
+  S3UploadLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: ./node_modules/s3-upload-custom-resource-lambda-layer/dist/layer.zip
+  S3UploadLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Layers: [!Ref S3UploadLambdaLayer]
+      CodeUri: "./dist"
+      Handler: s3-upload-custom-resource.handler
+      MemorySize: 10240
+      Timeout: 180
+      Runtime: nodejs14.x
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DustinToffComBucket
+  DeployWebsite:
+    Type: Custom::UploadFilesToS3
+    Properties:
+      ServiceToken: !GetAtt S3UploadLambda.Arn
+      BucketName: !Ref DustinToffComBucket
+      ContentVersion: !Ref DeploymentContentVersion
+
+  # CloudFront
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt DustinToffComBucket.DomainName
+            Id: S3
+            S3OriginConfig:
+              OriginAccessIdentity:
+                !Join [
+                  "",
+                  [
+                    "origin-access-identity/cloudfront/",
+                    !Ref CloudFrontOriginAccessIdentity,
+                  ],
+                ]
+        Enabled: true
+        DefaultRootObject: "index.html"
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 404
+            ResponsePagePath: "/index.html"
+        Aliases:
+          - !Ref RootDomain
+          - !Ref WwwDomain
+        DefaultCacheBehavior:
+          TargetOriginId: S3
+          SmoothStreaming: false
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: !Ref DustinToffComCertificate
+          MinimumProtocolVersion: TLSv1.1_2016
+          SslSupportMethod: sni-only
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: dustintoff.com
+
+  # Certificate
+  DustinToffComCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: dustintoff.com
+      SubjectAlternativeNames:
+        - "*.dustintoff.com"
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: dustintoff.com
+          HostedZoneId: !Ref DomainHostedZoneId
+
+  # Domain
+  DustinToffComDomainName:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref DomainHostedZoneId
+      Name: !Ref RootDomain
+      Type: A
+      AliasTarget:
+        # Global CloudFront Hosted Zone per
+        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget-1.html
+        HostedZoneId: Z2FDTNDATAQYW2
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+  WwwDustinToffComDomainName:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref DomainHostedZoneId
+      Name: !Ref WwwDomain
+      Type: A
+      AliasTarget:
+        # Global CloudFront Hosted Zone per
+        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget-1.html
+        HostedZoneId: Z2FDTNDATAQYW2
+        DNSName: !GetAtt CloudFrontDistribution.DomainName

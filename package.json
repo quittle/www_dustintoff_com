@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "scripts": {
     "dev-server": "parcel index.html",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html",
+    "deploy": "./scripts/deploy",
+    "clean": "rm -rf dist/",
+    "release": "npm run clean && npm run build && npm run deploy"
   },
   "license": "Apache-2.0",
-  "homepage": "https://github.com/quittle/www_dustintoff_com#readme",
   "devDependencies": {
     "@parcel/transformer-sass": "^2.3.1",
     "parcel": "^2.3.1",
     "posthtml-doctype": "^1.1.1",
-    "posthtml-include": "^1.7.2"
+    "posthtml-include": "^1.7.2",
+    "s3-upload-custom-resource-lambda-layer": "^1.0.3"
   }
 }
