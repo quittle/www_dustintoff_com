@@ -2,161 +2,352 @@
     Copyright (c) 2016-2018 Dustin Toff
     Licensed under Apache License v2.0
 -->
-
-<body>
+<html lang="en">
+  <include src="head.html"></include>
+  <body>
     <div id="home">
-        <div id="resume">
-            <div id="projects">
-                <div id="links">
-                    <div id="contact">
-                        <nav>
-                            <a href="#home">D</a>
-                            <a href="#resume">Resume</a>
-                            <a href="#projects">Projects</a>
-                            <a href="#links">Links</a>
-                            <a href="#contact">Contact Me</a>
-                        </nav>
-                        <main>
-                            <div id="container">
-                                <section id="home_">
-                                    <p>
-                                        <span class="big">Hi</span>, I'm Dustin Toff. I'm a software engineer with a passion for build tooling and accessibility, currently working on the Living Room Infrastructure and Tooling team of <a href="https://www.primevideo.com">Amazon Prime Video</a>.
-                                    </p>
-                                    <p>
-                                        <span class="big">I</span> work on a variety of side projects ranging from an accessibility testing tool for Android named <a href="https://github.com/quittle/a11y-ally">A11y Ally</a> to developing custom build rules for the <a href="https://bazel.build">Bazel build system</a>. You can check out my projects on <a href="https://github.com/quittle">GitHub</a>.
-                                    </p>
-                                </section>
-                                <section id="resume_">
-                                    <div>
-                                        Work Experience
-                                        <ul>
-                                            <li>
-                                                <h3>
-                                                    <span class="position">Software Development Engineer III</span> <a href="https://www.primevideo.com">Amazon Prime Video</a> | <time datetime="2018-07">July 2018</time>-Now
-                                                </h3>
-                                                Now based in London, I build tools and services for the Prime Video Living Room Infrastructure and Tooling team to make developers more efficient. Living room devices present unique challenges as many &ndash; like smart TVs or set-top boxes &ndash; are not designed to be developer-friendly, or are computationally low powered. Enabling developers as much freedom as possible to build for and test on these restricted and limited platforms is my goal on this team, be it through simplifying the build-test lifecycle, reducing build times, or scaling dependent services efficiently so that they don't need to worry about it.
-                                            </li>
-                                            <li>
-                                                <h3>
-                                                    <span class="position">Software Development Engineer II</span> <a href="https://aws.amazon.com/worklink">AWS WorkLink</a> | <time datetime="2017-03">March 2017</time>-<time datetime="2019-06">June 2018</time>
-                                                </h3>
-                                                Joining at the conception of this service, I lead architecture designs with responsibilities ranging from AWS authorization primitives to AWS-level scaling and availability considerations to customer network integrations. I researched and built critical components of the service's control plane including deployment, scaling, storage, and monitoring. Starting with little domain expertise, I developed a wider skill set and learned many new technical skills along the way.
-                                            </li>
-                                            <li>
-                                                <h3>
-                                                    <span class="position">Software Development Engineer II</span> <a href="https://amazon.com/mobileapps">Amazon mobile shopping</a> | <time datetime="2016-10">2016</time>-<time datetime="2017-03">2017</time>
-                                                </h3>
-                                                Working on a core, platform team of the mobile shopping applications, I focused on build tooling upgrades and optimizations.
-                                            </li>
-                                            <li>
-                                                <h3>
-                                                    <span class="position">Software Development Engineer I-II</span> <a href="https://docs.aws.amazon.com/silk/latest/developerguide/introduction.html">Amazon Silk</a> | <time datetime="2014-09">2014</time>-<time datetime="2016-10">2016</time>
-                                                </h3>
-                                                Designed and built customer-facing features that are viewed millions of times a day for the Silk browser as well as various support tools for other engineers on the team.
-                                            </li>
-                                            <li>
-                                                <h3>
-                                                    <span class="position">Website Developer</span> <a href="https://missionmedia.com/">Mission Media</a> | <time>2012</time>
-                                                </h3>
-                                                Most of my work involved taking PSD files and creating mostly static, cross-browser compatible websites.
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        Education
-                                        <ul>
-                                            <li>Bachelor's Degree: <a href="https://umbc.edu">UMBC</a>
-                                                <ol>
-                                                    <li>Major - Computer Science</li>
-                                                    <li>Minor - Economics</li>
-                                                </ol>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div id="languages">
-                                        Languages
-                                        <ul>
-                                            <li><span class="meter" max="5" min="0" value="4"></span> Android</li>
-                                            <li><span class="meter" max="5" min="0" value="5"></span> Java</li>
-                                            <li><span class="meter" max="5" min="0" value="4"></span> Kotlin</li>
-                                            <li><span class="meter" max="5" min="0" value="3"></span> Bash</li>
-                                            <li><span class="meter" max="5" min="0" value="3"></span> C++</li>
-                                            <li><span class="meter" max="5" min="0" value="3"></span> C</li>
-                                            <li><span class="meter" max="5" min="0" value="2"></span> C#</li>
-                                            <li><span class="meter" max="5" min="0" value="1"></span> Lisp</li>
-                                            <li><span class="meter" max="5" min="0" value="5"></span> HTML/CSS</li>
-                                            <li><span class="meter" max="5" min="0" value="5"></span> Javascript</li>
-                                            <li><span class="meter" max="5" min="0" value="2"></span> Rust</li>
-                                            <li><span class="meter" max="5" min="0" value="3"></span> Python</li>
-                                            <li><span class="meter" max="5" min="0" value="3"></span> SQL</li>
-                                            <li><span class="meter" max="5" min="0" value="1"></span> Perl</li>
-                                            <li><span class="meter" max="5" min="0" value="2"></span> PHP</li>
-                                            <li><span class="meter" max="5" min="0" value="3"></span> TI-Basic</li>
-                                        </ul>
-                                    </div>
-                                </section>
-                                <section id="projects_">
-                                    <p>
-                                        Feel free to take any of my code and reuse it. I would prefer credit somewhere, preferably visible, but comments are okay too.
-                                    </p>
-                                    <br>
-                                    <ul>
-                                        <li>
-                                            <a href="https://play.google.com/store/apps/details?id=com.quittle.a11yally">A11y Ally</a> - An accessibility testing tool for Android developers and QAs to check for issues in their applications in real-time. By running as an accessibility tool, A11y Ally perceives other apps the way screen readers do and can visualize the experience that users dependent on screen readers have.
-                                        </li>
-                                        <li>
-                                            <a href="https://github.com/quittle/JSS">JSS</a> - A CSS postcompiler in a single JS file. It allows you to write CSS with Javascript-style notation so variables and functions can be used within your site at runtime to generate the CSS on the fly. It's like <a href="http://lesscss.org">LESS</a> but without any compiling or server-side dependencies.
-                                        </li>
-                                        <li>
-                                            <a href="https://dramaticzoom.com">Dramatic Zoom</a> - A just-for-fun image sharing service that takes users' images and zooms in on them to a dramatic soundtrack. No longer actively maintained.
-                                        </li>
-                                        <li>
-                                            <a href="https://github.com/quittle/wowser">Wowser</a> - After working on Chromium in a previous role, I decided to learn Rust and explore what it takes to build a browser from scratch at the same time. The goal is to explore as many aspects of Rust as possible while implementing nearly all components from scratch from the network stack to rendering to the Javascript engine.
-                                        </li>
-                                        <li>
-                                            <a href="https://commentube.dustintoff.com">CommenTube</a> - A commenting page for YouTube videos with complete anonymnity. It allows  users to give feedback to filmmakers through visual and textual feedback.
-                                        </li>
-                                        <li>
-                                            <a href="https://fallingsand.dustintoff.com">Falling Sand</a> - A falling sand game clone in Javascript and Canvas. Click and drag to drop various elements for different effects.
-                                        </li>
-                                        <li>
-                                            Mobile Site - This website is mobile friendly. It might not work as well on older devices as I don't have many to test with.
-                                        </li>
-                                        <li>
-                                            <a href="https://play.google.com/store/apps/details?id=bas.com">Boot Animation Shuffle</a> - Android app I made that randomizes your device's boot animation. It includes a market for people to upload, share and download animations. You can also generate custom text animations or auto-create photo slideshows from images on your device.
-                                        </li>
-                                        <li>
-                                            Quick Utility - Easily toggle settings or launch an app anywhere in Android by long-pressing the search key.
-                                        </li>
-                                        <li>
-                                            Web-based File Manager/Console - A JavaScript- and Canvas-based file manager and console interacting with a Perl backend using AJAX. I wanted to manage my files easier than SFTP, so I did my best to copy the click-and-drag feel of modern file managers. I also added a handy feature at the bottom; a console to execute programs on the backend. As far as I've found, it was a pretty novel idea. I could "cd" through the console or use a keyboard or clicks to navigate. The console would take input and display output from programs you wanted to execute. As I worked further on this project, I quickly realized how dangerous it was to have lying around publicly displayed, even with authentication, so I discontinued work on it and have since taken it down.
-                                        </li>
-                                    </ul>
-                                </section>
-                                <section id="links_">
-                                    <div>
-                                        <a href="https://github.com/quittle">GitHub</a>
-                                    </div>
-                                    <br>
-                                    <div>
-                                        <a href="https://linkedin.com/in/d-u-s-t-i-n">LinkedIn</a>
-                                    </div>
-                                    <br>
-                                    <div>
-                                        <a href="https://twitter.com/qvittle">Twitter</a>
-                                    </div>
-                                    <br>
-                                </section>
-                                <section id="contact_">
-                                    <p>
-                                        You can contact me via email at <a href="mailto:me@dustintoff.com">me@dustintoff.com</a>
-                                    </p>
-                                </section>
-                            </div>
-                        </main>
+      <div id="resume">
+        <div id="projects">
+          <div id="links">
+            <div id="contact">
+              <nav>
+                <a href="#home">D</a>
+                <a href="#resume">Resume</a>
+                <a href="#projects">Projects</a>
+                <a href="#links">Links</a>
+                <a href="#contact">Contact Me</a>
+              </nav>
+              <main>
+                <div id="container">
+                  <section id="home_">
+                    <p>
+                      <span class="big">Hi</span>, I'm Dustin Toff. I'm a
+                      software engineer with a passion for build tooling and
+                      accessibility, currently working on the Living Room
+                      Infrastructure and Tooling team of
+                      <a href="https://www.primevideo.com">Amazon Prime Video</a
+                      >.
+                    </p>
+                    <p>
+                      <span class="big">I</span> work on a variety of side
+                      projects ranging from an accessibility testing tool for
+                      Android named
+                      <a href="https://github.com/quittle/a11y-ally"
+                        >A11y Ally</a
+                      >
+                      to developing custom build rules for the
+                      <a href="https://bazel.build">Bazel build system</a>. You
+                      can check out my projects on
+                      <a href="https://github.com/quittle">GitHub</a>.
+                    </p>
+                  </section>
+                  <section id="resume_">
+                    <div>
+                      Work Experience
+                      <ul>
+                        <li>
+                          <h3>
+                            <span class="position"
+                              >Software Development Engineer III</span
+                            >
+                            <a href="https://www.primevideo.com"
+                              >Amazon Prime Video</a
+                            >
+                            | <time datetime="2018-07">July 2018</time>-Now
+                          </h3>
+                          Now based in London, I build tools and services for
+                          the Prime Video Living Room Infrastructure and Tooling
+                          team to make developers more efficient. Living room
+                          devices present unique challenges as many &ndash; like
+                          smart TVs or set-top boxes &ndash; are not designed to
+                          be developer-friendly, or are computationally low
+                          powered. Enabling developers as much freedom as
+                          possible to build for and test on these restricted and
+                          limited platforms is my goal on this team, be it
+                          through simplifying the build-test lifecycle, reducing
+                          build times, or scaling dependent services efficiently
+                          so that they don't need to worry about it.
+                        </li>
+                        <li>
+                          <h3>
+                            <span class="position"
+                              >Software Development Engineer II</span
+                            >
+                            <a href="https://aws.amazon.com/worklink"
+                              >AWS WorkLink</a
+                            >
+                            | <time datetime="2017-03">March 2017</time>-<time
+                              datetime="2019-06"
+                              >June 2018</time
+                            >
+                          </h3>
+                          Joining at the conception of this service, I lead
+                          architecture designs with responsibilities ranging
+                          from AWS authorization primitives to AWS-level scaling
+                          and availability considerations to customer network
+                          integrations. I researched and built critical
+                          components of the service's control plane including
+                          deployment, scaling, storage, and monitoring. Starting
+                          with little domain expertise, I developed a wider
+                          skill set and learned many new technical skills along
+                          the way.
+                        </li>
+                        <li>
+                          <h3>
+                            <span class="position"
+                              >Software Development Engineer II</span
+                            >
+                            <a href="https://amazon.com/mobileapps"
+                              >Amazon mobile shopping</a
+                            >
+                            | <time datetime="2016-10">2016</time>-<time
+                              datetime="2017-03"
+                              >2017</time
+                            >
+                          </h3>
+                          Working on a core, platform team of the mobile
+                          shopping applications, I focused on build tooling
+                          upgrades and optimizations.
+                        </li>
+                        <li>
+                          <h3>
+                            <span class="position"
+                              >Software Development Engineer I-II</span
+                            >
+                            <a
+                              href="https://docs.aws.amazon.com/silk/latest/developerguide/introduction.html"
+                              >Amazon Silk</a
+                            >
+                            | <time datetime="2014-09">2014</time>-<time
+                              datetime="2016-10"
+                              >2016</time
+                            >
+                          </h3>
+                          Designed and built customer-facing features that are
+                          viewed millions of times a day for the Silk browser as
+                          well as various support tools for other engineers on
+                          the team.
+                        </li>
+                        <li>
+                          <h3>
+                            <span class="position">Website Developer</span>
+                            <a href="https://missionmedia.com/"
+                              >Mission Media</a
+                            >
+                            | <time>2012</time>
+                          </h3>
+                          Most of my work involved taking PSD files and creating
+                          mostly static, cross-browser compatible websites.
+                        </li>
+                      </ul>
                     </div>
+                    <div>
+                      Education
+                      <ul>
+                        <li>
+                          Bachelor's Degree: <a href="https://umbc.edu">UMBC</a>
+                          <ol>
+                            <li>Major - Computer Science</li>
+                            <li>Minor - Economics</li>
+                          </ol>
+                        </li>
+                      </ul>
+                    </div>
+                    <div id="languages">
+                      Languages
+                      <ul>
+                        <li>
+                          <span class="meter" max="5" min="0" value="4"></span>
+                          Android
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="5"></span>
+                          Java
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="4"></span>
+                          Kotlin
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="3"></span>
+                          Bash
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="3"></span>
+                          C++
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="3"></span>
+                          C
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="2"></span>
+                          C#
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="1"></span>
+                          Lisp
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="5"></span>
+                          HTML/CSS
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="5"></span>
+                          Javascript
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="2"></span>
+                          Rust
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="3"></span>
+                          Python
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="3"></span>
+                          SQL
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="1"></span>
+                          Perl
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="2"></span>
+                          PHP
+                        </li>
+                        <li>
+                          <span class="meter" max="5" min="0" value="3"></span>
+                          TI-Basic
+                        </li>
+                      </ul>
+                    </div>
+                  </section>
+                  <section id="projects_">
+                    <p>
+                      Feel free to take any of my code and reuse it. I would
+                      prefer credit somewhere, preferably visible, but comments
+                      are okay too.
+                    </p>
+                    <br />
+                    <ul>
+                      <li>
+                        <a
+                          href="https://play.google.com/store/apps/details?id=com.quittle.a11yally"
+                          >A11y Ally</a
+                        >
+                        - An accessibility testing tool for Android developers
+                        and QAs to check for issues in their applications in
+                        real-time. By running as an accessibility tool, A11y
+                        Ally perceives other apps the way screen readers do and
+                        can visualize the experience that users dependent on
+                        screen readers have.
+                      </li>
+                      <li>
+                        <a href="https://github.com/quittle/JSS">JSS</a> - A CSS
+                        postcompiler in a single JS file. It allows you to write
+                        CSS with Javascript-style notation so variables and
+                        functions can be used within your site at runtime to
+                        generate the CSS on the fly. It's like
+                        <a href="http://lesscss.org">LESS</a> but without any
+                        compiling or server-side dependencies.
+                      </li>
+                      <li>
+                        <a href="https://dramaticzoom.com">Dramatic Zoom</a> - A
+                        just-for-fun image sharing service that takes users'
+                        images and zooms in on them to a dramatic soundtrack. No
+                        longer actively maintained.
+                      </li>
+                      <li>
+                        <a href="https://github.com/quittle/wowser">Wowser</a> -
+                        After working on Chromium in a previous role, I decided
+                        to learn Rust and explore what it takes to build a
+                        browser from scratch at the same time. The goal is to
+                        explore as many aspects of Rust as possible while
+                        implementing nearly all components from scratch from the
+                        network stack to rendering to the Javascript engine.
+                      </li>
+                      <li>
+                        <a href="https://commentube.dustintoff.com"
+                          >CommenTube</a
+                        >
+                        - A commenting page for YouTube videos with complete
+                        anonymnity. It allows users to give feedback to
+                        filmmakers through visual and textual feedback.
+                      </li>
+                      <li>
+                        <a href="https://fallingsand.dustintoff.com"
+                          >Falling Sand</a
+                        >
+                        - A falling sand game clone in Javascript and Canvas.
+                        Click and drag to drop various elements for different
+                        effects.
+                      </li>
+                      <li>
+                        Mobile Site - This website is mobile friendly. It might
+                        not work as well on older devices as I don't have many
+                        to test with.
+                      </li>
+                      <li>
+                        <a
+                          href="https://play.google.com/store/apps/details?id=bas.com"
+                          >Boot Animation Shuffle</a
+                        >
+                        - Android app I made that randomizes your device's boot
+                        animation. It includes a market for people to upload,
+                        share and download animations. You can also generate
+                        custom text animations or auto-create photo slideshows
+                        from images on your device.
+                      </li>
+                      <li>
+                        Quick Utility - Easily toggle settings or launch an app
+                        anywhere in Android by long-pressing the search key.
+                      </li>
+                      <li>
+                        Web-based File Manager/Console - A JavaScript- and
+                        Canvas-based file manager and console interacting with a
+                        Perl backend using AJAX. I wanted to manage my files
+                        easier than SFTP, so I did my best to copy the
+                        click-and-drag feel of modern file managers. I also
+                        added a handy feature at the bottom; a console to
+                        execute programs on the backend. As far as I've found,
+                        it was a pretty novel idea. I could "cd" through the
+                        console or use a keyboard or clicks to navigate. The
+                        console would take input and display output from
+                        programs you wanted to execute. As I worked further on
+                        this project, I quickly realized how dangerous it was to
+                        have lying around publicly displayed, even with
+                        authentication, so I discontinued work on it and have
+                        since taken it down.
+                      </li>
+                    </ul>
+                  </section>
+                  <section id="links_">
+                    <div>
+                      <a href="https://github.com/quittle">GitHub</a>
+                    </div>
+                    <br />
+                    <div>
+                      <a href="https://linkedin.com/in/d-u-s-t-i-n">LinkedIn</a>
+                    </div>
+                    <br />
+                    <div>
+                      <a href="https://twitter.com/qvittle">Twitter</a>
+                    </div>
+                    <br />
+                  </section>
+                  <section id="contact_">
+                    <p>
+                      You can contact me via email at
+                      <a href="mailto:me@dustintoff.com">me@dustintoff.com</a>
+                    </p>
+                  </section>
                 </div>
+              </main>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-</body>
+  </body>
+</html>

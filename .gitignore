@@ -6,3 +6,6 @@
 /bazel-out
 /bazel-testlogs
 /bazel-www_dustintoff_com
+/dist
+/node_modules
+/.parcel-cache
