@@ -1,3 +1,0 @@
-[submodule "bazel_travis_toolbox"]
-	path = bazel_travis_toolbox
-	url = https://github.com/quittle/bazel_travis_toolbox.git
