@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "dev-server": "parcel index.html",
-    "build": "parcel build index.html",
+    "build": "parcel build index.html && npm run copy-config",
+    "copy-config": "cp .s3uploadconfig.json dist",
     "deploy": "./scripts/deploy",
     "clean": "rm -rf dist/",
     "release": "npm run clean && npm run build && npm run deploy"
