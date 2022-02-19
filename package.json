@@ -1,24 +1,11 @@
 {
   "name": "www_dustintoff_com",
   "version": "1.0.0",
-  "description": "",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
-    "dev-server": "parcel index_body.html",
-    "build": "parcel build index_body.html",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev-server": "parcel index.html",
+    "build": "parcel build index.html"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/quittle/www_dustintoff_com.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/quittle/www_dustintoff_com/issues"
-  },
+  "license": "Apache-2.0",
   "homepage": "https://github.com/quittle/www_dustintoff_com#readme",
   "devDependencies": {
     "@parcel/transformer-sass": "^2.3.1",
