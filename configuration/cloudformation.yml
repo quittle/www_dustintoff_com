@@ -45,12 +45,12 @@ Resources:
   S3UploadLambdaLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      ContentUri: ./node_modules/s3-upload-custom-resource-lambda-layer/dist/layer.zip
+      ContentUri: "../node_modules/s3-upload-custom-resource-lambda-layer/dist/layer.zip"
   S3UploadLambda:
     Type: AWS::Serverless::Function
     Properties:
       Layers: [!Ref S3UploadLambdaLayer]
-      CodeUri: "./dist"
+      CodeUri: "../dist"
       Handler: s3-upload-custom-resource.handler
       MemorySize: 10240
       Timeout: 180
