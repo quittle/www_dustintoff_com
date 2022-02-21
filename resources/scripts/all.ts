@@ -26,15 +26,15 @@ function init() {
  * @param {!Event=} opt_e The event
  * @return {boolean} If true, stops the event from being further processed
  */
-function onHashChange(opt_e) {
+function onHashChange(opt_e: Event = undefined) {
   if (isMobile()) {
-    /** @type {string} */ const section = location.hash.substring(1);
+    const section = location.hash.substring(1);
     if (section) {
       let sectionElement = document.getElementById(section + "_");
       let offset = 0;
       do {
-        offset += parseInt(sectionElement.offsetTop, 10);
-        sectionElement = sectionElement.parentNode;
+        offset += sectionElement.offsetTop;
+        sectionElement = sectionElement.parentNode as HTMLElement;
       } while (sectionElement && sectionElement.offsetTop);
       /** @type {number} */ const navHeight = parseInt(
         window

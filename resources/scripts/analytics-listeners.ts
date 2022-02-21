@@ -1,3 +1,5 @@
+declare function ga(...args: string[]);
+
 /**
  * Initializer for the analytics listeners code.
  */
@@ -11,10 +13,16 @@ function alInit() {
  * Attaches Google Analytics listeners to all links
  */
 function initializeLinkListeners() {
-  var links = document.querySelectorAll("a");
+  var links = document.getElementsByTagName("a");
   for (var i = 0; i < links.length; i++) {
     links[i].addEventListener("click", function onLinkClick(e) {
-      ga("send", "event", "link", "click", e.currentTarget.href);
+      ga(
+        "send",
+        "event",
+        "link",
+        "click",
+        (e.currentTarget as HTMLAnchorElement).href
+      );
     });
   }
 }
@@ -25,7 +33,7 @@ function initializeLinkListeners() {
  * @return {boolean} If true, stops the event from being further processed
  */
 function alOnHashChange(opt_e) {
-  /** @type {string} */ const section = location.hash.substring(1);
+  const section = location.hash.substring(1);
   ga("set", "page", section);
   ga("send", "pageview");
 
