@@ -6,19 +6,19 @@
  * @return {boolean} True if the device is mobile or false if it isn't
  */
 function isMobile() {
-    return window.matchMedia && window.matchMedia('(max-width: 799px)').matches;
+  return window.matchMedia && window.matchMedia("(max-width: 799px)").matches;
 }
 
 /**
  * Initialization function
  */
 function init() {
-    onHashChange();
+  onHashChange();
 
-    // Register event listeners
-    window.addEventListener('hashchange', onHashChange);
-    window.addEventListener('load', onHashChange);
-    window.addEventListener('load', init);
+  // Register event listeners
+  window.addEventListener("hashchange", onHashChange);
+  window.addEventListener("load", onHashChange);
+  window.addEventListener("load", init);
 }
 
 /**
@@ -27,24 +27,26 @@ function init() {
  * @return {boolean} If true, stops the event from being further processed
  */
 function onHashChange(opt_e) {
-    if (isMobile()) {
-        /** @type {string} */ const section = location.hash.substring(1);
-        if (section) {
-            let sectionElement = document.getElementById(section + '_');
-            let offset = 0;
-            do {
-                offset += parseInt(sectionElement.offsetTop, 10);
-                sectionElement = sectionElement.parentNode;
-            } while (sectionElement && sectionElement.offsetTop);
-            /** @type {number} */ const navHeight = parseInt(
-                    window.getComputedStyle(document.querySelector('nav'))
-                            .getPropertyValue('height'),
-                    10);
-            window.scrollBy(0, offset + navHeight - document.body.scrollTop);
-        }
+  if (isMobile()) {
+    /** @type {string} */ const section = location.hash.substring(1);
+    if (section) {
+      let sectionElement = document.getElementById(section + "_");
+      let offset = 0;
+      do {
+        offset += parseInt(sectionElement.offsetTop, 10);
+        sectionElement = sectionElement.parentNode;
+      } while (sectionElement && sectionElement.offsetTop);
+      /** @type {number} */ const navHeight = parseInt(
+        window
+          .getComputedStyle(document.querySelector("nav"))
+          .getPropertyValue("height"),
+        10
+      );
+      window.scrollBy(0, offset + navHeight - document.body.scrollTop);
     }
+  }
 
-    return true;
+  return true;
 }
 
 init();
