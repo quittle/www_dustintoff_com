@@ -1,6 +1,7 @@
 {
   "name": "www_dustintoff_com",
   "version": "1.0.0",
+  "browserslist": "defaults",
   "scripts": {
     "dev-server": "parcel resources/html/index.html",
     "build": "parcel build resources/html/index.html && npm run copy-config",

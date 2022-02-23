@@ -5,14 +5,14 @@
  * Checks if the device is mobile
  * @return {boolean} True if the device is mobile or false if it isn't
  */
-function isMobile() {
+function isMobile(): boolean {
   return window.matchMedia && window.matchMedia("(max-width: 799px)").matches;
 }
 
 /**
  * Initialization function
  */
-function init() {
+function init(): void {
   onHashChange();
 
   // Register event listeners
@@ -26,7 +26,7 @@ function init() {
  * @param {!Event=} opt_e The event
  * @return {boolean} If true, stops the event from being further processed
  */
-function onHashChange(opt_e: Event = undefined) {
+function onHashChange(opt_e: Event = undefined): boolean {
   if (isMobile()) {
     const section = location.hash.substring(1);
     if (section) {
