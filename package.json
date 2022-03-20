@@ -17,9 +17,13 @@
   "devDependencies": {
     "@parcel/transformer-sass": "^2.3.1",
     "parcel": "^2.3.1",
+    "parcel-namer-custom": "^0.2.0",
     "posthtml-doctype": "^1.1.1",
     "posthtml-include": "^1.7.2",
     "prettier": "^2.5.1",
     "s3-upload-custom-resource-lambda-layer": "^1.0.3"
+  },
+  "parcel-namer-custom": {
+    "resources/images/favicon\\.png": "favicon.png"
   }
 }
