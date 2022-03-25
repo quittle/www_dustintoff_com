@@ -2148,6 +2148,12 @@ p {
   display: inline-block;
 }
 
+#links_ img {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
 @media (max-width: 799px) {
   body {
     width: 100%;
