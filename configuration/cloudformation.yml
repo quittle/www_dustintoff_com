@@ -54,7 +54,7 @@ Resources:
       Handler: s3-upload-custom-resource.handler
       MemorySize: 10240
       Timeout: 180
-      Runtime: nodejs14.x
+      Runtime: nodejs18.x
       Policies:
         - S3CrudPolicy:
             BucketName: !Ref DustinToffComBucket
@@ -100,11 +100,11 @@ Resources:
             Cookies:
               Forward: none
           ViewerProtocolPolicy: redirect-to-https
-        HttpVersion: http2
+        HttpVersion: http2and3
         PriceClass: PriceClass_100
         ViewerCertificate:
           AcmCertificateArn: !Ref DustinToffComCertificate
-          MinimumProtocolVersion: TLSv1.1_2016
+          MinimumProtocolVersion: TLSv1.2_2021
           SslSupportMethod: sni-only
   CloudFrontOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
