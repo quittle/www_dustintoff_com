@@ -16,7 +16,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@parcel/transformer-sass": "^2.3.1",
-    "parcel": "^2.3.1",
+    "parcel": "^2.8.3",
     "parcel-namer-custom": "^0.2.0",
     "posthtml-doctype": "^1.1.1",
     "posthtml-include": "^1.7.2",
