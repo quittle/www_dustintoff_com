@@ -1,4 +1,4 @@
-declare function ga(...args: string[]);
+declare function gtag(...args: string[]);
 
 /**
  * Initializer for the analytics listeners code.
@@ -16,7 +16,7 @@ function initializeLinkListeners() {
   var links = document.getElementsByTagName("a");
   for (var i = 0; i < links.length; i++) {
     links[i].addEventListener("click", function onLinkClick(e) {
-      ga(
+      gtag(
         "send",
         "event",
         "link",
@@ -34,8 +34,8 @@ function initializeLinkListeners() {
  */
 function alOnHashChange(opt_e) {
   const section = location.hash.substring(1);
-  ga("set", "page", section);
-  ga("send", "pageview");
+  gtag("set", "page", section);
+  gtag("send", "pageview");
 
   return false;
 }
