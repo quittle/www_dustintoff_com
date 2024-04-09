@@ -15,13 +15,13 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@parcel/transformer-sass": "^2.8.3",
-    "parcel": "^2.8.3",
+    "@parcel/transformer-sass": "^2.12.0",
+    "parcel": "^2.12.0",
     "parcel-namer-custom": "^0.2.0",
     "posthtml-doctype": "^1.1.1",
-    "posthtml-include": "^1.7.4",
-    "prettier": "^2.8.8",
-    "s3-upload-custom-resource-lambda-layer": "^1.0.3"
+    "posthtml-include": "^2.0.1",
+    "prettier": "^3.2.5",
+    "s3-upload-custom-resource-lambda-layer": "^1.2.0"
   },
   "parcel-namer-custom": {
     "resources/images/favicon\\.png": "favicon.png"

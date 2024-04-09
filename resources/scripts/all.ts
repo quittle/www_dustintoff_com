@@ -40,7 +40,7 @@ function onHashChange(opt_e: Event = undefined): boolean {
         window
           .getComputedStyle(document.querySelector("nav"))
           .getPropertyValue("height"),
-        10
+        10,
       );
       window.scrollBy(0, offset + navHeight - document.body.scrollTop);
     }

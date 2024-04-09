@@ -21,7 +21,7 @@ function initializeLinkListeners() {
         "event",
         "link",
         "click",
-        (e.currentTarget as HTMLAnchorElement).href
+        (e.currentTarget as HTMLAnchorElement).href,
       );
     });
   }

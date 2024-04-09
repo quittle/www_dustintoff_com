@@ -49,7 +49,9 @@ main {
     width: 100%;
     height: 100%;
     background: #fff;
-    transition: left 800ms linear 400ms, right 800ms linear 400ms;
+    transition:
+      left 800ms linear 400ms,
+      right 800ms linear 400ms;
   }
 
   &::before {
@@ -2105,27 +2107,27 @@ p {
 }
 
 .meter[value="0"]::before {
-  content: "\2606\2606\2606\2606\2606""\a""No Experience";
+  content: "\2606\2606\2606\2606\2606" "\a" "No Experience";
 }
 
 .meter[value="1"]::before {
-  content: "\2605\2606\2606\2606\2606""\a""Little Experience";
+  content: "\2605\2606\2606\2606\2606" "\a" "Little Experience";
 }
 
 .meter[value="2"]::before {
-  content: "\2605\2605\2606\2606\2606""\a""Some Experience";
+  content: "\2605\2605\2606\2606\2606" "\a" "Some Experience";
 }
 
 .meter[value="3"]::before {
-  content: "\2605\2605\2605\2606\2606""\a""Comfortable";
+  content: "\2605\2605\2605\2606\2606" "\a" "Comfortable";
 }
 
 .meter[value="4"]::before {
-  content: "\2605\2605\2605\2605\2606""\a""Very Comfortable";
+  content: "\2605\2605\2605\2605\2606" "\a" "Very Comfortable";
 }
 
 .meter[value="5"]::before {
-  content: "\2605\2605\2605\2605\2605""\a""Proficient";
+  content: "\2605\2605\2605\2605\2605" "\a" "Proficient";
 }
 
 #resume_ .position {
