@@ -54,7 +54,7 @@ Resources:
       Handler: s3-upload-custom-resource.handler
       MemorySize: 10240
       Timeout: 180
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Policies:
         - S3CrudPolicy:
             BucketName: !Ref DustinToffComBucket
