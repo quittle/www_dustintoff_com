@@ -20,7 +20,7 @@
     "parcel-namer-custom": "^0.2.0",
     "posthtml-doctype": "^1.1.1",
     "posthtml-include": "^2.0.1",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "s3-upload-custom-resource-lambda-layer": "^1.2.3"
   },
   "parcel-namer-custom": {
